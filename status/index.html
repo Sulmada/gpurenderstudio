@@ -61,17 +61,25 @@ const content = document.getElementById("content");
 
 if (!jobId) {
   content.textContent = "Missing job ID.";
-} else {
-  fetch(`${API_BASE}/status/${jobId}`)
-    .then(r => {
-      if (!r.ok) throw new Error("JOB_NOT_FOUND");
-      return r.json();
-    })
-    .then(job => render(job))
-    .catch(() => {
-      content.textContent = "Job not found.";
-    });
+  throw new Error("Missing job_id");
 }
+
+fetch(`${API_BASE}/status/${jobId}`)
+  .then(async r => {
+    if (!r.ok) {
+      const msg = r.status === 404
+        ? "Job not found."
+        : "Unexpected server response.";
+      throw new Error(msg);
+    }
+    return r.json();
+  })
+  .then(job => render(job))
+  .catch(err => {
+    console.error(err);
+    content.textContent = err.message;
+  });
+</script>
 
 function render(job) {
   let html = `
