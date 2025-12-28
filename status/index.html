@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Job Status – GPU Render Studio</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #0e0e11;
+      color: #eaeaf0;
+      margin: 0;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 16px;
+    }
+
+    .panel {
+      background: #16161c;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      font-size: 14px;
+    }
+
+    .label {
+      color: #9aa0aa;
+    }
+
+    .value {
+      font-family: monospace;
+    }
+
+    .status-success {
+      color: #4ade80;
+    }
+
+    .status-failed {
+      color: #f87171;
+    }
+
+    button {
+      background: #2563eb;
+      border: none;
+      color: #fff;
+      padding: 12px 18px;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      background: #374151;
+      cursor: not-allowed;
+    }
+
+    .hint {
+      font-size: 13px;
+      color: #9aa0aa;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Job Status</h1>
+
+    <div id="statusPanel" class="panel">
+      <div class="row">
+        <div class="label">Job ID</div>
+        <div id="jobId" class="value">—</div>
+      </div>
+      <div class="row">
+        <div class="label">Status</div>
+        <div id="jobStatus" class="value">—</div>
+      </div>
+      <div class="row">
+        <div class="label">Execution Profile</div>
+        <div id="profile" class="value">—</div>
+      </div>
+      <div class="row">
+        <div class="label">Final Price</div>
+        <div id="price" class="value">—</div>
+      </div>
+      <div class="row">
+        <div class="label">Payment</div>
+        <div id="paymentStatus" class="value">—</div>
+      </div>
+    </div>
+
+    <div id="actionPanel" class="panel"></div>
+  </div>
+
+  <script>
+    const API_BASE = "https://api.gpurenderstudio.com";
+
+    function getJobId() {
+      const parts = window.location.pathname.split("/");
+      return parts[parts.length - 1] || null;
+    }
+
+    async function fetchStatus(jobId) {
+      const res = await fetch(`${API_BASE}/api/status/${jobId}`);
+      if (!res.ok) {
+        throw new Error("JOB_NOT_FOUND");
+      }
+      return res.json();
+    }
+
+    function render(job) {
+      document.getElementById("jobId").textContent = job.job_id;
+      document.getElementById("profile").textContent =
+        job.pricing?.execution_profile || "—";
+
+      const statusEl = document.getElementById("jobStatus");
+      const paymentEl = document.getElementById("paymentStatus");
+      const priceEl = document.getElementById("price");
+      const actionPanel = document.getElementById("actionPanel");
+
+      actionPanel.innerHTML = "";
+
+      if (job.status === "failed") {
+        statusEl.textContent = "FAILED";
+        statusEl.className = "value status-failed";
+
+        priceEl.textContent = "—";
+        paymentEl.textContent = "NOT CHARGED";
+
+        const fail = document.createElement("div");
+        fail.className = "hint";
+        fail.textContent = `Failure reason: ${job.fail_class || "UNKNOWN"}`;
+        actionPanel.appendChild(fail);
+        return;
+      }
+
+      if (job.status === "success") {
+        statusEl.textContent = "COMPLETED";
+        statusEl.className = "value status-success";
+
+        priceEl.textContent = `$${job.pricing.final_price_usd.toFixed(2)}`;
+
+        if (job.payment?.status === "PAID") {
+          paymentEl.textContent = "PAID";
+
+          const btn = document.createElement("button");
+          btn.textContent = "Download";
+          btn.onclick = () => {
+            window.location.href =
+              `${API_BASE}/api/download/${job.job_id}`;
+          };
+
+          actionPanel.appendChild(btn);
+        } else {
+          paymentEl.textContent = "UNPAID";
+
+          const btn = document.createElement("button");
+          btn.textContent = "Pay & Download";
+          btn.onclick = async () => {
+            btn.disabled = true;
+            const r = await fetch(
+              `${API_BASE}/api/pay/${job.job_id}`,
+              { method: "POST" }
+            );
+            const data = await r.json();
+            window.location.href = data.checkout_url;
+          };
+
+          actionPanel.appendChild(btn);
+
+          const hint = document.createElement("div");
+          hint.className = "hint";
+          hint.textContent =
+            "Payment is required before download becomes available.";
+          actionPanel.appendChild(hint);
+        }
+
+        return;
+      }
+
+      statusEl.textContent = job.status.toUpperCase();
+    }
+
+    (async () => {
+      try {
+        const jobId = getJobId();
+        if (!jobId) throw new Error("NO_JOB_ID");
+        const job = await fetchStatus(jobId);
+        render(job);
+      } catch (err) {
+        document.getElementById("statusPanel").innerHTML =
+          "<div class='hint'>Job not found.</div>";
+      }
+    })();
+  </script>
+</body>
+</html>
