@@ -55,7 +55,8 @@
 <script>
 const API_BASE = "https://api.gpurenderstudio.com/api";
 
-const jobId = location.pathname.split("/").pop();
+const params = new URLSearchParams(window.location.search);
+const jobId = params.get("job_id");
 const content = document.getElementById("content");
 
 if (!jobId) {
