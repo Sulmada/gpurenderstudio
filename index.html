@@ -878,29 +878,24 @@
     Sweden
 </div>
 
-
 <!-- ========================================================= -->
 <!--  SCRIPT: UPLOAD HANDLING                                  -->
 <!-- ========================================================= -->
 <script>
-function formatUSD(value) {
-    if (typeof value !== "number" || !isFinite(value)) return "—";
-    return "$" + value.toFixed(2);
-}
-
 document.getElementById("uploadForm").addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const formData = new FormData(e.target);
     const resultBox = document.getElementById("uploadResult");
 
-    // Omedelbar feedback
+    // Omedelbar, deterministisk feedback
     resultBox.textContent = "Uploading project...";
 
     // API-bas (lokalt vs live)
-    const API_BASE = location.hostname === "localhost"
-        ? "http://localhost:3001"
-        : "https://api.gpurenderstudio.com";
+    const API_BASE =
+        location.hostname === "localhost"
+            ? "http://localhost:3001"
+            : "https://api.gpurenderstudio.com";
 
     try {
         const res = await fetch(API_BASE + "/api/upload", {
@@ -908,37 +903,44 @@ document.getElementById("uploadForm").addEventListener("submit", async (e) => {
             body: formData
         });
 
-        const data = await res.json();
-
-        if (data.success && data.job_id && data.pricing) {
-            resultBox.innerHTML = `
-                <strong>Project received</strong><br>
-                Job ID: ${data.job_id}<br><br>
-
-                <strong>Locked price</strong><br>
-                Account tier: ${data.pricing.tier}<br>
-                Base price: ${formatUSD(data.pricing.base_price)}<br>
-                Dynamic discount: ${data.pricing.dynamic_discount}%<br>
-                <strong>Final price: ${formatUSD(data.pricing.final_price)}</strong><br>
-
-                <span style="font-size:12px;opacity:0.65;display:block;margin-top:6px;">
-                    Price is locked at submission time and will not change.
-                </span>
-            `;
-        } else if (data.error) {
-            resultBox.textContent =
-                "Upload failed: " + data.error;
-        } else {
-            resultBox.textContent =
+        // Om servern svarar men ej OK
+        if (!res.ok) {
+            const msg =
+                res.status === 403 ? "Ingest is currently disabled." :
+                res.status === 400 ? "Invalid submission." :
                 "Unexpected server response.";
+            resultBox.textContent = msg;
+            return;
         }
 
+        const data = await res.json();
+
+        // === LYCKAD SUBMISSION (NORMALFALLET) ===
+        if (data.ok === true && data.job_id) {
+            // Absolut redirect (GitHub Pages-säker)
+            window.location.href =
+                window.location.origin +
+                "/gpurenderstudio/status/?job_id=" +
+                encodeURIComponent(data.job_id);
+            return;
+        }
+
+        // === KONTROLLERAT FEL ===
+        if (data.error) {
+            resultBox.textContent = "Upload failed: " + data.error;
+            return;
+        }
+
+        // === KONTRAKTSBROTT ===
+        resultBox.textContent = "Unexpected server response.";
+
     } catch (err) {
-        resultBox.textContent =
-            "Upload failed: network error.";
+        console.error("UPLOAD_NETWORK_ERROR", err);
+        resultBox.textContent = "Upload failed: network error.";
     }
 });
 </script>
+
 
 </body>
 </html>
