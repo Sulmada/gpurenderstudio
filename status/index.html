@@ -32,6 +32,7 @@
       color: #fff;
       text-decoration: none;
       border-radius: 3px;
+      cursor: pointer;
     }
     .btn.disabled {
       background: #555;
@@ -61,25 +62,21 @@ const content = document.getElementById("content");
 
 if (!jobId) {
   content.textContent = "Missing job ID.";
-  throw new Error("Missing job_id");
+} else {
+  fetch(`${API_BASE}/status/${jobId}`)
+    .then(async r => {
+      if (!r.ok) {
+        if (r.status === 404) throw new Error("Job not found.");
+        throw new Error("Unexpected server response.");
+      }
+      return r.json();
+    })
+    .then(job => render(job))
+    .catch(err => {
+      console.error(err);
+      content.textContent = err.message;
+    });
 }
-
-fetch(`${API_BASE}/status/${jobId}`)
-  .then(async r => {
-    if (!r.ok) {
-      const msg = r.status === 404
-        ? "Job not found."
-        : "Unexpected server response.";
-      throw new Error(msg);
-    }
-    return r.json();
-  })
-  .then(job => render(job))
-  .catch(err => {
-    console.error(err);
-    content.textContent = err.message;
-  });
-</script>
 
 function render(job) {
   let html = `
@@ -95,7 +92,10 @@ function render(job) {
     html += `
       <div class="box">
         <div><span class="label">Reason:</span> ${job.fail_code}</div>
-        ${job.customer_action ? `<div><span class="label">Action:</span> ${job.customer_action}</div>` : ""}
+        ${job.customer_action
+          ? `<div><span class="label">Action:</span> ${job.customer_action}</div>`
+          : ""
+        }
         <div class="label">This job was not charged.</div>
       </div>
     `;
@@ -111,13 +111,15 @@ function render(job) {
 
     if (job.payment.status === "UNPAID") {
       html += `
-        <a class="btn" href="#" onclick="pay()">Pay to download</a>
+        <a class="btn" onclick="pay()">Pay to download</a>
       `;
     }
 
     if (job.payment.status === "PAID") {
       html += `
-        <a class="btn" href="${API_BASE}/download/${job.job_id}">Download output</a>
+        <a class="btn" href="${API_BASE}/download/${job.job_id}">
+          Download output
+        </a>
       `;
     }
   }
@@ -130,8 +132,13 @@ function pay() {
     .then(r => r.json())
     .then(res => {
       if (res.checkout_url) {
-        location.href = res.checkout_url;
+        window.location.href = res.checkout_url;
+      } else {
+        alert("Unable to start payment.");
       }
+    })
+    .catch(() => {
+      alert("Payment request failed.");
     });
 }
 </script>
