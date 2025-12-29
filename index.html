@@ -730,48 +730,60 @@
     SATURATED:  "Fully booked"
   };
 
-  async function loadExecutionProfiles() {
-    var container = document.getElementById("executionProfiles");
-    if (!container) return;
+async function loadExecutionProfiles() {
+  var container = document.getElementById("executionProfiles");
+  if (!container) {
+    return;
+  }
 
-    try {
-      var res = await fetch(API_BASE + "/api/profiles");
-      if (!res.ok) {
-        container.textContent = "—";
-        return;
-      }
+  try {
+    var res = await fetch(API_BASE + "/api/profiles");
+    if (!res.ok) {
+      container.textContent = "—";
+      return;
+    }
 
-      var profiles = await res.json();
+    var profiles = await res.json();
 
-      container.innerHTML = Object.values(profiles).map(function (p) {
+    var multiplier =
+      typeof window.__CURRENT_TIME_MULTIPLIER === "number"
+        ? window.__CURRENT_TIME_MULTIPLIER
+        : 1.0;
+
+    container.innerHTML = Object.values(profiles)
+      .map(function (p) {
         var baseRuntimeMin = Math.round(p.max_runtime_ms / 60000);
         var effectiveRuntimeMin = Math.round(
-          baseRuntimeMin * window.__CURRENT_TIME_MULTIPLIER
+          baseRuntimeMin * multiplier
         );
 
         return `
-          <div style="margin-bottom:22px;">
-            <p><strong>${p.label}</strong></p>
-            <p style="font-size:14px;opacity:0.85;">
-              Price per job: <strong>$${p.entry_price_usd.toFixed(2)}</strong><br>
-              Included runtime: ${baseRuntimeMin} minutes<br>
-              Current available runtime:
-              <strong>${effectiveRuntimeMin} minutes</strong>
-            </p>
-            ${p.tooltip ? `
-              <p style="font-size:12px;opacity:0.6;margin-top:6px;">
-                <strong>${p.tooltip.title}</strong><br>
-                ${p.tooltip.body}
-              </p>
-            ` : ""}
-          </div>
-        `;
-      }).join("");
-
-    } catch (_) {
-      container.textContent = "—";
-    }
+<div style="margin-bottom:22px;">
+  <p><strong>${p.label}</strong></p>
+  <p style="font-size:14px;opacity:0.85;">
+    Price per job: <strong>$${p.entry_price_usd.toFixed(2)}</strong><br>
+    Included runtime: ${baseRuntimeMin} minutes<br>
+    Current available runtime:
+    <strong>${effectiveRuntimeMin} minutes</strong>
+  </p>
+  ${
+    p.tooltip
+      ? `
+  <p style="font-size:12px;opacity:0.6;margin-top:6px;">
+    <strong>${p.tooltip.title}</strong><br>
+    ${p.tooltip.body}
+  </p>
+  `
+      : ""
   }
+</div>
+`;
+      })
+      .join("");
+  } catch (e) {
+    container.textContent = "—";
+  }
+}
 
   async function updateCapacity() {
     try {
