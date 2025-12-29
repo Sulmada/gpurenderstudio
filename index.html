@@ -418,7 +418,7 @@
         <h1 class="shimmer">Automated GPU Rendering for Render-Ready Projects</h1>
         <p class="shimmer">
             Upload a finished Blender project.
-            Our system renders it automatically – or tells you exactly why it can’t.
+            The system executes automatically – or reports exactly why it cannot.
         </p>
         <p style="font-size:14px;opacity:0.7;margin-top:10px;">
             Phase 1 is fully automated · No manual review · No creative decisions
@@ -614,8 +614,8 @@
      
 
         <p style="font-size:13px;opacity:0.7;">
-            Dynamic pricing discounts apply automatically based on system capacity.
-            The final price is locked at submission time and will not change.
+            System capacity may affect the allowed render time.
+            Price is fixed per job and locked at submission.
         </p>
 
         <p style="font-size:12px;opacity:0.6;margin-top:8px;">
@@ -698,38 +698,36 @@
 </section>
 
 <!-- ========================================================= -->
-<!--  DYNAMIC PRICING WINDOW                                   -->
+<!--  SYSTEM CAPACITY WINDOW (TIME-BASED, NOT PRICE-BASED)     -->
 <!-- ========================================================= -->
 <div class="pricing-window">
   <div class="pricing-status-bar"></div>
   <div class="pricing-icon">⇄</div>
   <h3 id="pricing-title"></h3>
-  <p id="pricing-discount" class="pricing-discount"></p>
+  <p id="pricing-capacity"></p>
 </div>
 
-
 <script>
-(function pricingStatusPoll() {
+(function capacityStatusPoll() {
 
   var API_BASE = location.hostname === "localhost"
     ? "http://localhost:3001"
     : "https://api.gpurenderstudio.com";
 
-  function formatUSD(value) {
-    if (typeof value !== "number" || !isFinite(value)) return "—";
-    return "$" + value.toFixed(2);
-  }
+  var titleEl    = document.getElementById("pricing-title");
+  var capacityEl = document.getElementById("pricing-capacity");
+  var barEl      = document.querySelector(".pricing-status-bar");
 
-  var titleEl = document.getElementById("pricing-title");
-  var discountEl = document.getElementById("pricing-discount");
-  var barEl = document.querySelector(".pricing-status-bar");
+  // Exposed for execution profile rendering
+  window.__CURRENT_TIME_MULTIPLIER = 1;
+  var __LAST_MULTIPLIER = null;
 
   var STATE_LABELS = {
-    IDLE: "Idle capacity",
-    LIGHT: "Low utilization",
-    NORMAL: "Normal load",
-    BUSY: "High demand",
-    SATURATED: "Fully booked"
+    IDLE:       "Idle capacity",
+    LIGHT:      "Low utilization",
+    NORMAL:     "Normal load",
+    BUSY:       "High demand",
+    SATURATED:  "Fully booked"
   };
 
   async function loadExecutionProfiles() {
@@ -746,15 +744,19 @@
       var profiles = await res.json();
 
       container.innerHTML = Object.values(profiles).map(function (p) {
-        var runtimeMin = Math.round(p.max_runtime_ms / 60000);
+        var baseRuntimeMin = Math.round(p.max_runtime_ms / 60000);
+        var effectiveRuntimeMin = Math.round(
+          baseRuntimeMin * window.__CURRENT_TIME_MULTIPLIER
+        );
 
         return `
           <div style="margin-bottom:22px;">
             <p><strong>${p.label}</strong></p>
             <p style="font-size:14px;opacity:0.85;">
-              Base price: <strong>${formatUSD(p.entry_price_usd)} per job</strong><br>
-              Minimum price: <strong>${formatUSD(p.floor_usd)}</strong><br>
-              Max runtime: ${runtimeMin} minutes
+              Price per job: <strong>$${p.entry_price_usd.toFixed(2)}</strong><br>
+              Included runtime: ${baseRuntimeMin} minutes<br>
+              Current available runtime:
+              <strong>${effectiveRuntimeMin} minutes</strong>
             </p>
             ${p.tooltip ? `
               <p style="font-size:12px;opacity:0.6;margin-top:6px;">
@@ -771,48 +773,88 @@
     }
   }
 
-  async function updatePricing() {
+  async function updateCapacity() {
     try {
       var res = await fetch(API_BASE + "/api/pricing/status");
       if (!res.ok) return;
 
       var data = await res.json();
       var state = data.state;
-      var discount = data.discount;
+      var multiplier = data.time_multiplier;
 
+      // Defensive clamp (UI must never show absurd values)
+      if (typeof multiplier !== "number" || !isFinite(multiplier)) {
+        multiplier = 1;
+      }
+      if (multiplier < 0.5) multiplier = 0.5;
+      if (multiplier > 2.0) multiplier = 2.0;
+
+      // Float-stable rounding (UI + diff logic share exact value)
+      var rounded = Math.round(multiplier * 1000) / 1000;
+      window.__CURRENT_TIME_MULTIPLIER = rounded;
+
+      // Title
       if (titleEl) {
         if (state === "SATURATED") {
-          titleEl.textContent = "Dynamic Pricing Window: Closed";
+          titleEl.textContent =
+            "System Capacity: Temporarily unavailable";
         } else {
-          var label = STATE_LABELS[state] || "Unknown";
-          titleEl.textContent = "Dynamic Pricing Status: " + label;
+          titleEl.textContent =
+            "System Capacity: " +
+            (STATE_LABELS[state] || "Unknown");
         }
       }
 
-      if (discountEl) {
-        discountEl.textContent =
-          state === "SATURATED" ? "—" : ("Current discount: " + discount + "%");
+      // Capacity description (effect, not mechanism)
+      if (capacityEl) {
+        if (state === "SATURATED") {
+          capacityEl.textContent =
+            "No execution capacity available at the moment";
+        } else {
+          capacityEl.textContent =
+            "Render time window: " +
+            Math.round(rounded * 100) +
+            "% of base runtime";
+        }
+      }
+
+      // Passive UI signal: pause uploads when saturated
+      var uploadSection = document.getElementById("upload");
+      if (uploadSection) {
+        if (state === "SATURATED") {
+          uploadSection.style.opacity = "0.4";
+          uploadSection.style.pointerEvents = "none";
+        } else {
+          uploadSection.style.opacity = "1";
+          uploadSection.style.pointerEvents = "auto";
+        }
       }
 
       if (barEl) {
-        barEl.style.opacity = state === "SATURATED" ? "0.25" : "1";
+        barEl.style.opacity =
+          state === "SATURATED" ? "0.25" : "1";
+      }
+
+      // Re-render execution profiles ONLY if multiplier changed
+      if (__LAST_MULTIPLIER !== rounded) {
+        __LAST_MULTIPLIER = rounded;
+        loadExecutionProfiles();
       }
 
     } catch (_) {
-      // fail silent by design
+      // Fail silent by design
     }
   }
 
-  loadExecutionProfiles();
-  updatePricing();
-  setInterval(updatePricing, 120000); 
+  // Deterministic init sequence
+  (async function initCapacity() {
+    await updateCapacity();      // ensure correct multiplier first
+    loadExecutionProfiles();     // render with correct runtime
+    setInterval(updateCapacity, 120000);
+  })();
 
 })();
 </script>
-
-
-
-
 
 
 <!-- ========================================================= -->
