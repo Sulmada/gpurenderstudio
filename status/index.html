@@ -196,50 +196,74 @@ async function pollStatus() {
 
         const job = await res.json();
 
-        statusEl.textContent = job.status.toUpperCase();
+        // --- reset UI to safe baseline ---
+        statusEl.className = "status-value";
+        failEl.style.display = "none";
+        priceLine.style.display = "none";
+        paymentLine.style.display = "none";
+        actionArea.innerHTML = "";
 
-        if (job.status === "failed") {
-            statusEl.className = "status-value status-fail";
-            failEl.style.display = "block";
+        const status = (job.status || "").toLowerCase();
+        statusEl.textContent = status.toUpperCase() || "UNKNOWN";
+
+        // ==================================================
+        // FAILED
+        // ==================================================
+        if (status === "failed") {
+            statusEl.classList.add("status-fail");
+
             failEl.textContent =
-                "Reason: " + job.fail_code +
+                "Reason: " +
+                (job.fail_code || "UNKNOWN_ERROR") +
                 (job.customer_action ? " – " + job.customer_action : "");
-            priceLine.style.display = "none";
-            paymentLine.style.display = "none";
-            actionArea.innerHTML = "";
+
+            failEl.style.display = "block";
+            return;
         }
 
-        if (job.status === "success") {
-            statusEl.className = "status-value status-success";
+        // ==================================================
+        // SUCCESS
+        // ==================================================
+        if (status === "success") {
+            statusEl.classList.add("status-success");
 
-            const price =
-                typeof job.pricing_snapshot?.price_usd === "number"
-                    ? "$" + job.pricing_snapshot.price_usd.toFixed(2)
+            // --- price ---
+            const priceUsd = job.pricing_snapshot?.price_usd;
+            priceEl.textContent =
+                typeof priceUsd === "number"
+                    ? "$" + priceUsd.toFixed(2)
                     : "—";
 
-            priceEl.textContent = price;
             priceLine.style.display = "block";
 
+            // --- payment ---
             const paid = job.payment?.status === "PAID";
+            const paidAt = job.payment?.paid_at;
 
-            if (paid && job.payment?.paid_at) {
-                const ts = new Date(job.payment.paid_at)
+            if (paid && paidAt) {
+                const ts = new Date(paidAt)
                     .toISOString()
                     .replace("T", " ")
                     .slice(0, 16);
 
                 paymentLine.textContent = "Payment confirmed at: " + ts;
                 paymentLine.style.display = "block";
-            } else {
-                paymentLine.style.display = "none";
             }
 
+            // --- action ---
             actionArea.innerHTML = paid
                 ? `<button class="btn" onclick="download()">Download output</button>`
                 : `<button class="btn" onclick="pay()">Pay to download</button>`;
+
+            return;
         }
 
-    } catch (_) {
+        // ==================================================
+        // QUEUED / RUNNING / UNKNOWN
+        // ==================================================
+        statusEl.textContent = status.toUpperCase() || "UNKNOWN";
+
+    } catch {
         /* silent by design */
     }
 }
