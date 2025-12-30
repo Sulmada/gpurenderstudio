@@ -150,6 +150,9 @@ section {
         <span id="finalPrice" class="status-value">—</span>
     </p>
 
+    <!-- NEW: payment timestamp -->
+    <p id="paymentLine" class="status-line" style="display:none;"></p>
+
     <div id="actionArea"></div>
 
 </div>
@@ -170,12 +173,13 @@ const API_BASE = location.hostname === "localhost"
     ? "http://localhost:3001"
     : "https://api.gpurenderstudio.com";
 
-const jobIdEl    = document.getElementById("jobId");
-const statusEl   = document.getElementById("jobStatus");
-const failEl     = document.getElementById("failReason");
-const priceEl    = document.getElementById("finalPrice");
-const priceLine  = document.getElementById("priceLine");
-const actionArea = document.getElementById("actionArea");
+const jobIdEl     = document.getElementById("jobId");
+const statusEl    = document.getElementById("jobStatus");
+const failEl      = document.getElementById("failReason");
+const priceEl     = document.getElementById("finalPrice");
+const priceLine   = document.getElementById("priceLine");
+const paymentLine = document.getElementById("paymentLine");
+const actionArea  = document.getElementById("actionArea");
 
 if (!jobId) {
     statusEl.textContent = "Missing job_id";
@@ -201,6 +205,7 @@ async function pollStatus() {
                 "Reason: " + job.fail_code +
                 (job.customer_action ? " – " + job.customer_action : "");
             priceLine.style.display = "none";
+            paymentLine.style.display = "none";
             actionArea.innerHTML = "";
         }
 
@@ -217,8 +222,20 @@ async function pollStatus() {
 
             const paid = job.payment?.status === "PAID";
 
+            if (paid && job.payment?.paid_at) {
+                const ts = new Date(job.payment.paid_at)
+                    .toISOString()
+                    .replace("T", " ")
+                    .slice(0, 16);
+
+                paymentLine.textContent = "Payment confirmed at: " + ts;
+                paymentLine.style.display = "block";
+            } else {
+                paymentLine.style.display = "none";
+            }
+
             actionArea.innerHTML = paid
-                ? `<button class="btn">Download output</button>`
+                ? `<button class="btn" onclick="download()">Download output</button>`
                 : `<button class="btn" onclick="pay()">Pay to download</button>`;
         }
 
@@ -239,6 +256,10 @@ window.pay = async function () {
     } catch {
         actionArea.textContent = "Unable to start payment.";
     }
+};
+
+window.download = function () {
+    window.location.href = API_BASE + "/api/download/" + jobId;
 };
 
 pollStatus();
