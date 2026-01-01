@@ -601,50 +601,40 @@
             Phase 1 · Live
         </div>
 
-        <h2>Pricing</h2>
+        <h2>Execution Profiles & Pricing</h2>
+
+        <p style="font-size:13px;opacity:0.75;margin-bottom:14px;">
+            Phase 1 uses fixed execution profiles.
+            Each profile defines a base render window and a fixed price per job.
+        </p>
 
         <p style="font-size:13px;opacity:0.75;margin-bottom:20px;">
-            Phase 1 pricing applies to fully automated execution profiles.
-            Prices are per completed job — not per minute.
+            Price and base runtime are locked at submission.
+            Pricing represents risk and capacity reservation — not guaranteed render time.
         </p>
 
-        <div id="executionProfiles" style="margin-bottom:18px;">
+        <!-- Dynamically populated from /api/profiles -->
+        <div id="executionProfiles" style="margin-bottom:20px;">
             —
         </div>
-     
+
+        <h3 style="font-size:15px;margin-top:22px;">System Capacity</h3>
 
         <p style="font-size:13px;opacity:0.7;">
-            System capacity may affect the allowed render time.
-            Price is fixed per job and locked at submission.
+            When system capacity is idle, the allowed render time
+            may be extended beyond the base runtime of the selected profile.
         </p>
 
-        <p style="font-size:12px;opacity:0.6;margin-top:8px;">
-            Failed jobs are not charged. One submission equals one execution attempt.
+        <p style="font-size:13px;opacity:0.7;">
+            This extension is automatic, does not affect price,
+            and is not guaranteed.
+        </p>
+
+        <p style="font-size:12px;opacity:0.6;margin-top:10px;">
+            Failed jobs are not charged.
+            One submission equals one execution attempt.
         </p>
     </div>
-</section>
-
-
-<div class="image-section"
-     style="background-image:url('assets/images/pipeline_glascubes.jpg');">
-</div>
-
-<section>
-  <div class="content-box">
-    <h2>Job Results</h2>
-
-    <ul>
-      <li><strong>SUCCESS</strong> – Output produced. Job is charged.</li>
-      <li><strong>FAILED – PRESET_VIOLATION</strong> – Limits exceeded. Not charged.</li>
-      <li><strong>FAILED – TIMEOUT</strong> – Runtime exceeded. Not charged.</li>
-      <li><strong>FAILED – START_FAILED</strong> – Execution error. Not charged.</li>
-    </ul>
-
-    <p style="font-size:13px;opacity:0.7;">
-      One submission equals one execution attempt.
-      Failed jobs are not retried automatically.
-    </p>
-  </div>
 </section>
 <!-- ========================================================= -->
 <!--  EXPRESS – PHASE 2                                        -->
