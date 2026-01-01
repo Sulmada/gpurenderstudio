@@ -752,7 +752,8 @@ async function loadExecutionProfiles() {
 
     container.innerHTML = Object.values(profiles)
       .map(function (p) {
-        var baseRuntimeMin = Math.round(p.max_runtime_ms / 60000);
+        // Phase 1.1 contract fields
+        var baseRuntimeMin = Math.round(p.base_runtime_ms / 60000);
         var effectiveRuntimeMin = Math.round(
           baseRuntimeMin * multiplier
         );
@@ -762,20 +763,29 @@ async function loadExecutionProfiles() {
   <p><strong>${p.label}</strong></p>
   <p style="font-size:14px;opacity:0.85;">
     Price per job: <strong>$${p.entry_price_usd.toFixed(2)}</strong><br>
-    Included runtime: ${baseRuntimeMin} minutes<br>
+    Base runtime: ${baseRuntimeMin} minutes<br>
     Current available runtime:
     <strong>${effectiveRuntimeMin} minutes</strong>
   </p>
   ${
-    p.tooltip
+    Array.isArray(p.tooltip)
       ? `
   <p style="font-size:12px;opacity:0.6;margin-top:6px;">
-    <strong>${p.tooltip.title}</strong><br>
-    ${p.tooltip.body}
+    ${p.tooltip.join("<br>")}
   </p>
   `
       : ""
   }
+</div>
+`;
+      })
+      .join("");
+  } catch (err) {
+    console.error("Failed to load execution profiles", err);
+    container.textContent = "—";
+  }
+}
+
 </div>
 `;
       })
@@ -873,54 +883,82 @@ async function loadExecutionProfiles() {
 <!--  UPLOAD PROJECT                                           -->
 <!-- ========================================================= -->
 <section id="upload">
-    <div class="content-box">
-        <h2>Upload Project</h2>
+  <div class="content-box">
+    <h2>Upload Project</h2>
 
-        <form id="uploadForm" enctype="multipart/form-data">
+    <form id="uploadForm" enctype="multipart/form-data">
 
-                                <input type="hidden" name="project_type" value="blender">
+      <!-- Locked project type -->
+      <input type="hidden" name="project_type" value="blender">
 
-            <input class="input-field"
-                   name="name"
-                   placeholder="Your name"
-                   required>
+      <!-- Customer metadata -->
+      <input class="input-field"
+             name="name"
+             placeholder="Your name"
+             required>
 
-            <input class="input-field"
-                   name="email"
-                   placeholder="Email address"
-                   required>
+      <input class="input-field"
+             name="email"
+             placeholder="Email address"
+             required>
 
-            <input class="input-field"
-                   name="description"
-                   placeholder="Project description"
-                   required>
+      <input class="input-field"
+             name="description"
+             placeholder="Project description"
+             required>
 
-            <input class="input-field"
-                   name="fileUrl"
-                   placeholder="URL to project files (optional)">
+      <!-- Execution profile selection -->
+      <select class="input-field"
+              name="execution_profile"
+              required>
+        <option value="">Select execution window</option>
+        <option value="STRICT">
+          Strict — up to 1.5h base runtime (lowest risk)
+        </option>
+        <option value="EXTENDED">
+          Extended — up to 4h base runtime
+        </option>
+        <option value="FLEXIBLE">
+          Flexible — up to 8h base runtime
+        </option>
+        <option value="OPEN">
+          Open — up to 12h base runtime (highest tolerance)
+        </option>
+      </select>
 
-            <input class="input-field"
-                   type="file"
-                   name="file"
-                   accept=".blend">
+      <!-- Optional external reference -->
+      <input class="input-field"
+             name="fileUrl"
+             placeholder="URL to project files (optional)">
 
-            <p style="font-size:13px;opacity:0.75;margin-top:12px;">
-                Phase 1 accepts render-ready Blender projects only.
-                Projects requiring fixes or creative changes will fail with instructions.
-            </p>
-            <p style="font-size:12px;opacity:0.6;margin-top:6px;">
-                                    Failed jobs are not charged.
-                                </p>
+      <!-- File upload -->
+      <input class="input-field"
+             type="file"
+             name="file"
+             accept=".blend"
+             required>
 
-            <button class="btn btn-primary"
-                    type="submit"
-                    style="width:100%;margin-top:18px;">
-                Submit to Phase 1
-            </button>
-        </form>
+      <!-- Phase 1 contract text -->
+      <p style="font-size:13px;opacity:0.75;margin-top:12px;">
+        Phase 1 accepts render-ready Blender projects only.
+        No fixes, edits, or creative changes are performed.
+      </p>
 
-        <div id="uploadResult" style="margin-top:20px;"></div>
-    </div>
+      <p style="font-size:12px;opacity:0.6;margin-top:6px;">
+        Failed jobs are not charged. Price and runtime are locked at submission.
+      </p>
+
+      <!-- Submit -->
+      <button class="btn btn-primary"
+              type="submit"
+              style="width:100%;margin-top:18px;">
+        Submit to Phase 1
+      </button>
+
+    </form>
+
+    <div id="uploadResult" style="margin-top:20px;"></div>
+  </div>
 </section>
 
 
@@ -967,7 +1005,8 @@ document.getElementById("uploadForm").addEventListener("submit", async (e) => {
             return;
         }
 
-        const data = await res.json();
+        const data = await res.json();var baseRuntimeMin = Math.round(p.base_runtime_ms / 60000);
+
 
         // === LYCKAD SUBMISSION (NORMALFALLET) ===
         if (data.ok === true && data.job_id) {
