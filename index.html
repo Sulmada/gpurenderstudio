@@ -608,54 +608,66 @@
       Each profile defines a base render window and a fixed price per job.
     </p>
 
-    <p style="font-size:13px;opacity:0.75;margin-bottom:20px;">
+    <p style="font-size:13px;opacity:0.75;margin-bottom:22px;">
       Price and base runtime are locked at submission.
       Pricing represents risk and capacity reservation — not guaranteed render time.
     </p>
 
     <!-- ===================================================== -->
-    <!-- EXECUTION PROFILES (CONTRACT VIEW – CANONICAL)        -->
+    <!-- EXECUTION PROFILES – CONTRACT TABLE                   -->
     <!-- ===================================================== -->
-    <div id="executionProfiles" class="profile-table">
+    <div class="profile-table">
 
       <div class="profile-row header">
-        <div>Profile</div>
-        <div>Base runtime</div>
-        <div>Price per job</div>
-        <div>Risk level</div>
+        <div class="col-profile">Profile</div>
+        <div class="col-runtime">Base runtime</div>
+        <div class="col-price">Price</div>
+        <div class="col-risk">Risk</div>
       </div>
 
       <div class="profile-row">
-        <div><strong>Strict</strong></div>
-        <div>1.5 hours</div>
-        <div>$0.50</div>
-        <div>Low</div>
+        <div class="col-profile">
+          <strong>Strict</strong>
+          <span class="profile-note">Tight contract</span>
+        </div>
+        <div class="col-runtime">1.5 hours</div>
+        <div class="col-price">$0.50</div>
+        <div class="col-risk">Low</div>
       </div>
 
       <div class="profile-row">
-        <div><strong>Extended</strong></div>
-        <div>4 hours</div>
-        <div>$2.00</div>
-        <div>Medium</div>
+        <div class="col-profile">
+          <strong>Extended</strong>
+          <span class="profile-note">Increased tolerance</span>
+        </div>
+        <div class="col-runtime">4 hours</div>
+        <div class="col-price">$2.00</div>
+        <div class="col-risk">Medium</div>
       </div>
 
       <div class="profile-row">
-        <div><strong>Flexible</strong></div>
-        <div>8 hours</div>
-        <div>$4.00</div>
-        <div>High</div>
+        <div class="col-profile">
+          <strong>Flexible</strong>
+          <span class="profile-note">Long-running jobs</span>
+        </div>
+        <div class="col-runtime">8 hours</div>
+        <div class="col-price">$4.00</div>
+        <div class="col-risk">High</div>
       </div>
 
       <div class="profile-row">
-        <div><strong>Open</strong></div>
-        <div>12 hours</div>
-        <div>$5.00</div>
-        <div>Highest</div>
+        <div class="col-profile">
+          <strong>Open</strong>
+          <span class="profile-note">Minimal constraints</span>
+        </div>
+        <div class="col-runtime">12 hours</div>
+        <div class="col-price">$5.00</div>
+        <div class="col-risk">Highest</div>
       </div>
 
     </div>
 
-    <h3 style="font-size:15px;margin-top:28px;">System Capacity</h3>
+    <h3 style="font-size:15px;margin-top:30px;">System Capacity</h3>
 
     <p style="font-size:13px;opacity:0.7;">
       When system capacity is idle, the allowed render time
