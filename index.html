@@ -595,47 +595,50 @@
 <!--  PRICING – PHASE 1                                        -->
 <!-- ========================================================= -->
 <section id="prices">
-    <div class="content-box phase-box phase-1">
-        <div class="phase-label"
-             data-tooltip="Phase 1 is fully automated. Pricing is per completed job.">
-            Phase 1 · Live
-        </div>
-
-        <h2>Execution Profiles & Pricing</h2>
-
-        <p style="font-size:13px;opacity:0.75;margin-bottom:14px;">
-            Phase 1 uses fixed execution profiles.
-            Each profile defines a base render window and a fixed price per job.
-        </p>
-
-        <p style="font-size:13px;opacity:0.75;margin-bottom:20px;">
-            Price and base runtime are locked at submission.
-            Pricing represents risk and capacity reservation — not guaranteed render time.
-        </p>
-
-        <!-- Dynamically populated from /api/profiles -->
-        <div id="executionProfiles" style="margin-bottom:20px;">
-            —
-        </div>
-
-        <h3 style="font-size:15px;margin-top:22px;">System Capacity</h3>
-
-        <p style="font-size:13px;opacity:0.7;">
-            When system capacity is idle, the allowed render time
-            may be extended beyond the base runtime of the selected profile.
-        </p>
-
-        <p style="font-size:13px;opacity:0.7;">
-            This extension is automatic, does not affect price,
-            and is not guaranteed.
-        </p>
-
-        <p style="font-size:12px;opacity:0.6;margin-top:10px;">
-            Failed jobs are not charged.
-            One submission equals one execution attempt.
-        </p>
+  <div class="content-box phase-box phase-1">
+    <div class="phase-label"
+         data-tooltip="Phase 1 is fully automated. Pricing is per completed job.">
+      Phase 1 · Live
     </div>
+
+    <h2>Execution Profiles & Pricing</h2>
+
+    <p style="font-size:13px;opacity:0.75;margin-bottom:14px;">
+      Phase 1 uses fixed execution profiles.
+      Each profile defines a base render window and a fixed price per job.
+    </p>
+
+    <p style="font-size:13px;opacity:0.75;margin-bottom:20px;">
+      Price and base runtime are locked at submission.
+      Pricing represents risk and capacity reservation — not guaranteed render time.
+    </p>
+
+    <!-- ===================================================== -->
+    <!-- EXECUTION PROFILES (CONTRACT VIEW)                    -->
+    <!-- ===================================================== -->
+    <div id="executionProfiles" class="profile-grid">
+      <!-- populated via /api/profiles -->
+    </div>
+
+    <h3 style="font-size:15px;margin-top:28px;">System Capacity</h3>
+
+    <p style="font-size:13px;opacity:0.7;">
+      When system capacity is idle, the allowed render time
+      may be extended beyond the base runtime of the selected profile.
+    </p>
+
+    <p style="font-size:13px;opacity:0.7;">
+      This extension is automatic, does not affect price,
+      cannot reduce the base runtime, and is not guaranteed.
+    </p>
+
+    <p style="font-size:12px;opacity:0.6;margin-top:12px;">
+      Prices are per completed job. Failed jobs are not charged.
+      One submission equals one execution attempt.
+    </p>
+  </div>
 </section>
+
 <!-- ========================================================= -->
 <!--  EXPRESS – PHASE 2                                        -->
 <!-- ========================================================= -->
