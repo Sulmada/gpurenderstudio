@@ -843,6 +843,7 @@ async function loadExecutionProfiles() {
   if (!container) {
     return;
   }
+console.log("loadExecutionProfiles called");
 
   try {
     var res = await fetch(API_BASE + "/api/profiles");
@@ -890,15 +891,6 @@ async function loadExecutionProfiles() {
       .join("");
   } catch (err) {
     console.error("Failed to load execution profiles", err);
-    container.textContent = "—";
-  }
-}
-
-</div>
-`;
-      })
-      .join("");
-  } catch (e) {
     container.textContent = "—";
   }
 }
