@@ -1105,8 +1105,7 @@ document.getElementById("uploadForm").addEventListener("submit", async (e) => {
             return;
         }
 
-        const data = await res.json();var baseRuntimeMin = Math.round(p.base_runtime_ms / 60000);
-
+        const data = await res.json();
 
         // === LYCKAD SUBMISSION (NORMALFALLET) ===
         if (data.ok === true && data.job_id) {
