@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GPU Render Studio</title>
+
+    <style>
+
+        /* =========================================================
+           BASE STYLES
+        ========================================================= */
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #0b0b0b;
+            color: #e0e0e0;
+            scroll-behavior: smooth;
+        }
+
+        h1, h2, h3 {
+            margin: 0 0 20px 0;
+            font-weight: 700;
+            text-shadow: 0 0 12px rgba(0,255,255,0.15);
+        }
+
+        p, li {
+            line-height: 1.6;
+        }
+
+        section {
+            padding: 90px 20px;
+        }
+
+        .content-box {
+            max-width: 900px;
+            margin: auto;
+            background: rgba(20,20,20,0.65);
+            padding: 40px 50px;
+            border-radius: 14px;
+            backdrop-filter: blur(6px);
+            border: 1px solid rgba(255,255,255,0.04);
+            box-shadow: 0 0 50px rgba(0,255,255,0.05);
+            opacity: 0;
+            transform: translateY(40px);
+            animation: fadein 1.2s forwards;
+        }
+
+        /* =========================================================
+           NAVIGATION BAR
+        ========================================================= */
+        .topnav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            backdrop-filter: blur(10px);
+            background: rgba(15,15,15,0.45);
+            padding: 12px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            z-index: 99;
+            display: flex;
+            justify-content: center;
+        }
+
+        .topnav a {
+            margin: 0 18px;
+            text-decoration: none;
+            color: #cceeee;
+            font-size: 14px;
+            letter-spacing: 1px;
+            transition: 0.2s;
+        }
+
+        .topnav a:hover {
+            color: #74ffff;
+            text-shadow: 0 0 8px rgba(0,255,255,0.4);
+        }
+
+        /* =========================================================
+           HERO SECTION WITH VIDEO BACKGROUND
+        ========================================================= */
+        .hero {
+            position: relative;
+            height: 82vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding-top: 90px;
+        }
+
+        .hero-video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            z-index: 0;
+            filter: brightness(0.55) saturate(1.25) contrast(1.02);
+        }
+
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(
+                circle at center,
+                rgba(0,0,0,0.00) 0%,
+                rgba(0,0,0,0.45) 100%
+            );
+            z-index: 1;
+        }
+
+        .hero-content {
+            z-index: 2;
+            padding: 20px;
+        }
+
+        .hero-content h1 {
+            font-size: 50px;
+        }
+
+        .hero-content p {
+            font-size: 20px;
+            opacity: 0.85;
+        }
+
+        /* =========================================================
+           BUTTONS
+        ========================================================= */
+        .btn {
+            padding: 14px 28px;
+            margin: 10px;
+            background: #0e1818;
+            color: #cfffff;
+            border: 1px solid #1effff;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: 0.25s;
+            box-shadow: 0 0 12px rgba(0,255,255,0.2);
+        }
+
+        .btn:hover {
+            background: #113333;
+            box-shadow: 0 0 20px rgba(0,255,255,0.45);
+            color: #ffffff;
+        }
+
+        .btn-primary {
+            background: #113333;
+        }
+
+        /* =========================================================
+           INPUT FIELDS
+        ========================================================= */
+        .input-field {
+            width: 100%;
+            padding: 14px 16px;
+            margin-top: 12px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            color: #e0e0e0;
+            font-size: 15px;
+        }
+
+        .input-field:focus {
+            border-color: #1effff;
+            outline: none;
+            box-shadow: 0 0 8px rgba(0,255,255,0.3);
+        }
+
+        /* =========================================================
+           IMAGE BREAK SECTIONS
+        ========================================================= */
+        .image-section {
+            height: 360px;
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            opacity: 0;
+            animation: fadein 1.5s forwards;
+        }
+
+        /* =========================================================
+           EXECUTION PROFILES – CONTRACT TABLE (PHASE 1.1)
+        ========================================================= */
+        .profile-table {
+            display: grid;
+            grid-template-columns: 2fr 1.2fr 1fr 1fr;
+            margin-top: 22px;
+            border: 1px solid rgba(255,255,255,0.10);
+            border-radius: 10px;
+            overflow: hidden;
+            background: rgba(10,10,10,0.6);
+        }
+
+        .profile-row {
+            display: contents;
+        }
+
+        .profile-row > div {
+            padding: 14px 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            font-size: 14px;
+        }
+
+        .profile-row.header > div {
+            font-size: 12px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            opacity: 0.7;
+            background: rgba(255,255,255,0.04);
+            font-weight: 600;
+        }
+
+        .profile-row:not(.header):hover > div {
+            background: rgba(0,255,255,0.05);
+        }
+
+        .profile-row:last-child > div {
+            border-bottom: none;
+        }
+
+        .profile-row strong {
+            color: #7ffcff;
+        }
+
+        @media (max-width: 760px) {
+            .profile-table {
+                grid-template-columns: 1fr;
+            }
+
+            .profile-row.header {
+                display: none;
+            }
+
+            .profile-row > div {
+                display: grid;
+                grid-template-columns: 130px 1fr;
+                gap: 10px;
+            }
+
+            .profile-row > div:nth-child(1)::before { content: "Profile"; }
+            .profile-row > div:nth-child(2)::before { content: "Base runtime"; }
+            .profile-row > div:nth-child(3)::before { content: "Price"; }
+            .profile-row > div:nth-child(4)::before { content: "Risk"; }
+
+            .profile-row > div::before {
+                font-weight: 600;
+                opacity: 0.6;
+            }
+        }
+
+        /* =========================================================
+           FOOTER
+        ========================================================= */
+        .footer {
+            background: url("assets/images/footer_keyboard.jpg") center/cover no-repeat;
+            padding: 60px 20px;
+            text-align: center;
+            opacity: 0.9;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            font-size: 14px;
+        }
+
+
+        /* =========================================================
+           DYNAMIC PRICING WINDOW (CINEMATIC HIGHLIGHT)
+        ========================================================= */
+        .pricing-window {
+            max-width: 900px;
+            margin: 80px auto 40px auto;
+            padding: 35px 45px;
+            background: linear-gradient(
+                to bottom right,
+                rgba(18,30,30,0.75),
+                rgba(10,20,20,0.65)
+            );
+            border: 1px solid rgba(0,255,255,0.25);
+            border-radius: 14px;
+            box-shadow: 0 0 35px rgba(0,255,255,0.18);
+            text-align: center;
+            backdrop-filter: blur(10px);
+            position: relative;
+            animation: fadein 1.2s forwards, slowPulse 4.5s infinite ease-in-out;
+        }
+
+        @keyframes slowPulse {
+            0%   { box-shadow: 0 0 22px rgba(0,255,255,0.15); }
+            50%  { box-shadow: 0 0 35px rgba(0,255,255,0.28); }
+            100% { box-shadow: 0 0 22px rgba(0,255,255,0.15); }
+        }
+
+        .pricing-status-bar {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 4px;
+            background: linear-gradient(
+                90deg,
+                rgba(0,255,255,0.8),
+                rgba(0,150,150,0.7)
+            );
+            box-shadow: 0 0 8px rgba(0,255,255,0.5);
+        }
+
+        .pricing-icon {
+            font-size: 26px;
+            color: #baffff;
+            margin-bottom: 10px;
+            opacity: 0.85;
+        }
+
+        .pricing-window h3 {
+            color: #baffff;
+            margin-bottom: 8px;
+            font-size: 26px;
+            text-shadow: 0 0 10px rgba(0,255,255,0.3);
+        }
+
+        .pricing-window p {
+            color: #d9ffff;
+            margin-top: 4px;
+            font-size: 18px;
+        }
+
+
+        /* =========================================================
+           ANIMATIONS
+        ========================================================= */
+        @keyframes fadein {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+
+        /* =========================================================
+           MOBILE OPTIMIZATION
+        ========================================================= */
+        @media (max-width: 600px) {
+            .hero-content h1 {
+                font-size: 32px;
+            }
+            .hero-content p  {
+                font-size: 16px;
+            }
+            .content-box      {
+                padding: 25px;
+            }
+            .pricing-window   {
+                padding: 25px;
+            }
+            .image-section    {
+                background-attachment: scroll;
+            }
+        }
+        /* =========================================================
+           PHASE BOXES & BADGES
+        ========================================================= */
+        .phase-box {
+            position: relative;
+        }
+
+        .phase-label {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            font-size: 11px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 6px 10px;
+            border-radius: 6px;
+            backdrop-filter: blur(6px);
+            z-index: 5;
+            cursor: help;
+        }
+
+        /* Phase 1 – Live */
+        .phase-1 .phase-label {
+            color: #baffff;
+            background: rgba(0,40,40,0.65);
+            border: 1px solid rgba(0,255,255,0.35);
+            box-shadow: 0 0 12px rgba(0,255,255,0.25);
+        }
+
+        /* Disabled phases (Phase 2 & 3) */
+        .phase-disabled {
+            opacity: 0.45;
+            filter: grayscale(100%);
+        }
+
+        /* Phase 3 – extra subtle */
+        .phase-3 {
+            opacity: 0.35;
+        }
+
+        /* =========================================================
+           TOOLTIP (HOVER)
+        ========================================================= */
+        .phase-label::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            top: 140%;
+            right: 0;
+            width: 260px;
+            padding: 10px 12px;
+            font-size: 12px;
+            line-height: 1.45;
+            letter-spacing: normal;
+            text-transform: none;
+            color: #eaeaea;
+            background: rgba(10,10,10,0.92);
+            border-radius: 6px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            z-index: 20;
+        }
+
+        .phase-label:hover::after {
+            opacity: 1;
+        }
+
+    </style>
+</head>
+
+
+<body>
+
+<!-- ========================================================= -->
+<!--  NAVIGATION BAR                                           -->
+<!-- ========================================================= -->
+<div class="topnav">
+    <a href="#start">Home</a>
+    <a href="#workflow">How it Works</a>
+    <a href="#prices">Pricing</a>
+    <a href="#express">Express</a>
+    <a href="#upload">Upload</a>
+    <a href="#contact">Contact</a>
+</div>
+
+
+<!-- ========================================================= -->
+<!--  HERO SECTION (Shimmer + Scroll Fade + Optimized Posters) -->
+<!-- ========================================================= -->
+<div id="start" class="hero">
+
+    <!-- Phase badge -->
+    <div class="phase-label phase-1"
+         style="position:absolute;top:22px;right:22px;"
+         data-tooltip="Phase 1 is fully automated. No manual review or creative intervention.">
+        Phase 1 · Live
+    </div>
+
+    <!-- Preload -->
+    <link rel="preload" as="image" href="assets/images/hero_poster_desktop.jpg">
+    <link rel="preload" as="image" href="assets/images/hero_poster_tablet.jpg">
+    <link rel="preload" as="image" href="assets/images/hero_poster_mobile_fixed.jpg">
+    <link rel="preload" as="video"  href="assets/video/loop_desktop_v9.webm" type="video/webm">
+
+    <video id="heroVid" class="hero-video"
+           autoplay muted playsinline loop preload="auto"
+           poster="assets/images/hero_poster_desktop.jpg">
+
+        <source id="vidWebm" src="assets/video/loop_desktop_v9.webm" type="video/webm">
+        <source id="vidMp4"  src="assets/video/loop_fallback_v9.mp4"  type="video/mp4">
+    </video>
+
+    <!-- Scroll fade mask -->
+    <div class="hero-scroll-mask"></div>
+
+    <!-- Cinematic text mask -->
+    <div class="hero-gradient-mask"></div>
+
+    <!-- Content -->
+    <div class="hero-content">
+        <h1 class="shimmer">Automated GPU Rendering for Render-Ready Projects</h1>
+        <p class="shimmer">
+            Upload a finished Blender project.
+            The system executes automatically – or reports exactly why it cannot.
+        </p>
+        <p style="font-size:14px;opacity:0.7;margin-top:10px;">
+            Phase 1 is fully automated · No manual review · No creative decisions
+        </p>
+        <a href="#upload"><button class="btn btn-primary">Upload Project</button></a>
+        <a href="#prices"><button class="btn">View Pricing</button></a>
+    </div>
+</div>
+
+
+<!-- ========================================================= -->
+<!--  SHIMMER + SCROLL FADE CSS                                -->
+<!-- ========================================================= -->
+<style>
+/* Cinematic gradient behind content */
+.hero-gradient-mask {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 40%;
+    background: linear-gradient(to top,
+        rgba(0,0,0,0.70),
+        rgba(0,0,0,0.35),
+        rgba(0,0,0,0.0)
+    );
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* Additional top fade for scroll transition */
+.hero-scroll-mask {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,var(--hero-fade, 0));
+    transition: background 0.2s linear;
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* Shimmer animation */
+.shimmer {
+    position: relative;
+    display: inline-block;
+    overflow: hidden;
+}
+.shimmer::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -120%;
+    width: 120%;
+    height: 100%;
+    background: linear-gradient(
+        110deg,
+        transparent 0%,
+        rgba(255,255,255,0.15) 45%,
+        rgba(255,255,255,0.25) 50%,
+        rgba(255,255,255,0.15) 55%,
+        transparent 100%
+    );
+    transform: skewX(-20deg);
+    animation: shimmerMove 6.5s infinite ease-in-out;
+}
+@keyframes shimmerMove {
+    0%   { left: -120%; }
+    6%   { left: 120%; }
+    100% { left: 120%; }
+}
+
+/* Scroll fade values modified by JS */
+.hero-video,
+.hero-content,
+.hero-gradient-mask {
+    transition: opacity 0.25s linear, transform 0.25s linear;
+}
+</style>
+
+
+<!-- ========================================================= -->
+<!--  DEVICE POSTER + VIDEO SWITCHING                         -->
+<!-- ========================================================= -->
+<script>
+(function() {
+    const vid = document.getElementById("heroVid");
+    const srcWebm = document.getElementById("vidWebm");
+    const srcMp4  = document.getElementById("vidMp4");
+
+    const ua = navigator.userAgent || navigator.vendor || window.opera;
+
+    const isMobile = /Android|iPhone|iPod/i.test(ua);
+    const isTablet = /(iPad|Tablet|Nexus|SM-T|Lenovo TB)/i.test(ua);
+
+    if (isMobile) {
+        vid.poster = "assets/images/hero_poster_mobile_fixed.jpg";
+        srcWebm.src = "assets/video/loop_mobile_v9.webm";
+        srcMp4.src  = "assets/video/loop_fallback_v9.mp4";
+    }
+    else if (isTablet) {
+        vid.poster = "assets/images/hero_poster_tablet.jpg";
+        srcWebm.src = "assets/video/loop_desktop_v9.webm";
+        srcMp4.src  = "assets/video/loop_fallback_v9.mp4";
+    }
+    else {
+        vid.poster = "assets/images/hero_poster_desktop.jpg";
+        srcWebm.src = "assets/video/loop_desktop_v9.webm";
+        srcMp4.src  = "assets/video/loop_fallback_v9.mp4";
+    }
+
+    vid.load();
+})();
+</script>
+
+
+<!-- ========================================================= -->
+<!--  SCROLL TO FADE HERO                                      -->
+<!-- ========================================================= -->
+<script>
+(function () {
+
+    const hero = document.querySelector(".hero");
+    const vid = document.getElementById("heroVid");
+    const content = document.querySelector(".hero-content");
+    const mask = document.querySelector(".hero-gradient-mask");
+
+    window.addEventListener("scroll", () => {
+
+        const scrollY = window.scrollY;
+        const fadeStart = 0;
+        const fadeEnd = 240; // how quickly fade occurs
+
+        const t = Math.min(1, Math.max(0, scrollY / fadeEnd));
+
+        // Apply fade to hero
+        document.querySelector(".hero-scroll-mask")
+                .style.setProperty("--hero-fade", t * 0.75);
+
+
+        vid.style.opacity = 1 - t;
+        mask.style.opacity = 1 - t;
+        content.style.opacity = 1 - t;
+
+        content.style.transform = `translateY(${t * -25}px)`;
+    });
+
+})();
+</script>
+
+
+<!-- ========================================================= -->
+<!--  HOW IT WORKS                                             -->
+<!-- ========================================================= -->
+<section id="workflow">
+    <div class="content-box">
+        <h2>How it Works</h2>
+        <ul>
+            <li>Upload a render-ready Blender project</li>
+            <li>Automated validation and GPU rendering</li>
+            <li>Download the final output or receive precise fix instructions</li>
+            <li>
+                Phase 1 is fully automated.
+                Projects outside preset limits will fail with clear instructions.
+            </li>
+        </ul>
+    </div>
+</section>
+
+<div class="image-section"
+     style="background-image:url('assets/images/workflow_timeline.jpg');">
+</div>
+
+<!-- ========================================================= -->
+<!--  PRICING – PHASE 1                                        -->
+<!-- ========================================================= -->
+<section id="prices">
+  <div class="content-box phase-box phase-1">
+    <div class="phase-label"
+         data-tooltip="Phase 1 is fully automated. Pricing is per completed job.">
+      Phase 1 · Live
+    </div>
+
+    <h2>Execution Profiles & Pricing</h2>
+
+    <p style="font-size:13px;opacity:0.75;margin-bottom:14px;">
+      Phase 1 uses fixed execution profiles.
+      Each profile defines a base render window and a fixed price per job.
+    </p>
+
+    <p style="font-size:13px;opacity:0.75;margin-bottom:22px;">
+      Price and base runtime are locked at submission.
+      Pricing represents risk and capacity reservation — not guaranteed render time.
+    </p>
+
+    <!-- ===================================================== -->
+    <!-- EXECUTION PROFILES – CONTRACT TABLE                   -->
+    <!-- ===================================================== -->
+    <div class="profile-table">
+
+      <div class="profile-row header">
+        <div class="col-profile">Profile</div>
+        <div class="col-runtime">Base runtime</div>
+        <div class="col-price">Price</div>
+        <div class="col-risk">Risk</div>
+      </div>
+
+      <div class="profile-row">
+        <div class="col-profile">
+          <strong>Strict</strong>
+          <span class="profile-note">Tight contract</span>
+        </div>
+        <div class="col-runtime">1.5 hours</div>
+        <div class="col-price">$0.50</div>
+        <div class="col-risk">Low</div>
+      </div>
+
+      <div class="profile-row">
+        <div class="col-profile">
+          <strong>Extended</strong>
+          <span class="profile-note">Increased tolerance</span>
+        </div>
+        <div class="col-runtime">4 hours</div>
+        <div class="col-price">$2.00</div>
+        <div class="col-risk">Medium</div>
+      </div>
+
+      <div class="profile-row">
+        <div class="col-profile">
+          <strong>Flexible</strong>
+          <span class="profile-note">Long-running jobs</span>
+        </div>
+        <div class="col-runtime">8 hours</div>
+        <div class="col-price">$4.00</div>
+        <div class="col-risk">High</div>
+      </div>
+
+      <div class="profile-row">
+        <div class="col-profile">
+          <strong>Open</strong>
+          <span class="profile-note">Minimal constraints</span>
+        </div>
+        <div class="col-runtime">12 hours</div>
+        <div class="col-price">$5.00</div>
+        <div class="col-risk">Highest</div>
+      </div>
+
+    </div>
+
+    <h3 style="font-size:15px;margin-top:30px;">System Capacity</h3>
+
+    <p style="font-size:13px;opacity:0.7;">
+      When system capacity is idle, the allowed render time
+      may be extended beyond the base runtime of the selected profile.
+    </p>
+
+    <p style="font-size:13px;opacity:0.7;">
+      This extension is automatic, does not affect price,
+      cannot reduce the base runtime, and is not guaranteed.
+    </p>
+
+    <p style="font-size:12px;opacity:0.6;margin-top:12px;">
+      Prices are per completed job. Failed jobs are not charged.
+      One submission equals one execution attempt.
+    </p>
+  </div>
+</section>
+
+<!-- ========================================================= -->
+<!--  EXPRESS – PHASE 2                                        -->
+<!-- ========================================================= -->
+<section id="express">
+    <div class="content-box phase-box phase-disabled">
+        <div class="phase-label"
+             data-tooltip="Phase 2 adds manual validation, priority queues and delivery guarantees.">
+            Phase 2 · Coming Soon
+        </div>
+
+        <h2>Express Rendering</h2>
+
+        <p><strong>Not available in Phase 1</strong></p>
+        <p>
+            Express rendering introduces priority queues, manual validation
+            and delivery guarantees through our Assisted Studio workflow.
+        </p>
+        <p style="font-size:13px;opacity:0.7;">
+            This feature will launch in Phase 2.
+        </p>
+        <p style="font-size:13px;opacity:0.6;">
+        Phase 2 operates as a separate workflow from Phase 1.
+        </p>
+    </div>
+</section>
+
+<div class="image-section"
+     style="background-image:url('assets/images/speedburst.jpg');">
+</div>
+
+<!-- ========================================================= -->
+<!--  PREMIUM STUDIO – PHASE 3 (PLACEHOLDER)                   -->
+<!-- ========================================================= -->
+<section id="premium">
+    <div class="content-box phase-box phase-disabled phase-3">
+        <div class="phase-label"
+             data-tooltip="Phase 3 introduces full studio services, creative input and deadlines.">
+            Phase 3 · Planned
+        </div>
+
+        <h2>Premium Studio</h2>
+        <p>
+            A future studio offering with creative collaboration,
+            human review and deadline-based delivery.
+        </p>
+        <p style="font-size:13px;opacity:0.6;">
+            Phase 3 is currently in planning.
+        </p>
+    </div>
+</section>
+
+<!-- ========================================================= -->
+<!--  SYSTEM CAPACITY WINDOW (TIME-BASED, NOT PRICE-BASED)     -->
+<!-- ========================================================= -->
+<div class="pricing-window">
+  <div class="pricing-status-bar"></div>
+  <div class="pricing-icon">⇄</div>
+  <h3 id="pricing-title"></h3>
+  <p id="pricing-capacity"></p>
+</div>
+
+<script>
+(function capacityStatusPoll() {
+
+  var API_BASE = location.hostname === "localhost"
+    ? "http://localhost:3001"
+    : "https://api.gpurenderstudio.com";
+
+  var titleEl    = document.getElementById("pricing-title");
+  var capacityEl = document.getElementById("pricing-capacity");
+  var barEl      = document.querySelector(".pricing-status-bar");
+
+  // Exposed for execution profile rendering
+  window.__CURRENT_TIME_MULTIPLIER = 1;
+  var __LAST_MULTIPLIER = null;
+
+  var STATE_LABELS = {
+    IDLE:       "Idle",
+    LIGHT:      "Low utilization",
+    NORMAL:     "Normal load",
+    BUSY:       "High demand",
+    SATURATED:  "Fully booked"
+  };
+
+async function loadExecutionProfiles() {
+  var container = document.getElementById("executionProfiles");
+  if (!container) {
+    return;
+  }
+console.log("loadExecutionProfiles called");
+
+  try {
+    var res = await fetch(API_BASE + "/api/profiles");
+    if (!res.ok) {
+      container.textContent = "—";
+      return;
+    }
+
+    var profiles = await res.json();
+
+    var multiplier =
+      typeof window.__CURRENT_TIME_MULTIPLIER === "number"
+        ? window.__CURRENT_TIME_MULTIPLIER
+        : 1.0;
+
+    container.innerHTML = Object.values(profiles)
+      .map(function (p) {
+        // Phase 1.1 contract fields
+        var baseRuntimeMin = Math.round(p.base_runtime_ms / 60000);
+        var effectiveRuntimeMin = Math.round(
+          baseRuntimeMin * multiplier
+        );
+
+        return `
+<div style="margin-bottom:22px;">
+  <p><strong>${p.label}</strong></p>
+  <p style="font-size:14px;opacity:0.85;">
+    Price per job: <strong>$${p.entry_price_usd.toFixed(2)}</strong><br>
+    Base runtime: ${baseRuntimeMin} minutes<br>
+    Current available runtime:
+    <strong>${effectiveRuntimeMin} minutes</strong>
+  </p>
+  ${
+    Array.isArray(p.tooltip)
+      ? `
+  <p style="font-size:12px;opacity:0.6;margin-top:6px;">
+    ${p.tooltip.join("<br>")}
+  </p>
+  `
+      : ""
+  }
+</div>
+`;
+      })
+      .join("");
+  } catch (err) {
+    console.error("Failed to load execution profiles", err);
+    container.textContent = "—";
+  }
+}
+
+  async function updateCapacity() {
+    try {
+      var res = await fetch(API_BASE + "/api/pricing/status");
+      if (!res.ok) return;
+
+      var data = await res.json();
+      var state = data.state;
+      var multiplier = data.time_multiplier;
+
+      // Defensive clamp (UI must never show absurd values)
+      if (typeof multiplier !== "number" || !isFinite(multiplier)) {
+        multiplier = 1;
+      }
+      if (multiplier < 0.5) multiplier = 0.5;
+      if (multiplier > 2.0) multiplier = 2.0;
+
+      // Float-stable rounding (UI + diff logic share exact value)
+      var rounded = Math.round(multiplier * 1000) / 1000;
+      window.__CURRENT_TIME_MULTIPLIER = rounded;
+
+      // Title
+      if (titleEl) {
+        if (state === "SATURATED") {
+          titleEl.textContent =
+            "System Capacity: Temporarily unavailable";
+        } else {
+          titleEl.textContent =
+            "System Capacity: " +
+            (STATE_LABELS[state] || "Unknown");
+        }
+      }
+
+      // Capacity description (effect, not mechanism)
+      if (capacityEl) {
+        if (state === "SATURATED") {
+          capacityEl.textContent =
+            "No execution capacity available at the moment";
+        } else {
+          capacityEl.textContent =
+            "Render time window: " +
+            Math.round(rounded * 100) +
+            "% of base runtime";
+        }
+      }
+
+      // Passive UI signal: pause uploads when saturated
+      var uploadSection = document.getElementById("upload");
+      if (uploadSection) {
+        if (state === "SATURATED") {
+          uploadSection.style.opacity = "0.4";
+          uploadSection.style.pointerEvents = "none";
+        } else {
+          uploadSection.style.opacity = "1";
+          uploadSection.style.pointerEvents = "auto";
+        }
+      }
+
+      if (barEl) {
+        barEl.style.opacity =
+          state === "SATURATED" ? "0.25" : "1";
+      }
+
+      // Re-render execution profiles ONLY if multiplier changed
+      if (__LAST_MULTIPLIER !== rounded) {
+        __LAST_MULTIPLIER = rounded;
+        loadExecutionProfiles();
+      }
+
+    } catch (_) {
+      // Fail silent by design
+    }
+  }
+
+  // Deterministic init sequence
+  (async function initCapacity() {
+    await updateCapacity();      // ensure correct multiplier first
+    loadExecutionProfiles();     // render with correct runtime
+    setInterval(updateCapacity, 120000);
+  })();
+
+})();
+</script>
+
+
+<!-- ========================================================= -->
+<!--  UPLOAD PROJECT                                           -->
+<!-- ========================================================= -->
+<section id="upload">
+  <div class="content-box">
+    <h2>Upload Project</h2>
+
+    <form id="uploadForm" enctype="multipart/form-data">
+
+      <!-- Locked project type -->
+      <input type="hidden" name="project_type" value="blender">
+
+      <!-- Customer metadata -->
+      <input class="input-field"
+             name="name"
+             placeholder="Your name"
+             required>
+
+      <input class="input-field"
+             name="email"
+             placeholder="Email address"
+             required>
+
+      <input class="input-field"
+             name="description"
+             placeholder="Project description"
+             required>
+
+      <!-- Execution profile selection -->
+      <select class="input-field"
+              name="execution_profile"
+              required>
+        <option value="">Select execution window</option>
+        <option value="STRICT">
+          Strict — up to 1.5h base runtime (lowest risk)
+        </option>
+        <option value="EXTENDED">
+          Extended — up to 4h base runtime
+        </option>
+        <option value="FLEXIBLE">
+          Flexible — up to 8h base runtime
+        </option>
+        <option value="OPEN">
+          Open — up to 12h base runtime (highest tolerance)
+        </option>
+      </select>
+
+      <!-- Optional external reference -->
+      <input class="input-field"
+             name="fileUrl"
+             placeholder="URL to project files (optional)">
+
+      <!-- File upload -->
+      <input class="input-field"
+             type="file"
+             name="file"
+             accept=".blend"
+             required>
+
+      <!-- Phase 1 contract text -->
+      <p style="font-size:13px;opacity:0.75;margin-top:12px;">
+        Phase 1 accepts render-ready Blender projects only.
+        No fixes, edits, or creative changes are performed.
+      </p>
+
+      <p style="font-size:12px;opacity:0.6;margin-top:6px;">
+        Failed jobs are not charged. Price and runtime are locked at submission.
+      </p>
+
+      <!-- Submit -->
+      <button class="btn btn-primary"
+              type="submit"
+              style="width:100%;margin-top:18px;">
+        Submit to Phase 1
+      </button>
+
+    </form>
+
+    <div id="uploadResult" style="margin-top:20px;"></div>
+  </div>
+</section>
+
+
+<!-- ========================================================= -->
+<!--  FOOTER                                                   -->
+<!-- ========================================================= -->
+<div id="contact" class="footer">
+    GPU Render Studio – Automated rendering platform<br>
+    Sweden
+</div>
+
+<!-- ========================================================= -->
+<!--  SCRIPT: UPLOAD HANDLING                                  -->
+<!-- ========================================================= -->
+<script>
+document.getElementById("uploadForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(e.target);
+    const resultBox = document.getElementById("uploadResult");
+
+    // Omedelbar, deterministisk feedback
+    resultBox.textContent = "Uploading project...";
+
+    // API-bas (lokalt vs live)
+    const API_BASE =
+        location.hostname === "localhost"
+            ? "http://localhost:3001"
+            : "https://api.gpurenderstudio.com";
+
+    try {
+        const res = await fetch(API_BASE + "/api/upload", {
+            method: "POST",
+            body: formData
+        });
+
+        // Om servern svarar men ej OK
+        if (!res.ok) {
+            const msg =
+                res.status === 403 ? "Ingest is currently disabled." :
+                res.status === 400 ? "Invalid submission." :
+                "Unexpected server response.";
+            resultBox.textContent = msg;
+            return;
+        }
+
+        const data = await res.json();
+
+        // === LYCKAD SUBMISSION (NORMALFALLET) ===
+        if (data.ok === true && data.job_id) {
+            // Absolut redirect (GitHub Pages-säker)
+            window.location.href =
+                window.location.origin +
+                "/gpurenderstudio/status/?job_id=" +
+                encodeURIComponent(data.job_id);
+            return;
+        }
+
+        // === KONTROLLERAT FEL ===
+        if (data.error) {
+            resultBox.textContent = "Upload failed: " + data.error;
+            return;
+        }
+
+        // === KONTRAKTSBROTT ===
+        resultBox.textContent = "Unexpected server response.";
+
+    } catch (err) {
+        console.error("UPLOAD_NETWORK_ERROR", err);
+        resultBox.textContent = "Upload failed: network error.";
+    }
+});
+</script>
+
+
+</body>
+</html>

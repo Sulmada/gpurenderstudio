@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GPU Render Studio – Job Status</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #0b0b0b;
+    color: #e0e0e0;
+}
+
+h1, h2 {
+    margin: 0 0 20px 0;
+    font-weight: 700;
+    text-shadow: 0 0 12px rgba(0,255,255,0.15);
+}
+
+section {
+    padding: 90px 20px;
+}
+
+.content-box {
+    max-width: 900px;
+    margin: auto;
+    background: rgba(20,20,20,0.65);
+    padding: 40px 50px;
+    border-radius: 14px;
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255,255,255,0.04);
+    box-shadow: 0 0 50px rgba(0,255,255,0.05);
+    animation: fadein 1.2s forwards;
+}
+
+@keyframes fadein {
+    from { opacity: 0; transform: translateY(40px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.hero {
+    position: relative;
+    height: 55vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.hero video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.55);
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+}
+
+.hero-content h1 {
+    font-size: 42px;
+}
+
+.hero-content p {
+    font-size: 18px;
+    opacity: 0.85;
+}
+
+.status-line {
+    margin: 10px 0;
+    font-size: 16px;
+}
+
+.status-value {
+    font-weight: bold;
+    color: #baffff;
+}
+
+.status-fail {
+    color: #ff9999;
+}
+
+.status-success {
+    color: #9affc8;
+}
+
+.btn {
+    padding: 14px 28px;
+    margin-top: 25px;
+    background: #0e1818;
+    color: #cfffff;
+    border: 1px solid #1effff;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.btn:hover {
+    background: #113333;
+}
+
+.footer {
+    padding: 60px 20px;
+    text-align: center;
+    font-size: 14px;
+    opacity: 0.75;
+}
+</style>
+</head>
+
+<body>
+
+<div class="hero">
+    <video autoplay muted loop playsinline
+           poster="../assets/images/hero_poster_desktop.jpg">
+        <source src="../assets/video/loop_desktop_v9.webm" type="video/webm">
+    </video>
+
+    <div class="hero-content">
+        <h1>Job Processing Status</h1>
+        <p>This page reflects the live execution state of your submission.</p>
+    </div>
+</div>
+
+<section>
+<div class="content-box">
+
+    <h2>Job Status</h2>
+
+    <p class="status-line">
+        Job ID:
+        <span id="jobId" class="status-value">—</span>
+    </p>
+
+    <p class="status-line">
+        Status:
+        <span id="jobStatus" class="status-value">Waiting…</span>
+    </p>
+
+    <p id="failReason" class="status-line status-fail" style="display:none;"></p>
+
+    <p id="priceLine" class="status-line" style="display:none;">
+        Final price:
+        <span id="finalPrice" class="status-value">—</span>
+    </p>
+
+    <!-- NEW: payment timestamp -->
+    <p id="paymentLine" class="status-line" style="display:none;"></p>
+
+    <div id="actionArea"></div>
+
+</div>
+</section>
+
+<div class="footer">
+    GPU Render Studio – Automated rendering platform<br>
+    Sweden
+</div>
+
+<script>
+(function () {
+
+const params = new URLSearchParams(window.location.search);
+const jobId = params.get("job_id");
+
+const API_BASE = location.hostname === "localhost"
+    ? "http://localhost:3001"
+    : "https://api.gpurenderstudio.com";
+
+const jobIdEl     = document.getElementById("jobId");
+const statusEl    = document.getElementById("jobStatus");
+const failEl      = document.getElementById("failReason");
+const priceEl     = document.getElementById("finalPrice");
+const priceLine   = document.getElementById("priceLine");
+const paymentLine = document.getElementById("paymentLine");
+const actionArea  = document.getElementById("actionArea");
+
+if (!jobId) {
+    statusEl.textContent = "Missing job_id";
+    statusEl.className = "status-value status-fail";
+    return;
+}
+
+jobIdEl.textContent = jobId;
+
+async function pollStatus() {
+    try {
+        const res = await fetch(API_BASE + "/api/status/" + jobId);
+        if (!res.ok) return;
+
+        const job = await res.json();
+
+        // --- reset UI to safe baseline ---
+        statusEl.className = "status-value";
+        failEl.style.display = "none";
+        priceLine.style.display = "none";
+        paymentLine.style.display = "none";
+        actionArea.innerHTML = "";
+
+        const status = (job.status || "").toLowerCase();
+        statusEl.textContent = status.toUpperCase() || "UNKNOWN";
+
+        // ==================================================
+        // FAILED
+        // ==================================================
+        if (status === "failed") {
+            statusEl.classList.add("status-fail");
+
+            failEl.textContent =
+                "Reason: " +
+                (job.fail_code || "UNKNOWN_ERROR") +
+                (job.customer_action ? " – " + job.customer_action : "");
+
+            failEl.style.display = "block";
+            return;
+        }
+
+        // ==================================================
+        // SUCCESS
+        // ==================================================
+        if (status === "success") {
+            statusEl.classList.add("status-success");
+
+            // --- price ---
+            const priceUsd = job.pricing_snapshot?.price_usd;
+            priceEl.textContent =
+                typeof priceUsd === "number"
+                    ? "$" + priceUsd.toFixed(2)
+                    : "—";
+
+            priceLine.style.display = "block";
+
+            // --- payment ---
+            const paid = job.payment?.status === "PAID";
+            const paidAt = job.payment?.paid_at;
+
+            if (paid && paidAt) {
+                const ts = new Date(paidAt)
+                    .toISOString()
+                    .replace("T", " ")
+                    .slice(0, 16);
+
+                paymentLine.textContent = "Payment confirmed at: " + ts;
+                paymentLine.style.display = "block";
+            }
+
+            // --- action ---
+            actionArea.innerHTML = paid
+                ? `<button class="btn" onclick="download()">Download output</button>`
+                : `<button class="btn" onclick="pay()">Pay to download</button>`;
+
+            return;
+        }
+
+        // ==================================================
+        // QUEUED / RUNNING / UNKNOWN
+        // ==================================================
+        statusEl.textContent = status.toUpperCase() || "UNKNOWN";
+
+    } catch {
+        /* silent by design */
+    }
+}
+
+window.pay = async function () {
+    actionArea.textContent = "Starting payment…";
+
+    try {
+        const res = await fetch(API_BASE + "/api/pay/" + jobId, { method: "POST" });
+        if (!res.ok) throw new Error();
+
+        const data = await res.json();
+        location.href = data.checkout_url;
+    } catch {
+        actionArea.textContent = "Unable to start payment.";
+    }
+};
+
+window.download = function () {
+    window.location.href = API_BASE + "/api/download/" + jobId;
+};
+
+pollStatus();
+setInterval(pollStatus, 4000);
+
+})();
+</script>
+
+</body>
+</html>
