@@ -189,10 +189,6 @@ if (!jobId) {
 
 jobIdEl.textContent = jobId;
 
-<script>
-const API_BASE = "...";
-const jobId = "...";
-
 // ===============================
 // Phase 1 execution profiles (human metadata)
 // ===============================
@@ -228,14 +224,6 @@ const PHASE1_PROFILES = {
 // ===============================
 const REASON_LABELS = {
     PHASE1_PRESET_VIOLATION: "Phase 1 preset limits exceeded",
-    ...
-};
-
-// ===============================
-// Phase 1 Reason Humanizer
-// ===============================
-const REASON_LABELS = {
-    PHASE1_PRESET_VIOLATION: "Phase 1 preset limits exceeded",
     MEMORY_BUDGET_EXCEEDED: "Memory budget exceeded",
     UNSUPPORTED_VERSION: "Unsupported Blender version",
     MISSING_ASSETS: "Missing assets",
@@ -257,29 +245,19 @@ function toHumanReason(job) {
     const reason = job.reason || {};
     const compat = job.compat || {};
 
-    // Resolve class in priority order:
-    // 1. Phase 1 ReasonObject (reason.class)
-    // 2. Legacy fallback (compat.fail_code)
-    // 3. Default (UNKNOWN_FAILURE)
     const cls =
         reason.class ||
         compat.fail_code ||
         "UNKNOWN_FAILURE";
 
-    // Resolve label
     const label = REASON_LABELS[cls] || REASON_LABELS.UNKNOWN_FAILURE;
 
-    // Resolve details:
-    // A) Preferred: Humanized detail template
-    // B) Fallback: backend-provided technical detail
-    // C) Otherwise null
     const details =
         HUMAN_DETAILS[cls] ||
         reason.details ||
         compat.customer_action ||
         null;
 
-    // Resolve actions from ReasonObject (optional)
     const actions = Array.isArray(reason.actions) ? reason.actions : [];
 
     return { class: cls, label, details, actions };
@@ -294,7 +272,7 @@ function resolveSuggestedAction(job, humanReason) {
 
     const actions = humanReason.actions || [];
 
-    // Strategy C: If backend suggests profile upgrade → choose next profile
+    // Strategy: If backend suggests "UPGRADE_TO_EXTENDED"
     if (actions.includes("UPGRADE_TO_EXTENDED") && current === "STRICT") {
         return {
             type: "profile_upgrade",
@@ -305,22 +283,26 @@ function resolveSuggestedAction(job, humanReason) {
         };
     }
 
-    // Optional future:
-    // if (actions.includes("UPGRADE_TO_FLEXIBLE") && current === "EXTENDED") ...
-    // if (actions.includes("UPGRADE_TO_OPEN") && current === "FLEXIBLE") ...
+    // Future:
+    // if (actions.includes("UPGRADE_TO_FLEXIBLE") && current === "EXTENDED")
+    // if (actions.includes("UPGRADE_TO_OPEN") && current === "FLEXIBLE")
 
-    // If no suggested upgrade matched → no frontend action
     return null;
 }
 
 async function pollStatus() {
     try {
         const res = await fetch(API_BASE + "/api/status/" + jobId);
-        if (!res.ok) return;
+        if (!res.ok) {
+            console.warn("Status fetch failed:", res.status);
+            return;
+        }
 
         const job = await res.json();
 
+        // ========================================
         // Reset UI to known baseline
+        // ========================================
         statusEl.className = "status-value";
         failEl.style.display = "none";
         priceLine.style.display = "none";
@@ -331,26 +313,28 @@ async function pollStatus() {
         const status = (job.status || "").toLowerCase();
         statusEl.textContent = status.toUpperCase() || "UNKNOWN";
 
-        // Phase 1: show execution profile if available
-        if (job.pricing_snapshot && job.pricing_snapshot.execution_profile) {
-            const ep = job.pricing_snapshot.execution_profile;
-            addLine("Current profile", ep);
+        // ========================================
+        // PHASE 1: CURRENT PROFILE (if any)
+        // ========================================
+        const currentProfile = job.pricing_snapshot?.execution_profile || null;
+        if (currentProfile) {
+            addLine("Current profile", currentProfile);
         }
 
-        // ==================================================
+        // ========================================
         // FAILED
-        // ==================================================
+        // ========================================
         if (status === "failed") {
             statusEl.classList.add("status-fail");
 
             // Phase 1: resolve reason
             const h = toHumanReason(job);
 
-            // Always show Reason
+            // Always show Reason label
             failEl.style.display = "block";
             failValue.textContent = h.label;
 
-            // Optional: Humanized details
+            // Optional humanized details
             if (h.details) {
                 addLine("Details", h.details);
             }
@@ -360,22 +344,32 @@ async function pollStatus() {
             if (suggestion && suggestion.type === "profile_upgrade") {
                 actionArea.style.display = "block";
 
-                // Header
                 const header = document.createElement("div");
                 header.style.fontWeight = "bold";
                 header.style.marginTop = "12px";
                 header.textContent = "Suggested next step:";
                 actionArea.appendChild(header);
 
-                // Description
-                const desc = document.createElement("div");
-                desc.textContent = `Switch from ${suggestion.from} to ${suggestion.to} for higher limits.`;
-                actionArea.appendChild(desc);
+                // Metadata display (optional)
+                const d1 = document.createElement("div");
+                d1.textContent = `Switch from ${suggestion.from} → ${suggestion.to}`;
+                actionArea.appendChild(d1);
+
+                // Extra info about what "to" means
+                if (suggestion.meta) {
+                    const d2 = document.createElement("div");
+                    d2.style.opacity = "0.85";
+                    d2.style.fontSize = "0.85em";
+                    d2.style.marginTop = "4px";
+                    d2.textContent = `${suggestion.meta.price}, ${suggestion.meta.runtime}`;
+                    actionArea.appendChild(d2);
+                }
 
                 // Select button
                 const btn = document.createElement("button");
                 btn.textContent = `Select ${suggestion.to}`;
                 btn.style.marginTop = "8px";
+                btn.className = "btn";
                 btn.onclick = () => {
                     window.location.href = `/upload.html?profile=${suggestion.to}`;
                 };
@@ -385,9 +379,9 @@ async function pollStatus() {
             return;
         }
 
-        // ==================================================
+        // ========================================
         // SUCCESS
-        // ==================================================
+        // ========================================
         if (status === "success") {
             statusEl.classList.add("status-success");
 
@@ -396,9 +390,10 @@ async function pollStatus() {
                 typeof priceUsd === "number"
                     ? "$" + priceUsd.toFixed(2)
                     : "—";
+
             priceLine.style.display = "block";
 
-            // Payment status
+            // Payment state
             const paid = job.payment?.status === "PAID";
             const paidAt = job.payment?.paid_at;
 
@@ -412,7 +407,7 @@ async function pollStatus() {
                 paymentLine.style.display = "block";
             }
 
-            // Action
+            // Download or Pay button
             actionArea.style.display = "block";
             actionArea.innerHTML = paid
                 ? `<button class="btn" onclick="download()">Download output</button>`
@@ -421,31 +416,47 @@ async function pollStatus() {
             return;
         }
 
-        // ==================================================
+        // ========================================
         // QUEUED / RUNNING / UNKNOWN
-        // ==================================================
-        statusEl.textContent = status.toUpperCase() || "UNKNOWN";
+        // ========================================
+        // QUEUED
+        if (status === "queued") {
+            statusEl.classList.add("status-wait");
+            return;
+        }
+
+        // RUNNING
+        if (status === "running") {
+            statusEl.classList.add("status-wait");
+            addLine("Progress", "Rendering in progress…");
+            return;
+        }
+
+        // Fallback
+        statusEl.classList.add("status-wait");
+        addLine("Note", "Waiting for job updates…");
 
     } catch (err) {
         console.error("Status polling failed:", err);
     }
 }
 
-// ==================================================
+// ========================================
 // PAYMENT + DOWNLOAD ACTIONS
-// ==================================================
+// ========================================
 window.pay = async function () {
     actionArea.textContent = "Starting payment…";
 
     try {
         const res = await fetch(API_BASE + "/api/pay/" + jobId, { method: "POST" });
-        if (!res.ok) throw new Error();
+        if (!res.ok) throw new Error("payment-init-failed");
 
         const data = await res.json();
         location.href = data.checkout_url;
+
     } catch (err) {
-        actionArea.textContent = "Unable to start payment.";
         console.error("Payment failed:", err);
+        actionArea.textContent = "Unable to start payment.";
     }
 };
 
@@ -453,12 +464,13 @@ window.download = function () {
     window.location.href = API_BASE + "/api/download/" + jobId;
 };
 
-// ==================================================
+// ========================================
 // POLLING START
-// ==================================================
+// ========================================
 pollStatus();
 setInterval(pollStatus, 4000);
 
+})(); // end IIFE
 </script>
 
 </body>
