@@ -343,7 +343,7 @@ function renderSuggestionUpgrade(suggestion) {
     btn.className = "btn";
     btn.style.marginTop = "10px";
     btn.onclick = () => {
-        window.location.href = `/upload.html?profile=${suggestion.to}`;
+        window.location.href = `${location.origin}/gpurenderstudio/#upload?profile=${suggestion.to}`;
     };
     actionArea.appendChild(btn);
 }
