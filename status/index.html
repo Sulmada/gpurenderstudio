@@ -189,6 +189,60 @@ if (!jobId) {
 
 jobIdEl.textContent = jobId;
 
+// ===============================
+// Phase 1 Reason Humanizer
+// ===============================
+const REASON_LABELS = {
+    PHASE1_PRESET_VIOLATION: "Phase 1 preset limits exceeded",
+    MEMORY_BUDGET_EXCEEDED: "Memory budget exceeded",
+    UNSUPPORTED_VERSION: "Unsupported Blender version",
+    MISSING_ASSETS: "Missing assets",
+    RENDER_FAILURE: "Render failed",
+    UNKNOWN_FAILURE: "Unknown error"
+};
+
+// Humanized detail templates (preferred over backend technical details)
+const HUMAN_DETAILS = {
+    PHASE1_PRESET_VIOLATION: "The project exceeded the limits of the selected profile.",
+    MEMORY_BUDGET_EXCEEDED: "The project requires more memory than this profile allows.",
+    UNSUPPORTED_VERSION: "This Blender version is not supported in Phase 1.",
+    MISSING_ASSETS: "Some external files are missing (such as textures or linked resources).",
+    RENDER_FAILURE: "The rendering process could not start or crashed.",
+    UNKNOWN_FAILURE: "Something went wrong but could not be classified."
+};
+
+function toHumanReason(job) {
+    const reason = job.reason || {};
+    const compat = job.compat || {};
+
+    // Resolve class in priority order:
+    // 1. Phase 1 ReasonObject (reason.class)
+    // 2. Legacy fallback (compat.fail_code)
+    // 3. Default (UNKNOWN_FAILURE)
+    const cls =
+        reason.class ||
+        compat.fail_code ||
+        "UNKNOWN_FAILURE";
+
+    // Resolve label
+    const label = REASON_LABELS[cls] || REASON_LABELS.UNKNOWN_FAILURE;
+
+    // Resolve details:
+    // A) Preferred: Humanized detail template
+    // B) Fallback: backend-provided technical detail
+    // C) Otherwise null
+    const details =
+        HUMAN_DETAILS[cls] ||
+        reason.details ||
+        compat.customer_action ||
+        null;
+
+    // Resolve actions from ReasonObject (optional)
+    const actions = Array.isArray(reason.actions) ? reason.actions : [];
+
+    return { class: cls, label, details, actions };
+}
+
 async function pollStatus() {
     try {
         const res = await fetch(API_BASE + "/api/status/" + jobId);
@@ -196,15 +250,39 @@ async function pollStatus() {
 
         const job = await res.json();
 
-        // --- reset UI to safe baseline ---
+        // Reset UI
         statusEl.className = "status-value";
         failEl.style.display = "none";
         priceLine.style.display = "none";
         paymentLine.style.display = "none";
         actionArea.innerHTML = "";
 
+        // Status
         const status = (job.status || "").toLowerCase();
         statusEl.textContent = status.toUpperCase() || "UNKNOWN";
+
+        // Phase 1: Current Profile (execution profile)
+        if (job.pricing_snapshot && job.pricing_snapshot.execution_profile) {
+            const ep = job.pricing_snapshot.execution_profile;
+            addLine("Current profile", ep);
+        }
+
+        // Phase 1 Reason resolve
+        const h = toHumanReason(job);
+
+        // Always show Reason line
+        failEl.style.display = "block";
+        failValue.textContent = h.label;
+
+        // Phase 1: Humanized Details
+        if (h.details) {
+            addLine("Details", h.details);
+        }
+
+    } catch (err) {
+        console.error("Status polling failed:", err);
+    }
+}
 
         // ==================================================
         // FAILED
