@@ -212,12 +212,28 @@ async function pollStatus() {
         if (status === "failed") {
             statusEl.classList.add("status-fail");
 
-            failEl.textContent =
-                "Reason: " +
-                (job.fail_code || "UNKNOWN_ERROR") +
-                (job.customer_action ? " – " + job.customer_action : "");
+            const reason = job.reason || null;
+            const compat = job.compat || {};
 
+            // Prioriterad reason-resolver
+            const text =
+                (reason && reason.details) ||
+                (reason && reason.class) ||
+                compat.customer_action ||
+                compat.fail_code ||
+                "UNKNOWN_ERROR";
+
+            failEl.textContent = "Reason: " + text;
             failEl.style.display = "block";
+
+            // Visa actions om de finns
+            if (reason && Array.isArray(reason.actions) && reason.actions.length > 0) {
+                actionArea.innerHTML =
+                    `<div style="margin-top:15px;">
+                        Suggested action: <b>${reason.actions.join(", ")}</b>
+                    </div>`;
+            }
+
             return;
         }
 
