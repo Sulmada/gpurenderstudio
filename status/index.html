@@ -291,152 +291,187 @@ function resolveSuggestedAction(job, humanReason) {
 }
 
 // =======================================
+// UI dynamic containers (new)
+// =======================================
+const dynamicInfo = document.createElement("div");
+dynamicInfo.id = "dynamicInfo";
+paymentLine.parentNode.insertBefore(dynamicInfo, paymentLine);
+
+// =======================================
 // UI helper: render key/value line
 // =======================================
 function addLine(key, value) {
     const line = document.createElement("div");
     line.className = "status-line";
     line.innerHTML = `
-        <span class="status-key">${key}:</span>
+        <span class="status-key" style="font-weight:600;">${key}:</span>
         <span class="status-value">${value}</span>
     `;
-    // Insert above payment line (same section layout)
-    paymentLine.parentNode.insertBefore(line, paymentLine);
+    dynamicInfo.appendChild(line);
 }
 
+// =======================================
+// UI helper: render suggestion block
+// =======================================
+function renderSuggestionUpgrade(suggestion) {
+    actionArea.style.display = "block";
+    actionArea.innerHTML = "";
+
+    const header = document.createElement("div");
+    header.style.fontWeight = "bold";
+    header.style.marginTop = "12px";
+    header.textContent = "Suggested next step:";
+    actionArea.appendChild(header);
+
+    const desc = document.createElement("div");
+    desc.style.marginTop = "6px";
+    desc.textContent = `Switch from ${suggestion.from} to ${suggestion.to} for higher limits.`;
+    actionArea.appendChild(desc);
+
+    const meta = suggestion.meta;
+    if (meta) {
+        const metaLine = document.createElement("div");
+        metaLine.style.fontSize = "14px";
+        metaLine.style.opacity = "0.85";
+        metaLine.style.marginTop = "4px";
+        metaLine.textContent = `${meta.label}: ${meta.runtime}, ${meta.price}. ${meta.purpose}`;
+        actionArea.appendChild(metaLine);
+    }
+
+    const btn = document.createElement("button");
+    btn.textContent = `Select ${suggestion.to}`;
+    btn.className = "btn";
+    btn.style.marginTop = "10px";
+    btn.onclick = () => {
+        window.location.href = `/upload.html?profile=${suggestion.to}`;
+    };
+    actionArea.appendChild(btn);
+}
+
+// =======================================
+// POLL STATUS
+// =======================================
 async function pollStatus() {
-        try {
-                const res = await fetch(API_BASE + "/api/status/" + jobId);
-                if (!res.ok) {
-                        console.warn("Status fetch failed:", res.status);
-                        return;
-                }
-
-                const job = await res.json();
-
-                // Reset UI to known baseline
-                statusEl.className = "status-value";
-                failEl.style.display = "none";
-                priceLine.style.display = "none";
-                paymentLine.style.display = "none";
-                actionArea.innerHTML = "";
-                actionArea.style.display = "none";
-
-                const status = (job.status || "").toLowerCase();
-                statusEl.textContent = status.toUpperCase() || "UNKNOWN";
-
-                // PHASE 1: CURRENT PROFILE (if any)
-                const currentProfile = job.pricing_snapshot?.execution_profile || null;
-                if (currentProfile) {
-                        addLine("Current profile", currentProfile);
-                }
-
-                // ==================================================
-                // FAILED
-                // ==================================================
-                if (status === "failed") {
-                        statusEl.classList.add("status-fail");
-
-                        // Resolve reason
-                        const h = toHumanReason(job);
-
-                        // Reason (always visible)
-                        failEl.style.display = "block";
-                        failEl.textContent = "Reason: " + h.label;
-
-                        // Humanized details if any
-                        if (h.details) {
-                                addLine("Details", h.details);
-                        }
-
-                        // Profile-aware suggestion
-                        const suggestion = resolveSuggestedAction(job, h);
-                        if (suggestion && suggestion.type === "profile_upgrade") {
-                                actionArea.style.display = "block";
-
-                                const header = document.createElement("div");
-                                header.style.fontWeight = "bold";
-                                header.style.marginTop = "12px";
-                                header.textContent = "Suggested next step:";
-                                actionArea.appendChild(header);
-
-                                const desc = document.createElement("div");
-                                desc.textContent = `Switch from ${suggestion.from} to ${suggestion.to} for higher limits.`;
-                                actionArea.appendChild(desc);
-
-                                const btn = document.createElement("button");
-                                btn.textContent = `Select ${suggestion.to}`;
-                                btn.style.marginTop = "8px";
-                                btn.onclick = () => {
-                                        window.location.href = `/upload.html?profile=${suggestion.to}`;
-                                };
-                                actionArea.appendChild(btn);
-
-                        } else if (h.actions && h.actions.length > 0) {
-                                // Generic fallback actions
-                                addLine("Suggested action", h.actions.join(", "));
-                        }
-
-                        return;
-                }
-
-                // ==================================================
-                // SUCCESS
-                // ==================================================
-                if (status === "success") {
-                        statusEl.classList.add("status-success");
-
-                        const priceUsd = job.pricing_snapshot?.price_usd;
-                        priceEl.textContent =
-                                typeof priceUsd === "number"
-                                        ? "$" + priceUsd.toFixed(2)
-                                        : "—";
-                        priceLine.style.display = "block";
-
-                        const paid = job.payment?.status === "PAID";
-                        const paidAt = job.payment?.paid_at;
-
-                        if (paid && paidAt) {
-                                const ts = new Date(paidAt)
-                                        .toISOString()
-                                        .replace("T", " ")
-                                        .slice(0, 16);
-
-                                paymentLine.textContent = "Payment confirmed at: " + ts;
-                                paymentLine.style.display = "block";
-                        }
-
-                        actionArea.style.display = "block";
-                        actionArea.innerHTML = paid
-                                ? `<button class="btn" onclick="download()">Download output</button>`
-                                : `<button class="btn" onclick="pay()">Pay to download</button>`;
-
-                        return;
-                }
-
-                // ==================================================
-                // QUEUED / RUNNING / UNKNOWN
-                // ==================================================
-                if (status === "queued") {
-                        statusEl.classList.add("status-wait");
-                        return;
-                }
-
-                if (status === "running") {
-                        statusEl.classList.add("status-wait");
-                        addLine("Progress", "Rendering in progress…");
-                        return;
-                }
-
-                // Fallback
-                statusEl.classList.add("status-wait");
-                addLine("Note", "Waiting for job updates…");
-
-        } catch (err) {
-                console.error("Status polling failed:", err);
+    try {
+        const res = await fetch(API_BASE + "/api/status/" + jobId);
+        if (!res.ok) {
+            console.warn("Status fetch failed:", res.status);
+            return;
         }
-}
 
+        const job = await res.json();
+
+        // ==========================
+        // Reset dynamic UI state
+        // ==========================
+        statusEl.className = "status-value";
+        failEl.style.display = "none";
+        priceLine.style.display = "none";
+        paymentLine.style.display = "none";
+        actionArea.innerHTML = "";
+        actionArea.style.display = "none";
+        dynamicInfo.innerHTML = "";
+
+        const status = (job.status || "").toLowerCase();
+        statusEl.textContent = status.toUpperCase() || "UNKNOWN";
+
+        // ==========================
+        // Always show current profile (if exists)
+        // ==========================
+        const currentProfile = job.pricing_snapshot?.execution_profile || null;
+        if (currentProfile) {
+            addLine("Current profile", currentProfile);
+        }
+
+        // ==========================
+        // FAILED
+        // ==========================
+        if (status === "failed") {
+            statusEl.classList.add("status-fail");
+
+            // Resolve reason
+            const h = toHumanReason(job);
+
+            // Reason headline
+            failEl.style.display = "block";
+            failEl.textContent = "Reason: " + h.label;
+
+            // Details
+            if (h.details) {
+                addLine("Details", h.details);
+            }
+
+            // Try profile suggestion
+            const suggestion = resolveSuggestedAction(job, h);
+            if (suggestion) {
+                renderSuggestionUpgrade(suggestion);
+                return;
+            }
+
+            // Generic actions if no upgrade available
+            if (h.actions && h.actions.length > 0) {
+                addLine("Suggested action", h.actions.join(", "));
+            }
+
+            return;
+        }
+
+        // ==========================
+        // SUCCESS
+        // ==========================
+        if (status === "success") {
+            statusEl.classList.add("status-success");
+
+            const priceUsd = job.pricing_snapshot?.price_usd;
+            priceEl.textContent =
+                typeof priceUsd === "number"
+                    ? "$" + priceUsd.toFixed(2)
+                    : "—";
+            priceLine.style.display = "block";
+
+            const paid = job.payment?.status === "PAID";
+            const paidAt = job.payment?.paid_at;
+
+            if (paid && paidAt) {
+                const ts = new Date(paidAt)
+                    .toISOString()
+                    .replace("T", " ")
+                    .slice(0, 16);
+                paymentLine.textContent = "Payment confirmed at: " + ts;
+                paymentLine.style.display = "block";
+            }
+
+            actionArea.style.display = "block";
+            actionArea.innerHTML = paid
+                ? `<button class="btn" onclick="download()">Download output</button>`
+                : `<button class="btn" onclick="pay()">Pay to download</button>`;
+
+            return;
+        }
+
+        // ==========================
+        // QUEUED / RUNNING / OTHER
+        // ==========================
+        if (status === "queued") {
+            statusEl.classList.add("status-wait");
+            addLine("State", "Job is queued");
+            return;
+        }
+
+        if (status === "running") {
+            statusEl.classList.add("status-wait");
+            addLine("State", "Rendering in progress…");
+            return;
+        }
+
+        // Unknown status fallback
+        statusEl.classList.add("status-wait");
+        addLine("Note", "Waiting for job updates…");
+
+    } catch (err) {
+        console.error("Status polling failed:", err);
+    }
+}
 
 // ========================================
 // PAYMENT + DOWNLOAD ACTIONS
@@ -466,6 +501,7 @@ window.download = function () {
 // ========================================
 pollStatus();
 setInterval(pollStatus, 4000);
+
 
 })(); // end IIFE
 </script>
