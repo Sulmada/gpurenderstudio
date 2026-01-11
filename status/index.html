@@ -290,6 +290,20 @@ function resolveSuggestedAction(job, humanReason) {
     return null;
 }
 
+// =======================================
+// UI helper: render key/value line
+// =======================================
+function addLine(key, value) {
+    const line = document.createElement("div");
+    line.className = "status-line";
+    line.innerHTML = `
+        <span class="status-key">${key}:</span>
+        <span class="status-value">${value}</span>
+    `;
+    // Insert above payment line (same section layout)
+    paymentLine.parentNode.insertBefore(line, paymentLine);
+}
+
 async function pollStatus() {
     try {
         const res = await fetch(API_BASE + "/api/status/" + jobId);
@@ -321,62 +335,52 @@ async function pollStatus() {
             addLine("Current profile", currentProfile);
         }
 
-        // ========================================
+        // ==================================================
         // FAILED
-        // ========================================
+        // ==================================================
         if (status === "failed") {
-            statusEl.classList.add("status-fail");
+                statusEl.classList.add("status-fail");
 
-            // Phase 1: resolve reason
-            const h = toHumanReason(job);
+                // Phase 1: resolve reason
+                const h = toHumanReason(job);
 
-            // Always show Reason label
-            failEl.style.display = "block";
-            failValue.textContent = h.label;
+                // Always show Reason
+                failEl.style.display = "block";
+                failEl.textContent = "Reason: " + h.label;
 
-            // Optional humanized details
-            if (h.details) {
-                addLine("Details", h.details);
-            }
-
-            // Phase 1: Suggested profile upgrade
-            const suggestion = resolveSuggestedAction(job, h);
-            if (suggestion && suggestion.type === "profile_upgrade") {
-                actionArea.style.display = "block";
-
-                const header = document.createElement("div");
-                header.style.fontWeight = "bold";
-                header.style.marginTop = "12px";
-                header.textContent = "Suggested next step:";
-                actionArea.appendChild(header);
-
-                // Metadata display (optional)
-                const d1 = document.createElement("div");
-                d1.textContent = `Switch from ${suggestion.from} → ${suggestion.to}`;
-                actionArea.appendChild(d1);
-
-                // Extra info about what "to" means
-                if (suggestion.meta) {
-                    const d2 = document.createElement("div");
-                    d2.style.opacity = "0.85";
-                    d2.style.fontSize = "0.85em";
-                    d2.style.marginTop = "4px";
-                    d2.textContent = `${suggestion.meta.price}, ${suggestion.meta.runtime}`;
-                    actionArea.appendChild(d2);
+                // Optional: Humanized details
+                if (h.details) {
+                        addLine("Details", h.details);
                 }
 
-                // Select button
-                const btn = document.createElement("button");
-                btn.textContent = `Select ${suggestion.to}`;
-                btn.style.marginTop = "8px";
-                btn.className = "btn";
-                btn.onclick = () => {
-                    window.location.href = `/upload.html?profile=${suggestion.to}`;
-                };
-                actionArea.appendChild(btn);
-            }
+                // Phase 1: Suggested profile upgrade
+                const suggestion = resolveSuggestedAction(job, h);
+                if (suggestion && suggestion.type === "profile_upgrade") {
+                        actionArea.style.display = "block";
 
-            return;
+                        // Header
+                        const header = document.createElement("div");
+                        header.style.fontWeight = "bold";
+                        header.style.marginTop = "12px";
+                        header.textContent = "Suggested next step:";
+                        actionArea.appendChild(header);
+
+                        // Description
+                        const desc = document.createElement("div");
+                        desc.textContent = `Switch from ${suggestion.from} to ${suggestion.to} for higher limits.`;
+                        actionArea.appendChild(desc);
+
+                        // Select button
+                        const btn = document.createElement("button");
+                        btn.textContent = `Select ${suggestion.to}`;
+                        btn.style.marginTop = "8px";
+                        btn.onclick = () => {
+                                window.location.href = `/upload.html?profile=${suggestion.to}`;
+                        };
+                        actionArea.appendChild(btn);
+                }
+
+                return;
         }
 
         // ========================================
