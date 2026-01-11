@@ -431,6 +431,9 @@ async function pollStatus() {
     }
 }
 
+// ==================================================
+// PAYMENT + DOWNLOAD ACTIONS
+// ==================================================
 window.pay = async function () {
     actionArea.textContent = "Starting payment…";
 
@@ -440,8 +443,9 @@ window.pay = async function () {
 
         const data = await res.json();
         location.href = data.checkout_url;
-    } catch {
+    } catch (err) {
         actionArea.textContent = "Unable to start payment.";
+        console.error("Payment failed:", err);
     }
 };
 
@@ -449,6 +453,9 @@ window.download = function () {
     window.location.href = API_BASE + "/api/download/" + jobId;
 };
 
+// ==================================================
+// POLLING START
+// ==================================================
 pollStatus();
 setInterval(pollStatus, 4000);
 
