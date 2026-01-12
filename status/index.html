@@ -271,23 +271,29 @@ function resolveSuggestedAction(job, humanReason) {
     if (!current) return null;
 
     const actions = humanReason.actions || [];
+    if (!actions.length) return null;
 
-    // Strategy: If backend suggests "UPGRADE_TO_EXTENDED"
-    if (actions.includes("UPGRADE_TO_EXTENDED") && current === "STRICT") {
-        return {
-            type: "profile_upgrade",
-            from: current,
-            to: "EXTENDED",
-            reason: "The project exceeded the limits of the Strict profile.",
-            meta: PHASE1_PROFILES["EXTENDED"]
-        };
-    }
+    // Map backend action → target profile
+    const actionToProfile = {
+        UPGRADE_TO_EXTENDED: "EXTENDED",
+        UPGRADE_TO_FLEXIBLE: "FLEXIBLE",
+        UPGRADE_TO_OPEN: "OPEN"
+    };
 
-    // Future:
-    // if (actions.includes("UPGRADE_TO_FLEXIBLE") && current === "EXTENDED")
-    // if (actions.includes("UPGRADE_TO_OPEN") && current === "FLEXIBLE")
+    // Ta första action vi känner igen
+    const picked = actions.find(a => actionToProfile[a]);
+    if (!picked) return null;
 
-    return null;
+    const target = actionToProfile[picked];
+    if (!target || target === current) return null;
+
+    return {
+        type: "profile_upgrade",
+        from: current,
+        to: target,
+        reason: "The project exceeded the limits of the selected profile.",
+        meta: PHASE1_PROFILES[target] || null
+    };
 }
 
 // =======================================
