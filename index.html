@@ -982,7 +982,9 @@ form.addEventListener("submit", async (e) => {
     const precheck = await precheckRes.json();
     CURRENT_PRECHECK = precheck;
 
-    if (!precheck || safeNum(precheck.estimated_hours_effective) === null) {
+    const rp = precheck.real_precheck;
+
+    if (!rp || safeNum(rp.estimated_hours_effective) === null) {
       resultBox.textContent = "Precheck failed.";
       return;
     }
@@ -996,8 +998,8 @@ form.addEventListener("submit", async (e) => {
 });
 
 function renderSlotChooser(precheck) {
-  const est = safeNum(precheck.estimated_hours_effective);
-  const estText = est === null ? "—" : est.toFixed(2);
+  const rp = precheck.real_precheck || {};
+  const est = safeNum(rp.estimated_hours_effective);  const estText = est === null ? "—" : est.toFixed(2);
 
   resultBox.innerHTML = `
 <h3>Select execution window</h3>
