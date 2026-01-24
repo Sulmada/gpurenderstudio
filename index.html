@@ -1083,9 +1083,6 @@ async function confirmContract() {
     return;
   }
 
-  // ------------------------
-  // OPTIONS
-  // ------------------------
   const overflow =
     !!document.getElementById("overflowToggle")?.checked;
 
@@ -1097,9 +1094,8 @@ async function confirmContract() {
     slot,
     overflow_allowed: overflow,
     cap_enabled: capUsd !== null && isFinite(capUsd),
-    cap_usd: capUsd !== null && isFinite(capUsd) ? capUsd : null
+    cap_usd: capUsd
   };
-
   try {
     const res = await fetch(API_BASE + "/api/contracts/confirm", {
       method: "POST",
