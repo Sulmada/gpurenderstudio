@@ -1098,12 +1098,21 @@ async function confirmContract() {
   const capSlider = document.getElementById("capSlider");
   const capUsd = capSlider ? Number(capSlider.value) : null;
 
+  const capEnabled = capUsd !== null && isFinite(capUsd);
+
+  let contract_type = "HOURLY_BUDGET";
+
+  if (overflow && capEnabled) {
+    contract_type = "HOURLY_OVERFLOW_CAP";
+  } else if (overflow) {
+    contract_type = "HOURLY_OVERFLOW";
+  }
+
   const body = {
     job_id: CURRENT_JOB_ID,
     slot,
-    overflow_allowed: overflow,
-    cap_enabled: capUsd !== null && isFinite(capUsd),
-    cap_usd: capUsd
+    contract_type,
+    cap_usd: capEnabled ? capUsd : null
   };
 
   try {
