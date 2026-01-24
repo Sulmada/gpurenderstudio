@@ -116,6 +116,39 @@ section {
     font-size: 14px;
     opacity: 0.75;
 }
+
+.status-grid {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 40px;
+}
+
+.status-right h3 {
+    margin-top: 0;
+}
+
+.progress-bar-wrap {
+    height: 16px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+#progressBar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg,#00ffff,#6affff);
+    transition: width 0.6s ease;
+}
+
+#progressText,
+#progressEta {
+    margin-top: 8px;
+    font-size: 14px;
+    opacity: 0.9;
+}
+
 </style>
 </head>
 
@@ -134,7 +167,8 @@ section {
 </div>
 
 <section>
-<div class="content-box">
+<div class="content-box status-grid">
+<div class="status-left">
 
     <h2>Job Status</h2>
 
@@ -159,6 +193,18 @@ section {
 
     <div id="actionArea"></div>
 
+</div> <!-- status-left -->
+
+<div class="status-right" id="progressPanel" style="display:none;">
+    <h3>Progress</h3>
+
+    <div class="progress-bar-wrap">
+        <div id="progressBar"></div>
+    </div>
+
+    <div id="progressText"></div>
+    <div id="progressEta"></div>
+</div>
 </div>
 </section>
 
@@ -184,6 +230,10 @@ const priceEl     = document.getElementById("finalPrice");
 const priceLine   = document.getElementById("priceLine");
 const paymentLine = document.getElementById("paymentLine");
 const actionArea  = document.getElementById("actionArea");
+const progressPanel = document.getElementById("progressPanel");
+const progressBar   = document.getElementById("progressBar");
+const progressText  = document.getElementById("progressText");
+const progressEta   = document.getElementById("progressEta");
 
 if (!jobId) {
     statusEl.textContent = "Missing job_id";
@@ -401,6 +451,7 @@ function renderJob(job) {
     actionArea.innerHTML = "";
     actionArea.style.display = "none";
     dynamicInfo.innerHTML = "";
+    progressPanel.style.display = "none";
 
     const status = (job.status || "").toLowerCase();
     statusEl.textContent = status ? status.toUpperCase() : "UNKNOWN";
@@ -495,14 +546,34 @@ function renderJob(job) {
         return;
     }
 
-    if (status === "running") {
-        statusEl.classList.add("status-wait");
-        addLine("State", "Rendering in progress…");
-        return;
+if (status === "running") {
+    statusEl.classList.add("status-wait");
+    addLine("State", "Rendering in progress…");
+
+    if (job.progress) {
+        progressPanel.style.display = "block";
+
+        const p = job.progress;
+
+        progressBar.style.width = (p.percent || 0) + "%";
+
+        progressText.textContent =
+            `Frames ${p.frames_done}/${p.total_frames} (${p.percent || 0}%)`;
+
+        if (p.eta_seconds) {
+            const min = Math.round(p.eta_seconds / 60);
+            progressEta.textContent = "ETA: " + min + " min";
+        } else {
+            progressEta.textContent = "ETA: calculating…";
+        }
     }
 
-    statusEl.classList.add("status-wait");
-    addLine("Note", "Waiting for job updates…");
+    return;
+}
+
+// fallback
+statusEl.classList.add("status-wait");
+addLine("Note", "Waiting for job updates…");
 }
 
 // ========================================
