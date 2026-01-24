@@ -1024,7 +1024,7 @@ function renderSlotChooser(precheck) {
 <h4 style="margin-top:14px;">Execution profile</h4>
 ${slotHtml}
 
-<label style="display:block;margin-top:10px;">
+<label>
   <input type="checkbox" id="overflowToggle">
   Allow overflow beyond slot
 </label>
@@ -1047,7 +1047,9 @@ ${slotHtml}
   const btn = document.getElementById("confirmBtn");
 
   if (slider && capVal) {
-    const sync = () => capVal.textContent = "$" + slider.value;
+    const sync = () => {
+      capVal.textContent = "$" + slider.value;
+    };
     slider.addEventListener("input", sync);
     sync();
   }
@@ -1055,6 +1057,7 @@ ${slotHtml}
   if (btn) {
     btn.addEventListener("click", confirmContract);
   }
+
 }
 
 async function confirmContract() {
