@@ -1003,9 +1003,6 @@ function renderSlotChooser(precheck) {
   const est = safeNum(rp.estimated_hours_effective);
   const estText = est === null ? "—" : est.toFixed(2);
 
-  // -------------------------
-  // SLOT OPTIONS
-  // -------------------------
   const slots =
     precheck.slot_suggestion?.slot_analysis || [];
 
@@ -1019,9 +1016,6 @@ function renderSlotChooser(precheck) {
 </label>
 `).join("");
 
-  // -------------------------
-  // RENDER UI
-  // -------------------------
   resultBox.innerHTML = `
 <h3>Select execution window</h3>
 
@@ -1030,7 +1024,7 @@ function renderSlotChooser(precheck) {
 <h4 style="margin-top:14px;">Execution profile</h4>
 ${slotHtml}
 
-<label>
+<label style="display:block;margin-top:10px;">
   <input type="checkbox" id="overflowToggle">
   Allow overflow beyond slot
 </label>
@@ -1048,17 +1042,12 @@ ${slotHtml}
 </div>
 `;
 
-  // -------------------------
-  // HOOKS
-  // -------------------------
   const slider = document.getElementById("capSlider");
   const capVal = document.getElementById("capVal");
   const btn = document.getElementById("confirmBtn");
 
   if (slider && capVal) {
-    const sync = () => {
-      capVal.textContent = "$" + slider.value;
-    };
+    const sync = () => capVal.textContent = "$" + slider.value;
     slider.addEventListener("input", sync);
     sync();
   }
