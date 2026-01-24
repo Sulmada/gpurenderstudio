@@ -1079,13 +1079,30 @@ async function confirmContract() {
 
   resultBox.textContent = "Confirming execution contract...";
 
-  const overflow = !!document.getElementById("overflowToggle")?.checked;
+  // ------------------------
+  // SLOT
+  // ------------------------
+  const slot =
+    document.querySelector('input[name="slotRadio"]:checked')?.value;
+
+  if (!slot) {
+    resultBox.textContent = "No execution profile selected.";
+    if (btn) btn.disabled = false;
+    return;
+  }
+
+  // ------------------------
+  // OPTIONS
+  // ------------------------
+  const overflow =
+    !!document.getElementById("overflowToggle")?.checked;
 
   const capSlider = document.getElementById("capSlider");
   const capUsd = capSlider ? Number(capSlider.value) : null;
 
   const body = {
     job_id: CURRENT_JOB_ID,
+    slot,
     overflow_allowed: overflow,
     cap_enabled: capUsd !== null && isFinite(capUsd),
     cap_usd: capUsd !== null && isFinite(capUsd) ? capUsd : null
@@ -1098,24 +1115,21 @@ async function confirmContract() {
       body: JSON.stringify(body)
     });
 
-    const data = await res.json().catch(() => null);
-
-    if (!res.ok || !data) {
+    if (!res.ok) {
+      const t = await res.text();
+      resultBox.textContent = t || "Confirm failed.";
       if (btn) btn.disabled = false;
-      resultBox.textContent =
-        data?.error ||
-        data?.message ||
-        "Contract confirmation failed.";
       return;
     }
 
-    /* === STRIPE REDIRECT PATH === */
-    if (data.checkout_url) {
-      window.location.href = data.checkout_url;
+    const data = await res.json();
+
+    if (!data || data.status !== "OK") {
+      resultBox.textContent = data?.error || "Confirm failed.";
+      if (btn) btn.disabled = false;
       return;
     }
 
-    /* === NORMAL PATH === */
     window.location.href =
       window.location.origin +
       "/gpurenderstudio/status/?job_id=" +
@@ -1123,8 +1137,8 @@ async function confirmContract() {
 
   } catch (err) {
     console.error(err);
+    resultBox.textContent = "Network error.";
     if (btn) btn.disabled = false;
-    resultBox.textContent = "Network error while confirming contract.";
   }
 }
 
