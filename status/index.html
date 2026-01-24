@@ -558,7 +558,7 @@ if (status === "running") {
         progressBar.style.width = (p.percent || 0) + "%";
 
         progressText.textContent =
-            `Frames ${p.frames_done}/${p.total_frames} (${p.percent || 0}%)`;
+            `Frames ${p.frames_done}/${p.frames_total} (${p.percent || 0}%)`;
 
         if (p.eta_seconds) {
             const min = Math.round(p.eta_seconds / 60);
