@@ -90,6 +90,11 @@ section {
     color: #9affc8;
 }
 
+.status-wait {
+    color: #cfffff;
+    opacity: 0.95;
+}
+
 .btn {
     padding: 14px 28px;
     margin-top: 25px;
@@ -150,7 +155,6 @@ section {
         <span id="finalPrice" class="status-value">—</span>
     </p>
 
-    <!-- NEW: payment timestamp -->
     <p id="paymentLine" class="status-line" style="display:none;"></p>
 
     <div id="actionArea"></div>
@@ -231,7 +235,6 @@ const REASON_LABELS = {
     UNKNOWN_FAILURE: "Unknown error"
 };
 
-// Humanized detail templates (preferred over backend technical details)
 const HUMAN_DETAILS = {
     PHASE1_PRESET_VIOLATION: "The project exceeded the limits of the selected profile.",
     MEMORY_BUDGET_EXCEEDED: "The project requires more memory than this profile allows.",
@@ -273,14 +276,12 @@ function resolveSuggestedAction(job, humanReason) {
     const actions = humanReason.actions || [];
     if (!actions.length) return null;
 
-    // Map backend action → target profile
     const actionToProfile = {
         UPGRADE_TO_EXTENDED: "EXTENDED",
         UPGRADE_TO_FLEXIBLE: "FLEXIBLE",
         UPGRADE_TO_OPEN: "OPEN"
     };
 
-    // Ta första action vi känner igen
     const picked = actions.find(a => actionToProfile[a]);
     if (!picked) return null;
 
@@ -297,15 +298,12 @@ function resolveSuggestedAction(job, humanReason) {
 }
 
 // =======================================
-// UI dynamic containers (new)
+// UI dynamic containers
 // =======================================
 const dynamicInfo = document.createElement("div");
 dynamicInfo.id = "dynamicInfo";
 paymentLine.parentNode.insertBefore(dynamicInfo, paymentLine);
 
-// =======================================
-// UI helper: render key/value line
-// =======================================
 function addLine(key, value) {
     const line = document.createElement("div");
     line.className = "status-line";
@@ -316,9 +314,6 @@ function addLine(key, value) {
     dynamicInfo.appendChild(line);
 }
 
-// =======================================
-// UI helper: render suggestion block
-// =======================================
 function renderSuggestionUpgrade(suggestion) {
     actionArea.style.display = "block";
     actionArea.innerHTML = "";
@@ -355,128 +350,159 @@ function renderSuggestionUpgrade(suggestion) {
 }
 
 // =======================================
-// POLL STATUS
+// POLLING WITH BACKOFF (Phase 1.3 safe)
 // =======================================
-async function pollStatus() {
+const TERMINAL_STATUSES = ["success", "partial_success", "failed"];
+const POLL_INTERVALS = {
+    queued: 8000,
+    running: 3000,
+    paused_cap: 15000
+};
+
+let currentDelay = 5000;
+let pollTimer = null;
+
+function getDelayForStatus(status) {
+    return POLL_INTERVALS[status] || 10000;
+}
+
+async function pollStatusLoop() {
     try {
         const res = await fetch(API_BASE + "/api/status/" + jobId);
-        if (!res.ok) {
-            console.warn("Status fetch failed:", res.status);
-            return;
-        }
+        if (!res.ok) throw new Error("status-fetch-failed-" + res.status);
 
         const job = await res.json();
-
-        // ==========================
-        // Reset dynamic UI state
-        // ==========================
-        statusEl.className = "status-value";
-        failEl.style.display = "none";
-        priceLine.style.display = "none";
-        paymentLine.style.display = "none";
-        actionArea.innerHTML = "";
-        actionArea.style.display = "none";
-        dynamicInfo.innerHTML = "";
+        renderJob(job);
 
         const status = (job.status || "").toLowerCase();
-        statusEl.textContent = status.toUpperCase() || "UNKNOWN";
-
-        // ==========================
-        // Always show current profile (if exists)
-        // ==========================
-        const currentProfile = job.pricing_snapshot?.execution_profile || null;
-        if (currentProfile) {
-            addLine("Current profile", currentProfile);
-        }
-
-        // ==========================
-        // FAILED
-        // ==========================
-        if (status === "failed") {
-            statusEl.classList.add("status-fail");
-
-            // Resolve reason
-            const h = toHumanReason(job);
-
-            // Reason headline
-            failEl.style.display = "block";
-            failEl.textContent = "Reason: " + h.label;
-
-            // Details
-            if (h.details) {
-                addLine("Details", h.details);
-            }
-
-            // Try profile suggestion
-            const suggestion = resolveSuggestedAction(job, h);
-            if (suggestion) {
-                renderSuggestionUpgrade(suggestion);
-                return;
-            }
-
-            // Generic actions if no upgrade available
-            if (h.actions && h.actions.length > 0) {
-                addLine("Suggested action", h.actions.join(", "));
-            }
-
+        if (TERMINAL_STATUSES.includes(status)) {
+            console.log("[STATUS] terminal state reached:", status);
             return;
         }
 
-        // ==========================
-        // SUCCESS
-        // ==========================
-        if (status === "success") {
-            statusEl.classList.add("status-success");
-
-            const priceUsd = job.pricing_snapshot?.price_usd;
-            priceEl.textContent =
-                typeof priceUsd === "number"
-                    ? "$" + priceUsd.toFixed(2)
-                    : "—";
-            priceLine.style.display = "block";
-
-            const paid = job.payment?.status === "PAID";
-            const paidAt = job.payment?.paid_at;
-
-            if (paid && paidAt) {
-                const ts = new Date(paidAt)
-                    .toISOString()
-                    .replace("T", " ")
-                    .slice(0, 16);
-                paymentLine.textContent = "Payment confirmed at: " + ts;
-                paymentLine.style.display = "block";
-            }
-
-            actionArea.style.display = "block";
-            actionArea.innerHTML = paid
-                ? `<button class="btn" onclick="download()">Download output</button>`
-                : `<button class="btn" onclick="pay()">Pay to download</button>`;
-
-            return;
-        }
-
-        // ==========================
-        // QUEUED / RUNNING / OTHER
-        // ==========================
-        if (status === "queued") {
-            statusEl.classList.add("status-wait");
-            addLine("State", "Job is queued");
-            return;
-        }
-
-        if (status === "running") {
-            statusEl.classList.add("status-wait");
-            addLine("State", "Rendering in progress…");
-            return;
-        }
-
-        // Unknown status fallback
-        statusEl.classList.add("status-wait");
-        addLine("Note", "Waiting for job updates…");
+        currentDelay = getDelayForStatus(status);
 
     } catch (err) {
-        console.error("Status polling failed:", err);
+        console.warn("[STATUS] fetch error:", err);
+        currentDelay = Math.min(currentDelay * 1.5, 30000);
     }
+
+    pollTimer = setTimeout(pollStatusLoop, currentDelay);
+}
+
+// =======================================
+// RENDER JOB → UI
+// =======================================
+function renderJob(job) {
+    statusEl.className = "status-value";
+    failEl.style.display = "none";
+    priceLine.style.display = "none";
+    paymentLine.style.display = "none";
+    actionArea.innerHTML = "";
+    actionArea.style.display = "none";
+    dynamicInfo.innerHTML = "";
+
+    const status = (job.status || "").toLowerCase();
+    statusEl.textContent = status ? status.toUpperCase() : "UNKNOWN";
+
+    const currentProfile = job.pricing_snapshot?.execution_profile || null;
+    if (currentProfile) {
+        addLine("Current profile", currentProfile);
+    }
+
+    const stopReason = job.stop_reason || null;
+    if (stopReason) {
+        addLine("Stop reason", stopReason);
+    }
+
+    const stopMechanism = job.stop_mechanism || null;
+    if (stopMechanism) {
+        addLine("Stop mechanism", stopMechanism);
+    }
+
+    if (status === "failed") {
+        statusEl.classList.add("status-fail");
+
+        const h = toHumanReason(job);
+
+        failEl.style.display = "block";
+        failEl.textContent = "Reason: " + h.label;
+
+        if (h.details) {
+            addLine("Details", h.details);
+        }
+
+        const suggestion = resolveSuggestedAction(job, h);
+        if (suggestion) {
+            renderSuggestionUpgrade(suggestion);
+            return;
+        }
+
+        if (h.actions && h.actions.length > 0) {
+            addLine("Suggested action", h.actions.join(", "));
+        }
+
+        return;
+    }
+
+    if (status === "paused_cap") {
+        statusEl.classList.add("status-wait");
+        addLine("State", "Job paused at CAP. Resume will be available in Phase 1.4.");
+        priceLine.style.display = "block";
+
+        const billedUsd = job.billing?.billed_usd;
+        priceEl.textContent =
+            typeof billedUsd === "number"
+                ? "$" + billedUsd.toFixed(2)
+                : "—";
+
+        return;
+    }
+
+    if (status === "success" || status === "partial_success") {
+        statusEl.classList.add("status-success");
+
+        const billedUsd = job.billing?.billed_usd;
+        priceEl.textContent =
+            typeof billedUsd === "number"
+                ? "$" + billedUsd.toFixed(2)
+                : "—";
+        priceLine.style.display = "block";
+
+        const paid = job.payment?.status === "PAID";
+        const paidAt = job.payment?.paid_at;
+
+        if (paid && paidAt) {
+            const ts = new Date(paidAt)
+                .toISOString()
+                .replace("T", " ")
+                .slice(0, 16);
+            paymentLine.textContent = "Payment confirmed at: " + ts;
+            paymentLine.style.display = "block";
+        }
+
+        actionArea.style.display = "block";
+        actionArea.innerHTML = paid
+            ? `<button class="btn" onclick="download()">Download output</button>`
+            : `<button class="btn" onclick="pay()">Pay to download</button>`;
+
+        return;
+    }
+
+    if (status === "queued") {
+        statusEl.classList.add("status-wait");
+        addLine("State", "Job is queued");
+        return;
+    }
+
+    if (status === "running") {
+        statusEl.classList.add("status-wait");
+        addLine("State", "Rendering in progress…");
+        return;
+    }
+
+    statusEl.classList.add("status-wait");
+    addLine("Note", "Waiting for job updates…");
 }
 
 // ========================================
@@ -499,15 +525,22 @@ window.pay = async function () {
 };
 
 window.download = function () {
-    window.location.href = API_BASE + "/api/download/" + jobId;
+    actionArea.textContent = "Starting download…";
+
+    const iframe = document.createElement("iframe");
+    iframe.style.display = "none";
+    iframe.src = API_BASE + "/api/download/" + jobId;
+    document.body.appendChild(iframe);
+
+    setTimeout(() => {
+        window.location.href = "https://sulmada.github.io/gpurenderstudio/";
+    }, 4000);
 };
 
 // ========================================
-// POLLING START
+// START
 // ========================================
-pollStatus();
-setInterval(pollStatus, 4000);
-
+pollStatusLoop();
 
 })(); // end IIFE
 </script>
