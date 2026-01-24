@@ -270,7 +270,6 @@
             font-size: 14px;
         }
 
-
         /* =========================================================
            DYNAMIC PRICING WINDOW (CINEMATIC HIGHLIGHT)
         ========================================================= */
@@ -330,7 +329,6 @@
             font-size: 18px;
         }
 
-
         /* =========================================================
            ANIMATIONS
         ========================================================= */
@@ -340,7 +338,6 @@
                 transform: translateY(0);
             }
         }
-
 
         /* =========================================================
            MOBILE OPTIMIZATION
@@ -362,6 +359,7 @@
                 background-attachment: scroll;
             }
         }
+
         /* =========================================================
            PHASE BOXES & BADGES
         ========================================================= */
@@ -433,7 +431,6 @@
     </style>
 </head>
 
-
 <body>
 
 <!-- ========================================================= -->
@@ -447,7 +444,6 @@
     <a href="#upload">Upload</a>
     <a href="#contact">Contact</a>
 </div>
-
 
 <!-- ========================================================= -->
 <!--  HERO SECTION (Shimmer + Scroll Fade + Optimized Posters) -->
@@ -486,7 +482,7 @@
         <h1 class="shimmer">Automated GPU Rendering for Render-Ready Projects</h1>
         <p class="shimmer">
             Upload a finished Blender project.
-            The system executes automatically – or reports exactly why it cannot.
+            The system executes automatically - or reports exactly why it cannot.
         </p>
         <p style="font-size:14px;opacity:0.7;margin-top:10px;">
             Phase 1 is fully automated · No manual review · No creative decisions
@@ -496,12 +492,10 @@
     </div>
 </div>
 
-
 <!-- ========================================================= -->
 <!--  SHIMMER + SCROLL FADE CSS                                -->
 <!-- ========================================================= -->
 <style>
-/* Cinematic gradient behind content */
 .hero-gradient-mask {
     position: absolute;
     bottom: 0;
@@ -516,7 +510,6 @@
     pointer-events: none;
 }
 
-/* Additional top fade for scroll transition */
 .hero-scroll-mask {
     position: absolute;
     top: 0;
@@ -528,7 +521,6 @@
     pointer-events: none;
 }
 
-/* Shimmer animation */
 .shimmer {
     position: relative;
     display: inline-block;
@@ -558,14 +550,12 @@
     100% { left: 120%; }
 }
 
-/* Scroll fade values modified by JS */
 .hero-video,
 .hero-content,
 .hero-gradient-mask {
     transition: opacity 0.25s linear, transform 0.25s linear;
 }
 </style>
-
 
 <!-- ========================================================= -->
 <!--  DEVICE POSTER + VIDEO SWITCHING                         -->
@@ -601,14 +591,12 @@
 })();
 </script>
 
-
 <!-- ========================================================= -->
 <!--  SCROLL TO FADE HERO                                      -->
 <!-- ========================================================= -->
 <script>
 (function () {
 
-    const hero = document.querySelector(".hero");
     const vid = document.getElementById("heroVid");
     const content = document.querySelector(".hero-content");
     const mask = document.querySelector(".hero-gradient-mask");
@@ -616,26 +604,22 @@
     window.addEventListener("scroll", () => {
 
         const scrollY = window.scrollY;
-        const fadeStart = 0;
-        const fadeEnd = 240; // how quickly fade occurs
+        const fadeEnd = 240;
 
         const t = Math.min(1, Math.max(0, scrollY / fadeEnd));
 
-        // Apply fade to hero
         document.querySelector(".hero-scroll-mask")
                 .style.setProperty("--hero-fade", t * 0.75);
-
 
         vid.style.opacity = 1 - t;
         mask.style.opacity = 1 - t;
         content.style.opacity = 1 - t;
 
-        content.style.transform = `translateY(${t * -25}px)`;
+        content.style.transform = "translateY(" + (t * -25) + "px)";
     });
 
 })();
 </script>
-
 
 <!-- ========================================================= -->
 <!--  HOW IT WORKS                                             -->
@@ -678,14 +662,10 @@
 
     <p style="font-size:13px;opacity:0.75;margin-bottom:22px;">
       Price and base runtime are locked at submission.
-      Pricing represents risk and capacity reservation — not guaranteed render time.
+      Pricing represents risk and capacity reservation - not guaranteed render time.
     </p>
 
-    <!-- ===================================================== -->
-    <!-- EXECUTION PROFILES – CONTRACT TABLE                   -->
-    <!-- ===================================================== -->
     <div class="profile-table">
-
       <div class="profile-row header">
         <div class="col-profile">Profile</div>
         <div class="col-runtime">Base runtime</div>
@@ -732,7 +712,6 @@
         <div class="col-price">$5.00</div>
         <div class="col-risk">Highest</div>
       </div>
-
     </div>
 
     <h3 style="font-size:15px;margin-top:30px;">System Capacity</h3>
@@ -826,9 +805,7 @@
   var capacityEl = document.getElementById("pricing-capacity");
   var barEl      = document.querySelector(".pricing-status-bar");
 
-  // Exposed for execution profile rendering
   window.__CURRENT_TIME_MULTIPLIER = 1;
-  var __LAST_MULTIPLIER = null;
 
   var STATE_LABELS = {
     IDLE:       "Idle",
@@ -837,63 +814,6 @@
     BUSY:       "High demand",
     SATURATED:  "Fully booked"
   };
-
-async function loadExecutionProfiles() {
-  var container = document.getElementById("executionProfiles");
-  if (!container) {
-    return;
-  }
-console.log("loadExecutionProfiles called");
-
-  try {
-    var res = await fetch(API_BASE + "/api/profiles");
-    if (!res.ok) {
-      container.textContent = "—";
-      return;
-    }
-
-    var profiles = await res.json();
-
-    var multiplier =
-      typeof window.__CURRENT_TIME_MULTIPLIER === "number"
-        ? window.__CURRENT_TIME_MULTIPLIER
-        : 1.0;
-
-    container.innerHTML = Object.values(profiles)
-      .map(function (p) {
-        // Phase 1.1 contract fields
-        var baseRuntimeMin = Math.round(p.base_runtime_ms / 60000);
-        var effectiveRuntimeMin = Math.round(
-          baseRuntimeMin * multiplier
-        );
-
-        return `
-<div style="margin-bottom:22px;">
-  <p><strong>${p.label}</strong></p>
-  <p style="font-size:14px;opacity:0.85;">
-    Price per job: <strong>$${p.entry_price_usd.toFixed(2)}</strong><br>
-    Base runtime: ${baseRuntimeMin} minutes<br>
-    Current available runtime:
-    <strong>${effectiveRuntimeMin} minutes</strong>
-  </p>
-  ${
-    Array.isArray(p.tooltip)
-      ? `
-  <p style="font-size:12px;opacity:0.6;margin-top:6px;">
-    ${p.tooltip.join("<br>")}
-  </p>
-  `
-      : ""
-  }
-</div>
-`;
-      })
-      .join("");
-  } catch (err) {
-    console.error("Failed to load execution profiles", err);
-    container.textContent = "—";
-  }
-}
 
   async function updateCapacity() {
     try {
@@ -904,43 +824,31 @@ console.log("loadExecutionProfiles called");
       var state = data.state;
       var multiplier = data.time_multiplier;
 
-      // Defensive clamp (UI must never show absurd values)
       if (typeof multiplier !== "number" || !isFinite(multiplier)) {
         multiplier = 1;
       }
       if (multiplier < 0.5) multiplier = 0.5;
       if (multiplier > 2.0) multiplier = 2.0;
 
-      // Float-stable rounding (UI + diff logic share exact value)
       var rounded = Math.round(multiplier * 1000) / 1000;
       window.__CURRENT_TIME_MULTIPLIER = rounded;
 
-      // Title
       if (titleEl) {
         if (state === "SATURATED") {
-          titleEl.textContent =
-            "System Capacity: Temporarily unavailable";
+          titleEl.textContent = "System Capacity: Temporarily unavailable";
         } else {
-          titleEl.textContent =
-            "System Capacity: " +
-            (STATE_LABELS[state] || "Unknown");
+          titleEl.textContent = "System Capacity: " + (STATE_LABELS[state] || "Unknown");
         }
       }
 
-      // Capacity description (effect, not mechanism)
       if (capacityEl) {
         if (state === "SATURATED") {
-          capacityEl.textContent =
-            "No execution capacity available at the moment";
+          capacityEl.textContent = "No execution capacity available at the moment";
         } else {
-          capacityEl.textContent =
-            "Render time window: " +
-            Math.round(rounded * 100) +
-            "% of base runtime";
+          capacityEl.textContent = "Render time window: " + Math.round(rounded * 100) + "% of base runtime";
         }
       }
 
-      // Passive UI signal: pause uploads when saturated
       var uploadSection = document.getElementById("upload");
       if (uploadSection) {
         if (state === "SATURATED") {
@@ -953,31 +861,20 @@ console.log("loadExecutionProfiles called");
       }
 
       if (barEl) {
-        barEl.style.opacity =
-          state === "SATURATED" ? "0.25" : "1";
-      }
-
-      // Re-render execution profiles ONLY if multiplier changed
-      if (__LAST_MULTIPLIER !== rounded) {
-        __LAST_MULTIPLIER = rounded;
-        loadExecutionProfiles();
+        barEl.style.opacity = state === "SATURATED" ? "0.25" : "1";
       }
 
     } catch (_) {
-      // Fail silent by design
     }
   }
 
-  // Deterministic init sequence
   (async function initCapacity() {
-    await updateCapacity();      // ensure correct multiplier first
-    loadExecutionProfiles();     // render with correct runtime
+    await updateCapacity();
     setInterval(updateCapacity, 120000);
   })();
 
 })();
 </script>
-
 
 <!-- ========================================================= -->
 <!--  UPLOAD PROJECT                                           -->
@@ -987,58 +884,16 @@ console.log("loadExecutionProfiles called");
     <h2>Upload Project</h2>
 
     <form id="uploadForm" enctype="multipart/form-data">
-
-      <!-- Locked project type -->
       <input type="hidden" name="project_type" value="blender">
 
-      <!-- Customer metadata -->
-      <input class="input-field"
-             name="name"
-             placeholder="Your name"
-             required>
+      <input class="input-field" name="name" placeholder="Your name" required>
+      <input class="input-field" name="email" placeholder="Email address" required>
+      <input class="input-field" name="description" placeholder="Project description" required>
 
-      <input class="input-field"
-             name="email"
-             placeholder="Email address"
-             required>
+      <input class="input-field" name="fileUrl" placeholder="URL to project files (optional)">
 
-      <input class="input-field"
-             name="description"
-             placeholder="Project description"
-             required>
+      <input class="input-field" type="file" name="file" accept=".blend" required>
 
-      <!-- Execution profile selection -->
-      <select class="input-field"
-              name="execution_profile"
-              required>
-        <option value="">Select execution window</option>
-        <option value="STRICT">
-          Strict — up to 1.5h base runtime (lowest risk)
-        </option>
-        <option value="EXTENDED">
-          Extended — up to 4h base runtime
-        </option>
-        <option value="FLEXIBLE">
-          Flexible — up to 8h base runtime
-        </option>
-        <option value="OPEN">
-          Open — up to 12h base runtime (highest tolerance)
-        </option>
-      </select>
-
-      <!-- Optional external reference -->
-      <input class="input-field"
-             name="fileUrl"
-             placeholder="URL to project files (optional)">
-
-      <!-- File upload -->
-      <input class="input-field"
-             type="file"
-             name="file"
-             accept=".blend"
-             required>
-
-      <!-- Phase 1 contract text -->
       <p style="font-size:13px;opacity:0.75;margin-top:12px;">
         Phase 1 accepts render-ready Blender projects only.
         No fixes, edits, or creative changes are performed.
@@ -1048,25 +903,20 @@ console.log("loadExecutionProfiles called");
         Failed jobs are not charged. Price and runtime are locked at submission.
       </p>
 
-      <!-- Submit -->
-      <button class="btn btn-primary"
-              type="submit"
-              style="width:100%;margin-top:18px;">
+      <button class="btn btn-primary" type="submit" style="width:100%;margin-top:18px;">
         Submit to Phase 1
       </button>
-
     </form>
 
     <div id="uploadResult" style="margin-top:20px;"></div>
   </div>
 </section>
 
-
 <!-- ========================================================= -->
 <!--  FOOTER                                                   -->
 <!-- ========================================================= -->
 <div id="contact" class="footer">
-    GPU Render Studio – Automated rendering platform<br>
+    GPU Render Studio - Automated rendering platform<br>
     Sweden
 </div>
 
@@ -1074,65 +924,180 @@ console.log("loadExecutionProfiles called");
 <!--  SCRIPT: UPLOAD HANDLING                                  -->
 <!-- ========================================================= -->
 <script>
-document.getElementById("uploadForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
+const API_BASE =
+  location.hostname === "localhost"
+    ? "http://localhost:3001"
+    : "https://api.gpurenderstudio.com";
 
-    const formData = new FormData(e.target);
-    const resultBox = document.getElementById("uploadResult");
+const form = document.getElementById("uploadForm");
+const resultBox = document.getElementById("uploadResult");
 
-    // Omedelbar, deterministisk feedback
-    resultBox.textContent = "Uploading project...";
+let CURRENT_JOB_ID = null;
+let CURRENT_PRECHECK = null;
 
-    // API-bas (lokalt vs live)
-    const API_BASE =
-        location.hostname === "localhost"
-            ? "http://localhost:3001"
-            : "https://api.gpurenderstudio.com";
+function safeNum(x) {
+  return typeof x === "number" && isFinite(x) ? x : null;
+}
 
-    try {
-        const res = await fetch(API_BASE + "/api/upload", {
-            method: "POST",
-            body: formData
-        });
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  resultBox.textContent = "Uploading project...";
 
-        // Om servern svarar men ej OK
-        if (!res.ok) {
-            const msg =
-                res.status === 403 ? "Ingest is currently disabled." :
-                res.status === 400 ? "Invalid submission." :
-                "Unexpected server response.";
-            resultBox.textContent = msg;
-            return;
-        }
+  const fd = new FormData(form);
 
-        const data = await res.json();
+  try {
+    const uploadRes = await fetch(API_BASE + "/api/upload", {
+      method: "POST",
+      body: fd
+    });
 
-        // === LYCKAD SUBMISSION (NORMALFALLET) ===
-        if (data.ok === true && data.job_id) {
-            // Absolut redirect (GitHub Pages-säker)
-            window.location.href =
-                window.location.origin +
-                "/gpurenderstudio/status/?job_id=" +
-                encodeURIComponent(data.job_id);
-            return;
-        }
-
-        // === KONTROLLERAT FEL ===
-        if (data.error) {
-            resultBox.textContent = "Upload failed: " + data.error;
-            return;
-        }
-
-        // === KONTRAKTSBROTT ===
-        resultBox.textContent = "Unexpected server response.";
-
-    } catch (err) {
-        console.error("UPLOAD_NETWORK_ERROR", err);
-        resultBox.textContent = "Upload failed: network error.";
+    if (!uploadRes.ok) {
+      resultBox.textContent = "Upload failed.";
+      return;
     }
-});
-</script>
 
+    const uploadData = await uploadRes.json();
+    if (!uploadData || !uploadData.job_id) {
+      resultBox.textContent = "Unexpected upload response.";
+      return;
+    }
+
+    CURRENT_JOB_ID = uploadData.job_id;
+
+    resultBox.textContent = "Running GPU timing precheck...";
+
+    const precheckRes = await fetch(API_BASE + "/api/contracts/precheck/real", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ job_id: CURRENT_JOB_ID })
+    });
+
+    if (!precheckRes.ok) {
+              const t = await precheckRes.json().catch(()=>null);
+              resultBox.textContent = t?.error || "Precheck failed.";
+              return;
+            }
+
+
+    const precheck = await precheckRes.json();
+    CURRENT_PRECHECK = precheck;
+
+    if (!precheck || safeNum(precheck.estimated_hours_effective) === null) {
+      resultBox.textContent = "Precheck failed.";
+      return;
+    }
+
+    renderSlotChooser(precheck);
+
+  } catch (err) {
+    console.error(err);
+    resultBox.textContent = "Network error.";
+  }
+});
+
+function renderSlotChooser(precheck) {
+  const est = safeNum(precheck.estimated_hours_effective);
+  const estText = est === null ? "—" : est.toFixed(2);
+
+  resultBox.innerHTML = `
+<h3>Select execution window</h3>
+
+<p>Estimated GPU hours: <strong>${estText}</strong></p>
+
+<label>
+  <input type="checkbox" id="overflowToggle">
+  Allow overflow beyond slot
+</label>
+
+<label style="display:block;margin-top:10px;">
+  Spending cap (USD):
+  <input type="range" min="1" max="20" step="0.5" id="capSlider">
+  <span id="capVal">—</span>
+</label>
+
+<div style="margin-top:14px;">
+  <button class="btn btn-primary" id="confirmBtn" type="button">Confirm & Start</button>
+</div>
+`;
+
+  const slider = document.getElementById("capSlider");
+  const capVal = document.getElementById("capVal");
+  const btn = document.getElementById("confirmBtn");
+
+  if (slider && capVal) {
+    const sync = () => {
+      capVal.textContent = "$" + slider.value;
+    };
+    slider.addEventListener("input", sync);
+    sync();
+  }
+
+  if (btn) {
+    btn.addEventListener("click", confirmContract);
+  }
+}
+
+async function confirmContract() {
+  if (!CURRENT_JOB_ID) {
+    resultBox.textContent = "Missing job id.";
+    return;
+  }
+
+  const btn = document.getElementById("confirmBtn");
+  if (btn) btn.disabled = true;
+
+  resultBox.textContent = "Confirming execution contract...";
+
+  const overflow = !!document.getElementById("overflowToggle")?.checked;
+
+  const capSlider = document.getElementById("capSlider");
+  const capUsd = capSlider ? Number(capSlider.value) : null;
+
+  const body = {
+    job_id: CURRENT_JOB_ID,
+    overflow_allowed: overflow,
+    cap_enabled: capUsd !== null && isFinite(capUsd),
+    cap_usd: capUsd !== null && isFinite(capUsd) ? capUsd : null
+  };
+
+  try {
+    const res = await fetch(API_BASE + "/api/contracts/confirm", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
+
+    const data = await res.json().catch(() => null);
+
+    if (!res.ok || !data) {
+      if (btn) btn.disabled = false;
+      resultBox.textContent =
+        data?.error ||
+        data?.message ||
+        "Contract confirmation failed.";
+      return;
+    }
+
+    /* === STRIPE REDIRECT PATH === */
+    if (data.checkout_url) {
+      window.location.href = data.checkout_url;
+      return;
+    }
+
+    /* === NORMAL PATH === */
+    window.location.href =
+      window.location.origin +
+      "/gpurenderstudio/status/?job_id=" +
+      encodeURIComponent(CURRENT_JOB_ID);
+
+  } catch (err) {
+    console.error(err);
+    if (btn) btn.disabled = false;
+    resultBox.textContent = "Network error while confirming contract.";
+  }
+}
+
+</script>
 
 </body>
 </html>
