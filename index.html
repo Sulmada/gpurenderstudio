@@ -1066,7 +1066,13 @@ ${slotHtml}
     ?.addEventListener("click", confirmContract);
 }
 
+let CONFIRM_IN_FLIGHT = false;
+
 async function confirmContract() {
+  if (CONFIRM_IN_FLIGHT) {
+    return; // hard guard against double-click / retry spam
+  }
+
   if (!CURRENT_JOB_ID) {
     if (confirmStatus)
       confirmStatus.textContent = "Missing job id.";
@@ -1074,7 +1080,18 @@ async function confirmContract() {
   }
 
   const btn = document.getElementById("confirmBtn");
-  if (btn) btn.disabled = true;
+  const form = document.getElementById("slotForm");
+
+  CONFIRM_IN_FLIGHT = true;
+
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = "Confirming...";
+  }
+
+  if (form) {
+    [...form.elements].forEach(el => (el.disabled = true));
+  }
 
   if (confirmStatus)
     confirmStatus.textContent = "Confirming execution contract...";
@@ -1088,7 +1105,8 @@ async function confirmContract() {
   if (!slot) {
     if (confirmStatus)
       confirmStatus.textContent = "No execution profile selected.";
-    if (btn) btn.disabled = false;
+
+    unlockConfirmUI();
     return;
   }
 
@@ -1122,20 +1140,28 @@ async function confirmContract() {
       body: JSON.stringify(body)
     });
 
+    const data = await res.json().catch(() => null);
+
     if (!res.ok) {
-      const t = await res.text();
       if (confirmStatus)
-        confirmStatus.textContent = t || "Confirm failed.";
-      if (btn) btn.disabled = false;
+        confirmStatus.textContent =
+          data?.error || "Confirm failed.";
+
+      unlockConfirmUI();
       return;
     }
 
-    const data = await res.json();
+    // backend idempotent replay is OK
+    if (data?.idempotent) {
+      console.info("Confirm already processed for job", CURRENT_JOB_ID);
+    }
 
     if (!data || data.status !== "OK") {
       if (confirmStatus)
-        confirmStatus.textContent = data?.error || "Confirm failed.";
-      if (btn) btn.disabled = false;
+        confirmStatus.textContent =
+          data?.error || "Confirm failed.";
+
+      unlockConfirmUI();
       return;
     }
 
@@ -1146,9 +1172,27 @@ async function confirmContract() {
 
   } catch (err) {
     console.error(err);
+
     if (confirmStatus)
       confirmStatus.textContent = "Network error.";
-    if (btn) btn.disabled = false;
+
+    unlockConfirmUI();
+  }
+}
+
+function unlockConfirmUI() {
+  CONFIRM_IN_FLIGHT = false;
+
+  const btn = document.getElementById("confirmBtn");
+  const form = document.getElementById("slotForm");
+
+  if (btn) {
+    btn.disabled = false;
+    btn.textContent = "Confirm";
+  }
+
+  if (form) {
+    [...form.elements].forEach(el => (el.disabled = false));
   }
 }
 
