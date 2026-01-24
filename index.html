@@ -1006,12 +1006,15 @@ function renderSlotChooser(precheck) {
   const slots =
     precheck.slot_suggestion?.slot_analysis || [];
 
+  const recommended =
+    precheck.slot_suggestion?.recommended_profile;
+
   const slotHtml = slots.map(s => `
 <label style="display:block;margin-top:6px;">
   <input type="radio"
          name="slotRadio"
          value="${s.slot}"
-         ${s.slot === "STRICT" ? "checked" : ""}>
+         ${s.slot === recommended ? "checked" : ""}>
   ${s.slot}
 </label>
 `).join("");
@@ -1036,7 +1039,9 @@ ${slotHtml}
 </label>
 
 <div style="margin-top:14px;">
-  <button class="btn btn-primary" id="confirmBtn" type="button">
+  <button class="btn btn-primary"
+          id="confirmBtn"
+          type="button">
     Confirm & Start
   </button>
 </div>
@@ -1044,7 +1049,6 @@ ${slotHtml}
 
   const slider = document.getElementById("capSlider");
   const capVal = document.getElementById("capVal");
-  const btn = document.getElementById("confirmBtn");
 
   if (slider && capVal) {
     const sync = () => {
@@ -1054,10 +1058,9 @@ ${slotHtml}
     sync();
   }
 
-  if (btn) {
-    btn.addEventListener("click", confirmContract);
-  }
-
+  document
+    .getElementById("confirmBtn")
+    ?.addEventListener("click", confirmContract);
 }
 
 async function confirmContract() {
