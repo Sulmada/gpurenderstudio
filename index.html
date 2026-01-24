@@ -1007,7 +1007,7 @@ function renderSlotChooser(precheck) {
     precheck.slot_suggestion?.slot_analysis || [];
 
   const recommended =
-    precheck.slot_suggestion?.recommended_profile;
+    precheck.slot_suggestion?.recommended_profile || slots?.[0]?.slot;
 
   const slotHtml = slots.map(s => `
 <label style="display:block;margin-top:6px;">
@@ -1078,7 +1078,7 @@ async function confirmContract() {
   // SLOT
   // ------------------------
   const slot =
-    document.querySelector('input[name="slotRadio"]:checked')?.value;
+          resultBox.querySelector('input[name="slotRadio"]:checked')?.value;
 
   if (!slot) {
     resultBox.textContent = "No execution profile selected.";
