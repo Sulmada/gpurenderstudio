@@ -998,13 +998,37 @@ form.addEventListener("submit", async (e) => {
 });
 
 function renderSlotChooser(precheck) {
-  const rp = precheck.real_precheck || {};
-  const est = safeNum(rp.estimated_hours_effective);  const estText = est === null ? "—" : est.toFixed(2);
 
+  const rp = precheck.real_precheck || {};
+  const est = safeNum(rp.estimated_hours_effective);
+  const estText = est === null ? "—" : est.toFixed(2);
+
+  // -------------------------
+  // SLOT OPTIONS
+  // -------------------------
+  const slots =
+    precheck.slot_suggestion?.slot_analysis || [];
+
+  const slotHtml = slots.map(s => `
+<label style="display:block;margin-top:6px;">
+  <input type="radio"
+         name="slotRadio"
+         value="${s.slot}"
+         ${s.slot === "STRICT" ? "checked" : ""}>
+  ${s.slot}
+</label>
+`).join("");
+
+  // -------------------------
+  // RENDER UI
+  // -------------------------
   resultBox.innerHTML = `
 <h3>Select execution window</h3>
 
 <p>Estimated GPU hours: <strong>${estText}</strong></p>
+
+<h4 style="margin-top:14px;">Execution profile</h4>
+${slotHtml}
 
 <label>
   <input type="checkbox" id="overflowToggle">
@@ -1018,10 +1042,15 @@ function renderSlotChooser(precheck) {
 </label>
 
 <div style="margin-top:14px;">
-  <button class="btn btn-primary" id="confirmBtn" type="button">Confirm & Start</button>
+  <button class="btn btn-primary" id="confirmBtn" type="button">
+    Confirm & Start
+  </button>
 </div>
 `;
 
+  // -------------------------
+  // HOOKS
+  // -------------------------
   const slider = document.getElementById("capSlider");
   const capVal = document.getElementById("capVal");
   const btn = document.getElementById("confirmBtn");
