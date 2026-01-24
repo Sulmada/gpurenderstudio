@@ -966,7 +966,7 @@ form.addEventListener("submit", async (e) => {
 
     resultBox.textContent = "Running GPU timing precheck...";
 
-    const precheckRes = await fetch(API_BASE + "/api/contracts/precheck/real", {
+    const precheckRes = await fetch(API_BASE + "/api/contracts/precheck", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ job_id: CURRENT_JOB_ID })
