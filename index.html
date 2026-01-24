@@ -909,6 +909,8 @@
     </form>
 
     <div id="uploadResult" style="margin-top:20px;"></div>
+    <div id="confirmStatus" style="margin-top:10px;"></div>
+
   </div>
 </section>
 
@@ -931,6 +933,7 @@ const API_BASE =
 
 const form = document.getElementById("uploadForm");
 const resultBox = document.getElementById("uploadResult");
+const confirmStatus = document.getElementById("confirmStatus");
 
 let CURRENT_JOB_ID = null;
 let CURRENT_PRECHECK = null;
@@ -1065,23 +1068,26 @@ ${slotHtml}
 
 async function confirmContract() {
   if (!CURRENT_JOB_ID) {
-    resultBox.textContent = "Missing job id.";
+    if (confirmStatus)
+      confirmStatus.textContent = "Missing job id.";
     return;
   }
 
   const btn = document.getElementById("confirmBtn");
   if (btn) btn.disabled = true;
 
-  resultBox.textContent = "Confirming execution contract...";
+  if (confirmStatus)
+    confirmStatus.textContent = "Confirming execution contract...";
 
   // ------------------------
   // SLOT
   // ------------------------
   const slot =
-          resultBox.querySelector('input[name="slotRadio"]:checked')?.value;
+    document.querySelector('input[name="slotRadio"]:checked')?.value;
 
   if (!slot) {
-    resultBox.textContent = "No execution profile selected.";
+    if (confirmStatus)
+      confirmStatus.textContent = "No execution profile selected.";
     if (btn) btn.disabled = false;
     return;
   }
@@ -1099,6 +1105,7 @@ async function confirmContract() {
     cap_enabled: capUsd !== null && isFinite(capUsd),
     cap_usd: capUsd
   };
+
   try {
     const res = await fetch(API_BASE + "/api/contracts/confirm", {
       method: "POST",
@@ -1108,7 +1115,8 @@ async function confirmContract() {
 
     if (!res.ok) {
       const t = await res.text();
-      resultBox.textContent = t || "Confirm failed.";
+      if (confirmStatus)
+        confirmStatus.textContent = t || "Confirm failed.";
       if (btn) btn.disabled = false;
       return;
     }
@@ -1116,7 +1124,8 @@ async function confirmContract() {
     const data = await res.json();
 
     if (!data || data.status !== "OK") {
-      resultBox.textContent = data?.error || "Confirm failed.";
+      if (confirmStatus)
+        confirmStatus.textContent = data?.error || "Confirm failed.";
       if (btn) btn.disabled = false;
       return;
     }
@@ -1128,7 +1137,8 @@ async function confirmContract() {
 
   } catch (err) {
     console.error(err);
-    resultBox.textContent = "Network error.";
+    if (confirmStatus)
+      confirmStatus.textContent = "Network error.";
     if (btn) btn.disabled = false;
   }
 }
