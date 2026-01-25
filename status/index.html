@@ -1,1232 +1,619 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GPU Render Studio</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GPU Render Studio – Job Status</title>
 
-    <style>
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #0b0b0b;
+    color: #e0e0e0;
+}
 
-        /* =========================================================
-           BASE STYLES
-        ========================================================= */
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: #0b0b0b;
-            color: #e0e0e0;
-            scroll-behavior: smooth;
-        }
+h1, h2 {
+    margin: 0 0 20px 0;
+    font-weight: 700;
+    text-shadow: 0 0 12px rgba(0,255,255,0.15);
+}
 
-        h1, h2, h3 {
-            margin: 0 0 20px 0;
-            font-weight: 700;
-            text-shadow: 0 0 12px rgba(0,255,255,0.15);
-        }
+section {
+    padding: 90px 20px;
+}
 
-        p, li {
-            line-height: 1.6;
-        }
+.content-box {
+    max-width: 900px;
+    margin: auto;
+    background: rgba(20,20,20,0.65);
+    padding: 40px 50px;
+    border-radius: 14px;
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255,255,255,0.04);
+    box-shadow: 0 0 50px rgba(0,255,255,0.05);
+    animation: fadein 1.2s forwards;
+}
 
-        section {
-            padding: 90px 20px;
-        }
+@keyframes fadein {
+    from { opacity: 0; transform: translateY(40px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
 
-        .content-box {
-            max-width: 900px;
-            margin: auto;
-            background: rgba(20,20,20,0.65);
-            padding: 40px 50px;
-            border-radius: 14px;
-            backdrop-filter: blur(6px);
-            border: 1px solid rgba(255,255,255,0.04);
-            box-shadow: 0 0 50px rgba(0,255,255,0.05);
-            opacity: 0;
-            transform: translateY(40px);
-            animation: fadein 1.2s forwards;
-        }
+.hero {
+    position: relative;
+    height: 55vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
 
-        /* =========================================================
-           NAVIGATION BAR
-        ========================================================= */
-        .topnav {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            backdrop-filter: blur(10px);
-            background: rgba(15,15,15,0.45);
-            padding: 12px 20px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            z-index: 99;
-            display: flex;
-            justify-content: center;
-        }
+.hero video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.55);
+}
 
-        .topnav a {
-            margin: 0 18px;
-            text-decoration: none;
-            color: #cceeee;
-            font-size: 14px;
-            letter-spacing: 1px;
-            transition: 0.2s;
-        }
+.hero-content {
+    position: relative;
+    z-index: 2;
+}
 
-        .topnav a:hover {
-            color: #74ffff;
-            text-shadow: 0 0 8px rgba(0,255,255,0.4);
-        }
+.hero-content h1 {
+    font-size: 42px;
+}
 
-        /* =========================================================
-           HERO SECTION WITH VIDEO BACKGROUND
-        ========================================================= */
-        .hero {
-            position: relative;
-            height: 82vh;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding-top: 90px;
-        }
+.hero-content p {
+    font-size: 18px;
+    opacity: 0.85;
+}
 
-        .hero-video {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            object-position: center;
-            z-index: 0;
-            filter: brightness(0.55) saturate(1.25) contrast(1.02);
-        }
+.status-line {
+    margin: 10px 0;
+    font-size: 16px;
+}
 
-        .hero-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(
-                circle at center,
-                rgba(0,0,0,0.00) 0%,
-                rgba(0,0,0,0.45) 100%
-            );
-            z-index: 1;
-        }
+.status-value {
+    font-weight: bold;
+    color: #baffff;
+}
 
-        .hero-content {
-            z-index: 2;
-            padding: 20px;
-        }
+.status-fail {
+    color: #ff9999;
+}
 
-        .hero-content h1 {
-            font-size: 50px;
-        }
+.status-success {
+    color: #9affc8;
+}
 
-        .hero-content p {
-            font-size: 20px;
-            opacity: 0.85;
-        }
+.status-wait {
+    color: #cfffff;
+    opacity: 0.95;
+}
 
-        /* =========================================================
-           BUTTONS
-        ========================================================= */
-        .btn {
-            padding: 14px 28px;
-            margin: 10px;
-            background: #0e1818;
-            color: #cfffff;
-            border: 1px solid #1effff;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: 0.25s;
-            box-shadow: 0 0 12px rgba(0,255,255,0.2);
-        }
+.btn {
+    padding: 14px 28px;
+    margin-top: 25px;
+    background: #0e1818;
+    color: #cfffff;
+    border: 1px solid #1effff;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+}
 
-        .btn:hover {
-            background: #113333;
-            box-shadow: 0 0 20px rgba(0,255,255,0.45);
-            color: #ffffff;
-        }
+.btn:hover {
+    background: #113333;
+}
 
-        .btn-primary {
-            background: #113333;
-        }
+.footer {
+    padding: 60px 20px;
+    text-align: center;
+    font-size: 14px;
+    opacity: 0.75;
+}
 
-        /* =========================================================
-           INPUT FIELDS
-        ========================================================= */
-        .input-field {
-            width: 100%;
-            padding: 14px 16px;
-            margin-top: 12px;
-            background: #1a1a1a;
-            border: 1px solid #333;
-            border-radius: 8px;
-            color: #e0e0e0;
-            font-size: 15px;
-        }
+.status-grid {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 40px;
+}
 
-        .input-field:focus {
-            border-color: #1effff;
-            outline: none;
-            box-shadow: 0 0 8px rgba(0,255,255,0.3);
-        }
+.status-right h3 {
+    margin-top: 0;
+}
 
-        /* =========================================================
-           IMAGE BREAK SECTIONS
-        ========================================================= */
-        .image-section {
-            height: 360px;
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            opacity: 0;
-            animation: fadein 1.5s forwards;
-        }
+.progress-bar-wrap {
+    height: 16px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 10px;
+}
 
-        /* =========================================================
-           EXECUTION PROFILES – CONTRACT TABLE
-        ========================================================= */
-        .profile-table {
-            display: grid;
-            grid-template-columns: 2fr 1.2fr 1fr 1fr;
-            margin-top: 22px;
-            border: 1px solid rgba(255,255,255,0.10);
-            border-radius: 10px;
-            overflow: hidden;
-            background: rgba(10,10,10,0.6);
-        }
+#progressBar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg,#00ffff,#6affff);
+    transition: width 0.6s ease;
+}
 
-        .profile-row {
-            display: contents;
-        }
+#progressText,
+#progressEta {
+    margin-top: 8px;
+    font-size: 14px;
+    opacity: 0.9;
+}
 
-        .profile-row > div {
-            padding: 14px 16px;
-            border-bottom: 1px solid rgba(255,255,255,0.08);
-            font-size: 14px;
-        }
-
-        .profile-row.header > div {
-            font-size: 12px;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            opacity: 0.7;
-            background: rgba(255,255,255,0.04);
-            font-weight: 600;
-        }
-
-        .profile-row:not(.header):hover > div {
-            background: rgba(0,255,255,0.05);
-        }
-
-        .profile-row:last-child > div {
-            border-bottom: none;
-        }
-
-        .profile-row strong {
-            color: #7ffcff;
-        }
-
-        @media (max-width: 760px) {
-            .profile-table {
-                grid-template-columns: 1fr;
-            }
-
-            .profile-row.header {
-                display: none;
-            }
-
-            .profile-row > div {
-                display: grid;
-                grid-template-columns: 130px 1fr;
-                gap: 10px;
-            }
-
-            .profile-row > div:nth-child(1)::before { content: "Profile"; }
-            .profile-row > div:nth-child(2)::before { content: "Base runtime"; }
-            .profile-row > div:nth-child(3)::before { content: "Price"; }
-            .profile-row > div:nth-child(4)::before { content: "Risk"; }
-
-            .profile-row > div::before {
-                font-weight: 600;
-                opacity: 0.6;
-            }
-        }
-
-        /* =========================================================
-           FOOTER
-        ========================================================= */
-        .footer {
-            background: url("assets/images/footer_keyboard.jpg") center/cover no-repeat;
-            padding: 60px 20px;
-            text-align: center;
-            opacity: 0.9;
-            border-top: 1px solid rgba(255,255,255,0.05);
-            font-size: 14px;
-        }
-
-        /* =========================================================
-           DYNAMIC PRICING WINDOW (CINEMATIC HIGHLIGHT)
-        ========================================================= */
-        .pricing-window {
-            max-width: 900px;
-            margin: 80px auto 40px auto;
-            padding: 35px 45px;
-            background: linear-gradient(
-                to bottom right,
-                rgba(18,30,30,0.75),
-                rgba(10,20,20,0.65)
-            );
-            border: 1px solid rgba(0,255,255,0.25);
-            border-radius: 14px;
-            box-shadow: 0 0 35px rgba(0,255,255,0.18);
-            text-align: center;
-            backdrop-filter: blur(10px);
-            position: relative;
-            animation: fadein 1.2s forwards, slowPulse 4.5s infinite ease-in-out;
-        }
-
-        @keyframes slowPulse {
-            0%   { box-shadow: 0 0 22px rgba(0,255,255,0.15); }
-            50%  { box-shadow: 0 0 35px rgba(0,255,255,0.28); }
-            100% { box-shadow: 0 0 22px rgba(0,255,255,0.15); }
-        }
-
-        .pricing-status-bar {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 4px;
-            background: linear-gradient(
-                90deg,
-                rgba(0,255,255,0.8),
-                rgba(0,150,150,0.7)
-            );
-            box-shadow: 0 0 8px rgba(0,255,255,0.5);
-        }
-
-        .pricing-icon {
-            font-size: 26px;
-            color: #baffff;
-            margin-bottom: 10px;
-            opacity: 0.85;
-        }
-
-        .pricing-window h3 {
-            color: #baffff;
-            margin-bottom: 8px;
-            font-size: 26px;
-            text-shadow: 0 0 10px rgba(0,255,255,0.3);
-        }
-
-        .pricing-window p {
-            color: #d9ffff;
-            margin-top: 4px;
-            font-size: 18px;
-        }
-
-        /* =========================================================
-           ANIMATIONS
-        ========================================================= */
-        @keyframes fadein {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* =========================================================
-           MOBILE OPTIMIZATION
-        ========================================================= */
-        @media (max-width: 600px) {
-            .hero-content h1 {
-                font-size: 32px;
-            }
-            .hero-content p  {
-                font-size: 16px;
-            }
-            .content-box      {
-                padding: 25px;
-            }
-            .pricing-window   {
-                padding: 25px;
-            }
-            .image-section    {
-                background-attachment: scroll;
-            }
-        }
-
-        /* =========================================================
-           PHASE BOXES & BADGES
-        ========================================================= */
-        .phase-box {
-            position: relative;
-        }
-
-        .phase-label {
-            position: absolute;
-            top: 16px;
-            right: 16px;
-            font-size: 11px;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            padding: 6px 10px;
-            border-radius: 6px;
-            backdrop-filter: blur(6px);
-            z-index: 5;
-            cursor: help;
-        }
-
-        /* Phase 1 – Live */
-        .phase-1 .phase-label {
-            color: #baffff;
-            background: rgba(0,40,40,0.65);
-            border: 1px solid rgba(0,255,255,0.35);
-            box-shadow: 0 0 12px rgba(0,255,255,0.25);
-        }
-
-        /* Disabled phases (Phase 2 & 3) */
-        .phase-disabled {
-            opacity: 0.45;
-            filter: grayscale(100%);
-        }
-
-        /* Phase 3 – extra subtle */
-        .phase-3 {
-            opacity: 0.35;
-        }
-
-        /* =========================================================
-           TOOLTIP (HOVER)
-        ========================================================= */
-        .phase-label::after {
-            content: attr(data-tooltip);
-            position: absolute;
-            top: 140%;
-            right: 0;
-            width: 260px;
-            padding: 10px 12px;
-            font-size: 12px;
-            line-height: 1.45;
-            letter-spacing: normal;
-            text-transform: none;
-            color: #eaeaea;
-            background: rgba(10,10,10,0.92);
-            border-radius: 6px;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.2s ease;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-            z-index: 20;
-        }
-
-        .phase-label:hover::after {
-            opacity: 1;
-        }
-
-    </style>
+</style>
 </head>
 
 <body>
 
-<!-- ========================================================= -->
-<!--  NAVIGATION BAR                                           -->
-<!-- ========================================================= -->
-<div class="topnav">
-    <a href="#start">Home</a>
-    <a href="#workflow">How it Works</a>
-    <a href="#prices">Pricing</a>
-    <a href="#express">Express</a>
-    <a href="#premium">Premium</a>
-    <a href="#upload">Upload</a>
-    <a href="#contact">Contact</a>
-</div>
-
-<!-- ========================================================= -->
-<!--  HERO SECTION (Shimmer + Scroll Fade + Optimized Posters) -->
-<!-- ========================================================= -->
-<div id="start" class="hero">
-
-    <!-- Live badge -->
-    <div class="phase-label phase-1"
-         style="position:absolute;top:22px;right:22px;"
-         data-tooltip="Fully automated GPU rendering. Your project is executed exactly as uploaded.">
-        Live · Automated Rendering
-    </div>
-
-    <!-- Preload -->
-    <link rel="preload" as="image" href="assets/images/hero_poster_desktop.jpg">
-    <link rel="preload" as="image" href="assets/images/hero_poster_tablet.jpg">
-    <link rel="preload" as="image" href="assets/images/hero_poster_mobile_fixed.jpg">
-    <link rel="preload" as="video"  href="assets/video/loop_desktop_v9.webm" type="video/webm">
-
-    <video id="heroVid" class="hero-video"
-           autoplay muted playsinline loop preload="auto"
-           poster="assets/images/hero_poster_desktop.jpg">
-
-        <source id="vidWebm" src="assets/video/loop_desktop_v9.webm" type="video/webm">
-        <source id="vidMp4"  src="assets/video/loop_fallback_v9.mp4"  type="video/mp4">
+<div class="hero">
+    <video autoplay muted loop playsinline
+           poster="../assets/images/hero_poster_desktop.jpg">
+        <source src="../assets/video/loop_desktop_v9.webm" type="video/webm">
     </video>
 
-    <!-- Scroll fade mask -->
-    <div class="hero-scroll-mask"></div>
-
-    <!-- Cinematic text mask -->
-    <div class="hero-gradient-mask"></div>
-
-    <!-- Content -->
     <div class="hero-content">
-        <h1 class="shimmer">Automated GPU Rendering — Fast, Predictable, Transparent</h1>
-        <p class="shimmer">
-            Upload a finished Blender project.
-            The system renders automatically — or explains exactly what needs fixing.
-        </p>
-        <p style="font-size:14px;opacity:0.7;margin-top:10px;">
-            Fully unattended · No creative changes · Clear technical feedback
-        </p>
-
-        <a href="#upload">
-            <button class="btn btn-primary">Upload Project</button>
-        </a>
-
-        <a href="#prices">
-            <button class="btn">View Pricing</button>
-        </a>
+        <h1>Job Processing Status</h1>
+        <p>This page reflects the live execution state of your submission.</p>
     </div>
-
 </div>
 
-<!-- ========================================================= -->
-<!--  SHIMMER + SCROLL FADE CSS                                -->
-<!-- ========================================================= -->
-<style>
-.hero-gradient-mask {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    height: 40%;
-    background: linear-gradient(to top,
-        rgba(0,0,0,0.70),
-        rgba(0,0,0,0.35),
-        rgba(0,0,0,0.0)
-    );
-    z-index: 1;
-    pointer-events: none;
-}
+<section>
+<div class="content-box status-grid">
+<div class="status-left">
 
-.hero-scroll-mask {
-    position: absolute;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,var(--hero-fade, 0));
-    transition: background 0.2s linear;
-    z-index: 1;
-    pointer-events: none;
-}
+    <h2>Job Status</h2>
 
-.shimmer {
-    position: relative;
-    display: inline-block;
-    overflow: hidden;
-}
-.shimmer::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: -120%;
-    width: 120%;
-    height: 100%;
-    background: linear-gradient(
-        110deg,
-        transparent 0%,
-        rgba(255,255,255,0.15) 45%,
-        rgba(255,255,255,0.25) 50%,
-        rgba(255,255,255,0.15) 55%,
-        transparent 100%
-    );
-    transform: skewX(-20deg);
-    animation: shimmerMove 6.5s infinite ease-in-out;
-}
-@keyframes shimmerMove {
-    0%   { left: -120%; }
-    6%   { left: 120%; }
-    100% { left: 120%; }
-}
+    <p class="status-line">
+        Job ID:
+        <span id="jobId" class="status-value">—</span>
+    </p>
 
-.hero-video,
-.hero-content,
-.hero-gradient-mask {
-    transition: opacity 0.25s linear, transform 0.25s linear;
-}
-</style>
+    <p class="status-line">
+        Status:
+        <span id="jobStatus" class="status-value">Waiting…</span>
+    </p>
 
-<!-- ========================================================= -->
-<!--  DEVICE POSTER + VIDEO SWITCHING                         -->
-<!-- ========================================================= -->
-<script>
-(function() {
-    const vid = document.getElementById("heroVid");
-    const srcWebm = document.getElementById("vidWebm");
-    const srcMp4  = document.getElementById("vidMp4");
+    <p id="failReason" class="status-line status-fail" style="display:none;"></p>
 
-    const ua = navigator.userAgent || navigator.vendor || window.opera;
+    <p id="priceLine" class="status-line" style="display:none;">
+        Final price:
+        <span id="finalPrice" class="status-value">—</span>
+    </p>
 
-    const isMobile = /Android|iPhone|iPod/i.test(ua);
-    const isTablet = /(iPad|Tablet|Nexus|SM-T|Lenovo TB)/i.test(ua);
+    <p id="paymentLine" class="status-line" style="display:none;"></p>
 
-    if (isMobile) {
-        vid.poster = "assets/images/hero_poster_mobile_fixed.jpg";
-        srcWebm.src = "assets/video/loop_mobile_v9.webm";
-        srcMp4.src  = "assets/video/loop_fallback_v9.mp4";
-    }
-    else if (isTablet) {
-        vid.poster = "assets/images/hero_poster_tablet.jpg";
-        srcWebm.src = "assets/video/loop_desktop_v9.webm";
-        srcMp4.src  = "assets/video/loop_fallback_v9.mp4";
-    }
-    else {
-        vid.poster = "assets/images/hero_poster_desktop.jpg";
-        srcWebm.src = "assets/video/loop_desktop_v9.webm";
-        srcMp4.src  = "assets/video/loop_fallback_v9.mp4";
-    }
+    <div id="actionArea"></div>
 
-    vid.load();
-})();
-</script>
+</div> <!-- status-left -->
 
-<!-- ========================================================= -->
-<!--  SCROLL TO FADE HERO                                      -->
-<!-- ========================================================= -->
-<script>
-(function () {
+<div class="status-right" id="progressPanel" style="display:none;">
+    <h3>Progress</h3>
 
-    const vid = document.getElementById("heroVid");
-    const content = document.querySelector(".hero-content");
-    const mask = document.querySelector(".hero-gradient-mask");
-
-    window.addEventListener("scroll", () => {
-
-        const scrollY = window.scrollY;
-        const fadeEnd = 240;
-
-        const t = Math.min(1, Math.max(0, scrollY / fadeEnd));
-
-        document.querySelector(".hero-scroll-mask")
-                .style.setProperty("--hero-fade", t * 0.75);
-
-        vid.style.opacity = 1 - t;
-        mask.style.opacity = 1 - t;
-        content.style.opacity = 1 - t;
-
-        content.style.transform = "translateY(" + (t * -25) + "px)";
-    });
-
-})();
-</script>
-
-<!-- ========================================================= -->
-<!--  HOW IT WORKS                                             -->
-<!-- ========================================================= -->
-<section id="workflow">
-    <div class="content-box">
-        <h2>How it Works</h2>
-        <ul>
-            <li>Upload a finished Blender project ready for final rendering</li>
-            <li>Automatic validation, GPU allocation, and execution</li>
-            <li>Download your completed frames — or receive precise technical feedback</li>
-            <li>
-                The system runs fully unattended.
-                If a project exceeds limits, you get clear instructions on what to adjust.
-            </li>
-        </ul>
+    <div class="progress-bar-wrap">
+        <div id="progressBar"></div>
     </div>
-</section>
 
-<div class="image-section"
-     style="background-image:url('assets/images/workflow_timeline.jpg');">
+    <div id="progressText"></div>
+    <div id="progressEta"></div>
 </div>
-
-<!-- ========================================================= -->
-<!--  PRICING – AUTOMATED RENDERING (LIVE)                    -->
-<!-- ========================================================= -->
-<section id="prices">
-  <div class="content-box phase-box phase-1">
-    <div class="phase-label"
-         data-tooltip="Fully automated GPU rendering with fixed pricing per job.">
-      Live · Automated Rendering
-    </div>
-
-    <h2>Execution Profiles & Pricing</h2>
-
-    <p style="font-size:13px;opacity:0.75;margin-bottom:14px;">
-      Choose a profile that matches the expected complexity of your scene.
-      Each profile reserves GPU capacity and includes a fixed base price per job.
-    </p>
-
-    <p style="font-size:13px;opacity:0.75;margin-bottom:22px;">
-      Base price and runtime are locked at submission.
-      Jobs never exceed that price unless you explicitly enable overflow or set a higher spending cap.
-      Failed jobs are never billed.
-    </p>
-
-    <div class="profile-table">
-      <div class="profile-row header">
-        <div class="col-profile">Profile</div>
-        <div class="col-runtime">Base runtime</div>
-        <div class="col-price">Price</div>
-        <div class="col-risk">Complexity</div>
-      </div>
-
-      <div class="profile-row">
-        <div class="col-profile">
-          <strong>Strict</strong>
-          <span class="profile-note">Fast, predictable jobs</span>
-        </div>
-        <div class="col-runtime">Up to 1.5 hours</div>
-        <div class="col-price">$0.50</div>
-        <div class="col-risk">Low</div>
-      </div>
-
-      <div class="profile-row">
-        <div class="col-profile">
-          <strong>Extended</strong>
-          <span class="profile-note">Medium-complex scenes</span>
-        </div>
-        <div class="col-runtime">Up to 4 hours</div>
-        <div class="col-price">$2.00</div>
-        <div class="col-risk">Medium</div>
-      </div>
-
-      <div class="profile-row">
-        <div class="col-profile">
-          <strong>Flexible</strong>
-          <span class="profile-note">Heavy workloads</span>
-        </div>
-        <div class="col-runtime">Up to 8 hours</div>
-        <div class="col-price">$4.00</div>
-        <div class="col-risk">High</div>
-      </div>
-
-      <div class="profile-row">
-        <div class="col-profile">
-          <strong>Open</strong>
-          <span class="profile-note">Maximum flexibility</span>
-        </div>
-        <div class="col-runtime">Up to 12 hours</div>
-        <div class="col-price">$5.00</div>
-        <div class="col-risk">Highest</div>
-      </div>
-    </div>
-
-    <h3 style="font-size:15px;margin-top:30px;">Dynamic Capacity Windows</h3>
-
-    <p style="font-size:13px;opacity:0.7;">
-      During low system load, some jobs may be allowed to run beyond their base
-      runtime window at no additional cost.
-    </p>
-
-    <p style="font-size:13px;opacity:0.7;">
-      These extensions are automatic, depend on real-time capacity,
-      and are never guaranteed — but they can occasionally save you a re-submission.
-    </p>
-
-    <p style="font-size:12px;opacity:0.6;margin-top:12px;">
-      Prices apply per completed job. Failed jobs are not charged.
-      Each submission represents one execution attempt.
-    </p>
-  </div>
-</section>
-
-<!-- ========================================================= -->
-<!--  Assisted Studio — Express Rendering                           -->
-<!-- ========================================================= -->
-<section id="express">
-    <div class="content-box phase-box phase-disabled">
-        <div class="phase-label"
-             data-tooltip="Adds manual validation, priority queues and delivery guarantees.">
-            Assisted Studio · Coming Soon
-        </div>
-
-        <h2>Express Rendering</h2>
-
-        <p><strong>Not part of the automated tier</strong></p>
-        <p>
-            Express Rendering introduces priority queues, human validation
-            and delivery guarantees through our Assisted Studio workflow.
-        </p>
-        <p style="font-size:13px;opacity:0.7;">
-            Ideal for deadline-critical projects and commercial delivery.
-        </p>
-    </div>
-</section>
-
-<div class="image-section"
-     style="background-image:url('assets/images/speedburst.jpg');">
 </div>
-
-<!-- ========================================================= -->
-<!--  PREMIUM STUDIO – PLANNED                                -->
-<!-- ========================================================= -->
-<section id="premium">
-    <div class="content-box phase-box phase-disabled phase-3">
-        <div class="phase-label"
-             data-tooltip="Full studio services with creative input and delivery guarantees.">
-            Premium Studio · Planned
-        </div>
-
-        <h2>Premium Studio</h2>
-        <p>
-            A future studio-grade service with creative collaboration,
-            scene optimization and deadline-based delivery.
-        </p>
-        <p style="font-size:13px;opacity:0.6;">
-            Currently in planning.
-        </p>
-    </div>
 </section>
 
-
-<!-- ========================================================= -->
-<!--  SYSTEM CAPACITY WINDOW (TIME-BASED, NOT PRICE-BASED)     -->
-<!-- ========================================================= -->
-<div class="pricing-window">
-  <div class="pricing-status-bar"></div>
-  <div class="pricing-icon">⇄</div>
-  <h3 id="pricing-title"></h3>
-  <p id="pricing-capacity"></p>
-</div>
-
-<script>
-(function capacityStatusPoll() {
-
-  var API_BASE = location.hostname === "localhost"
-    ? "http://localhost:3001"
-    : "https://api.gpurenderstudio.com";
-
-  var titleEl = document.getElementById("pricing-title");
-  var capacityEl = document.getElementById("pricing-capacity");
-  var barEl = document.querySelector(".pricing-status-bar");
-
-  window.__CURRENT_TIME_MULTIPLIER = 1;
-
-  var STATE_LABELS = {
-    IDLE: "Plenty of capacity",
-    LIGHT: "Low system load",
-    NORMAL: "Normal availability",
-    BUSY: "High demand",
-    SATURATED: "Fully booked"
-  };
-
-  async function updateCapacity() {
-    try {
-      var res = await fetch(API_BASE + "/api/pricing/status");
-      if (!res.ok) return;
-
-      var data = await res.json();
-      var state = data.state;
-      var multiplier = data.time_multiplier;
-
-      if (typeof multiplier !== "number" || !isFinite(multiplier)) {
-        multiplier = 1;
-      }
-      if (multiplier < 0.5) multiplier = 0.5;
-      if (multiplier > 2.0) multiplier = 2.0;
-
-      var rounded = Math.round(multiplier * 1000) / 1000;
-      window.__CURRENT_TIME_MULTIPLIER = rounded;
-
-      if (titleEl) {
-        if (state === "SATURATED") {
-          titleEl.textContent = "System Capacity: Temporarily unavailable";
-        } else {
-          titleEl.textContent = "System Capacity: " + (STATE_LABELS[state] || "Unknown");
-        }
-      }
-
-      if (capacityEl) {
-        if (state === "SATURATED") {
-          capacityEl.textContent = "No execution capacity available at the moment";
-        } else {
-          capacityEl.textContent = "Render time window: " + Math.round(rounded * 100) + "% of base runtime";
-        }
-      }
-
-      var uploadSection = document.getElementById("upload");
-      if (uploadSection) {
-        if (state === "SATURATED") {
-          uploadSection.style.opacity = "0.4";
-          uploadSection.style.pointerEvents = "none";
-        } else {
-          uploadSection.style.opacity = "1";
-          uploadSection.style.pointerEvents = "auto";
-        }
-      }
-
-      if (barEl) {
-        barEl.style.opacity = state === "SATURATED" ? "0.25" : "1";
-      }
-
-    } catch (_) {
-    }
-  }
-
-  (async function initCapacity() {
-    await updateCapacity();
-    setInterval(updateCapacity, 120000);
-  })();
-
-})();
-</script>
-
-<!-- ========================================================= -->
-<!--  UPLOAD PROJECT                                           -->
-<!-- ========================================================= -->
-<section id="upload">
-  <div class="content-box">
-    <h2>Upload Project</h2>
-
-    <form id="uploadForm" enctype="multipart/form-data">
-      <input type="hidden" name="project_type" value="blender">
-
-      <input class="input-field" name="name" placeholder="Your name" required>
-      <input class="input-field" name="email" placeholder="Email address" required>
-      <input class="input-field" name="description" placeholder="Project description" required>
-
-      <input class="input-field" name="fileUrl" placeholder="URL to project files (optional)">
-
-      <input class="input-field" type="file" name="file" accept=".blend" required>
-
-      <p style="font-size:13px;opacity:0.75;margin-top:12px;">
-        This automated tier accepts finished Blender projects only.
-        No fixes, edits, or creative changes are performed.
-      </p>
-
-      <p style="font-size:12px;opacity:0.6;margin-top:6px;">
-        Failed jobs are not charged. Price and runtime are locked at submission.
-      </p>
-
-      <button class="btn btn-primary" type="submit" style="width:100%;margin-top:18px;">
-        Start Automated Render
-      </button>
-    </form>
-
-    <div id="uploadResult" style="margin-top:20px;"></div>
-    <div id="confirmStatus" style="margin-top:10px;"></div>
-
-  </div>
-</section>
-
-<!-- ========================================================= -->
-<!--  FOOTER                                                   -->
-<!-- ========================================================= -->
-<div id="contact" class="footer">
-    GPU Render Studio - Automated rendering platform<br>
+<div class="footer">
+    GPU Render Studio – Automated rendering platform<br>
     Sweden
 </div>
 
-<!-- ========================================================= -->
-<!--  SCRIPT: UPLOAD HANDLING                                  -->
-<!-- ========================================================= -->
 <script>
-const API_BASE =
-  location.hostname === "localhost"
+(function () {
+
+const params = new URLSearchParams(window.location.search);
+const jobId = params.get("job_id");
+
+const API_BASE = location.hostname === "localhost"
     ? "http://localhost:3001"
     : "https://api.gpurenderstudio.com";
 
-const form = document.getElementById("uploadForm");
-const resultBox = document.getElementById("uploadResult");
-const confirmStatus = document.getElementById("confirmStatus");
+const jobIdEl     = document.getElementById("jobId");
+const statusEl    = document.getElementById("jobStatus");
+const failEl      = document.getElementById("failReason");
+const priceEl     = document.getElementById("finalPrice");
+const priceLine   = document.getElementById("priceLine");
+const paymentLine = document.getElementById("paymentLine");
+const actionArea  = document.getElementById("actionArea");
+const progressPanel = document.getElementById("progressPanel");
+const progressBar   = document.getElementById("progressBar");
+const progressText  = document.getElementById("progressText");
+const progressEta   = document.getElementById("progressEta");
 
-let CURRENT_JOB_ID = null;
-let CURRENT_PRECHECK = null;
-
-let CONFIRM_IN_FLIGHT = false;
-
-function safeNum(x) {
-  return typeof x === "number" && isFinite(x) ? x : null;
-}
-
-/* =========================================================
-   UPLOAD + PRECHECK
-========================================================= */
-
-form.addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  resultBox.textContent = "Uploading project...";
-
-  const fd = new FormData(form);
-
-  try {
-    const uploadRes = await fetch(API_BASE + "/api/upload", {
-      method: "POST",
-      body: fd
-    });
-
-    if (!uploadRes.ok) {
-      resultBox.textContent = "Upload failed.";
-      return;
-    }
-
-    const uploadData = await uploadRes.json();
-
-    if (!uploadData?.job_id) {
-      resultBox.textContent = "Unexpected upload response.";
-      return;
-    }
-
-    CURRENT_JOB_ID = uploadData.job_id;
-
-    resultBox.textContent = "Running GPU timing precheck...";
-
-    const precheckRes = await fetch(API_BASE + "/api/contracts/precheck/real", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ job_id: CURRENT_JOB_ID })
-    });
-
-    const precheck = await precheckRes.json().catch(() => null);
-
-    if (!precheckRes.ok || !precheck?.real_precheck) {
-      resultBox.textContent =
-        precheck?.error || "Precheck failed.";
-      return;
-    }
-
-    const rp = precheck.real_precheck;
-
-    if (safeNum(rp.estimated_hours_effective) === null) {
-      resultBox.textContent = "Precheck failed.";
-      return;
-    }
-
-    CURRENT_PRECHECK = precheck;
-
-    renderSlotChooser(precheck);
-
-  } catch (err) {
-    console.error(err);
-    resultBox.textContent = "Network error.";
-  }
-});
-
-/* =========================================================
-   SLOT + CAP UI
-========================================================= */
-
-function renderSlotChooser(precheck) {
-
-  const rp = precheck.real_precheck || {};
-  const est = safeNum(rp.estimated_hours_effective);
-  const estText = est === null ? "—" : est.toFixed(2);
-
-  const slots =
-    precheck.slot_suggestion?.slot_analysis || [];
-
-  const recommended =
-    precheck.slot_suggestion?.recommended_profile ||
-    slots?.[0]?.slot;
-
-  const slotHtml = slots.map(s => `
-<label style="display:block;margin-top:6px;">
-  <input type="radio"
-         name="slotRadio"
-         value="${s.slot}"
-         ${s.slot === recommended ? "checked" : ""}>
-  ${s.slot}
-</label>
-`).join("");
-
-  resultBox.innerHTML = `
-<h3>Select execution profile</h3>
-
-<p>Estimated GPU hours: <strong>${estText}</strong></p>
-
-<h4 style="margin-top:14px;">Execution profile</h4>
-${slotHtml}
-
-<label style="margin-top:10px;display:block;">
-  <input type="checkbox" id="overflowToggle">
-  Allow overflow if capacity is available
-</label>
-
-<div id="capBlock" style="margin-top:12px;display:none;">
-  <label>
-    Spending cap (USD):
-    <input type="range" min="1" max="20" step="0.5"
-           id="capSlider">
-    <span id="capVal">$5</span>
-  </label>
-  <div style="font-size:11px;opacity:0.6;">
-    Job will pause automatically when this limit is reached.
-  </div>
-</div>
-
-<div style="margin-top:14px;">
-  <button class="btn btn-primary"
-          id="confirmBtn"
-          type="button">
-    Confirm & Start
-  </button>
-</div>
-`;
-
-  const slider = document.getElementById("capSlider");
-  const capVal = document.getElementById("capVal");
-  const overflowToggle = document.getElementById("overflowToggle");
-  const capBlock = document.getElementById("capBlock");
-
-  const slotAnalysis = slots;
-
-  function getSlotInfo(slotName) {
-    return slotAnalysis.find(s => s.slot === slotName);
-  }
-
-  function syncCapVisibility() {
-    const selected =
-      document.querySelector('input[name="slotRadio"]:checked')?.value;
-
-    const info = getSlotInfo(selected);
-
-    if (!info || !info.near_limit) {
-      capBlock.style.display = "none";
-      return;
-    }
-
-    capBlock.style.display = "block";
-    capVal.textContent = "$" + slider.value;
-  }
-
-  document
-    .querySelectorAll('input[name="slotRadio"]')
-    .forEach(r =>
-      r.addEventListener("change", syncCapVisibility)
-    );
-
-  slider.addEventListener("input", () => {
-    capVal.textContent = "$" + slider.value;
-  });
-
-  syncCapVisibility();
-
-  document
-    .getElementById("confirmBtn")
-    ?.addEventListener("click", confirmContract);
-}
-
-/* =========================================================
-   CONFIRM
-========================================================= */
-
-async function confirmContract() {
-
-  if (CONFIRM_IN_FLIGHT) return;
-
-  if (!CURRENT_JOB_ID) {
-    confirmStatus.textContent = "Missing job id.";
+if (!jobId) {
+    statusEl.textContent = "Missing job_id";
+    statusEl.className = "status-value status-fail";
     return;
-  }
+}
 
-  CONFIRM_IN_FLIGHT = true;
+jobIdEl.textContent = jobId;
 
-  const btn = document.getElementById("confirmBtn");
-  if (btn) {
-    btn.disabled = true;
-    btn.textContent = "Confirming...";
-  }
+// ===============================
+// Phase 1 execution profiles (human metadata)
+// ===============================
+const PHASE1_PROFILES = {
+    STRICT: {
+        label: "Strict",
+        runtime: "1.5 hours",
+        price: "$0.50",
+        purpose: "For small or well-bounded scenes."
+    },
+    EXTENDED: {
+        label: "Extended",
+        runtime: "4 hours",
+        price: "$2.00",
+        purpose: "For larger or more complex scenes."
+    },
+    FLEXIBLE: {
+        label: "Flexible",
+        runtime: "8 hours",
+        price: "$4.00",
+        purpose: "For very long or unpredictable scenes."
+    },
+    OPEN: {
+        label: "Open",
+        runtime: "12 hours",
+        price: "$5.00",
+        purpose: "For heavy or experimental workloads."
+    }
+};
 
-  confirmStatus.textContent =
-    "Confirming execution contract...";
+// ===============================
+// Phase 1 Reason Humanizer
+// ===============================
+const REASON_LABELS = {
+    PHASE1_PRESET_VIOLATION: "Phase 1 preset limits exceeded",
+    MEMORY_BUDGET_EXCEEDED: "Memory budget exceeded",
+    UNSUPPORTED_VERSION: "Unsupported Blender version",
+    MISSING_ASSETS: "Missing assets",
+    RENDER_FAILURE: "Render failed",
+    UNKNOWN_FAILURE: "Unknown error"
+};
 
-  const slot =
-    document.querySelector('input[name="slotRadio"]:checked')?.value;
+const HUMAN_DETAILS = {
+    PHASE1_PRESET_VIOLATION: "The project exceeded the limits of the selected profile.",
+    MEMORY_BUDGET_EXCEEDED: "The project requires more memory than this profile allows.",
+    UNSUPPORTED_VERSION: "This Blender version is not supported in Phase 1.",
+    MISSING_ASSETS: "Some external files are missing (such as textures or linked resources).",
+    RENDER_FAILURE: "The rendering process could not start or crashed.",
+    UNKNOWN_FAILURE: "Something went wrong but could not be classified."
+};
 
-  if (!slot) {
-    confirmStatus.textContent =
-      "No execution profile selected.";
-    unlockConfirmUI();
-    return;
-  }
+function toHumanReason(job) {
+    const reason = job.reason || {};
+    const compat = job.compat || {};
 
-  const overflow =
-    !!document.getElementById("overflowToggle")?.checked;
+    const cls =
+        reason.class ||
+        compat.fail_code ||
+        "UNKNOWN_FAILURE";
 
-  const capBlock =
-    document.getElementById("capBlock");
+    const label = REASON_LABELS[cls] || REASON_LABELS.UNKNOWN_FAILURE;
 
-  const capVisible =
-    capBlock && capBlock.style.display !== "none";
+    const details =
+        HUMAN_DETAILS[cls] ||
+        reason.details ||
+        compat.customer_action ||
+        null;
 
-  const capSlider =
-    document.getElementById("capSlider");
+    const actions = Array.isArray(reason.actions) ? reason.actions : [];
 
-  const capUsd =
-    capVisible && capSlider
-      ? Number(capSlider.value)
-      : null;
+    return { class: cls, label, details, actions };
+}
 
-  let contract_type = "HOURLY_BUDGET";
+// ===============================
+// Phase 1 Action Resolver (profile-aware)
+// ===============================
+function resolveSuggestedAction(job, humanReason) {
+    const current = job.pricing_snapshot?.execution_profile;
+    if (!current) return null;
 
-  if (capUsd && isFinite(capUsd)) {
-    contract_type = "HOURLY_OVERFLOW_CAP";
-  }
-  else if (overflow) {
-    contract_type = "HOURLY_OVERFLOW";
-  }
+    const actions = humanReason.actions || [];
+    if (!actions.length) return null;
 
-  const body = {
-    job_id: CURRENT_JOB_ID,
-    slot,
-    contract_type,
-    cap_usd: capUsd
-  };
+    const actionToProfile = {
+        UPGRADE_TO_EXTENDED: "EXTENDED",
+        UPGRADE_TO_FLEXIBLE: "FLEXIBLE",
+        UPGRADE_TO_OPEN: "OPEN"
+    };
 
-  try {
+    const picked = actions.find(a => actionToProfile[a]);
+    if (!picked) return null;
 
-    const res = await fetch(API_BASE + "/api/contracts/confirm", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body)
-    });
+    const target = actionToProfile[picked];
+    if (!target || target === current) return null;
 
-    const data = await res.json().catch(() => null);
+    return {
+        type: "profile_upgrade",
+        from: current,
+        to: target,
+        reason: "The project exceeded the limits of the selected profile.",
+        meta: PHASE1_PROFILES[target] || null
+    };
+}
 
-    if (!res.ok || data?.status !== "OK") {
-      confirmStatus.textContent =
-        data?.error || "Confirm failed.";
-      unlockConfirmUI();
-      return;
+// =======================================
+// UI dynamic containers
+// =======================================
+const dynamicInfo = document.createElement("div");
+dynamicInfo.id = "dynamicInfo";
+paymentLine.parentNode.insertBefore(dynamicInfo, paymentLine);
+
+function addLine(key, value) {
+    const line = document.createElement("div");
+    line.className = "status-line";
+    line.innerHTML = `
+        <span class="status-key" style="font-weight:600;">${key}:</span>
+        <span class="status-value">${value}</span>
+    `;
+    dynamicInfo.appendChild(line);
+}
+
+function renderSuggestionUpgrade(suggestion) {
+    actionArea.style.display = "block";
+    actionArea.innerHTML = "";
+
+    const header = document.createElement("div");
+    header.style.fontWeight = "bold";
+    header.style.marginTop = "12px";
+    header.textContent = "Suggested next step:";
+    actionArea.appendChild(header);
+
+    const desc = document.createElement("div");
+    desc.style.marginTop = "6px";
+    desc.textContent = `Switch from ${suggestion.from} to ${suggestion.to} for higher limits.`;
+    actionArea.appendChild(desc);
+
+    const meta = suggestion.meta;
+    if (meta) {
+        const metaLine = document.createElement("div");
+        metaLine.style.fontSize = "14px";
+        metaLine.style.opacity = "0.85";
+        metaLine.style.marginTop = "4px";
+        metaLine.textContent = `${meta.label}: ${meta.runtime}, ${meta.price}. ${meta.purpose}`;
+        actionArea.appendChild(metaLine);
     }
 
-    window.location.href =
-      window.location.origin +
-      "/gpurenderstudio/status/?job_id=" +
-      encodeURIComponent(CURRENT_JOB_ID);
-
-  } catch (err) {
-
-    console.error(err);
-    confirmStatus.textContent = "Network error.";
-    unlockConfirmUI();
-  }
+    const btn = document.createElement("button");
+    btn.textContent = `Select ${suggestion.to}`;
+    btn.className = "btn";
+    btn.style.marginTop = "10px";
+    btn.onclick = () => {
+        window.location.href = "https://sulmada.github.io/gpurenderstudio/#upload?profile=" + suggestion.to;
+    };
+    actionArea.appendChild(btn);
 }
 
-function unlockConfirmUI() {
+// =======================================
+// POLLING WITH BACKOFF (Phase 1.3 safe)
+// =======================================
+const TERMINAL_STATUSES = ["success", "partial_success", "failed"];
+const POLL_INTERVALS = {
+    queued: 8000,
+    running: 3000,
+    paused_cap: 15000
+};
 
-  CONFIRM_IN_FLIGHT = false;
+let currentDelay = 5000;
+let pollTimer = null;
 
-  const btn = document.getElementById("confirmBtn");
-
-  if (btn) {
-    btn.disabled = false;
-    btn.textContent = "Confirm & Start";
-  }
+function getDelayForStatus(status) {
+    return POLL_INTERVALS[status] || 10000;
 }
+
+async function pollStatusLoop() {
+    try {
+        const res = await fetch(API_BASE + "/api/status/" + jobId);
+        if (!res.ok) throw new Error("status-fetch-failed-" + res.status);
+
+        const job = await res.json();
+        renderJob(job);
+
+        const status = (job.status || "").toLowerCase();
+        if (TERMINAL_STATUSES.includes(status)) {
+            console.log("[STATUS] terminal state reached:", status);
+            return;
+        }
+
+        currentDelay = getDelayForStatus(status);
+
+    } catch (err) {
+        console.warn("[STATUS] fetch error:", err);
+        currentDelay = Math.min(currentDelay * 1.5, 30000);
+    }
+
+    pollTimer = setTimeout(pollStatusLoop, currentDelay);
+}
+
+// =======================================
+// RENDER JOB → UI
+// =======================================
+function renderJob(job) {
+    statusEl.className = "status-value";
+    failEl.style.display = "none";
+    priceLine.style.display = "none";
+    paymentLine.style.display = "none";
+    actionArea.innerHTML = "";
+    actionArea.style.display = "none";
+    dynamicInfo.innerHTML = "";
+    progressPanel.style.display = "none";
+
+    const status = (job.status || "").toLowerCase();
+    statusEl.textContent = status ? status.toUpperCase() : "UNKNOWN";
+
+    const currentProfile = job.pricing_snapshot?.execution_profile || null;
+    if (currentProfile) {
+        addLine("Current profile", currentProfile);
+    }
+
+    const stopReason = job.stop_reason || null;
+    if (stopReason) {
+        addLine("Stop reason", stopReason);
+    }
+
+    const stopMechanism = job.stop_mechanism || null;
+    if (stopMechanism) {
+        addLine("Stop mechanism", stopMechanism);
+    }
+
+    if (status === "failed") {
+        statusEl.classList.add("status-fail");
+
+        const h = toHumanReason(job);
+
+        failEl.style.display = "block";
+        failEl.textContent = "Reason: " + h.label;
+
+        if (h.details) {
+            addLine("Details", h.details);
+        }
+
+        const suggestion = resolveSuggestedAction(job, h);
+        if (suggestion) {
+            renderSuggestionUpgrade(suggestion);
+            return;
+        }
+
+        if (h.actions && h.actions.length > 0) {
+            addLine("Suggested action", h.actions.join(", "));
+        }
+
+        return;
+    }
+
+    if (status === "paused_cap") {
+        statusEl.classList.add("status-wait");
+        addLine("State", "Job paused at CAP. Resume will be available in Phase 1.4.");
+        priceLine.style.display = "block";
+
+        const billedUsd = job.billing?.billed_usd;
+        priceEl.textContent =
+            typeof billedUsd === "number"
+                ? "$" + billedUsd.toFixed(2)
+                : "—";
+
+        return;
+    }
+
+    if (status === "success" || status === "partial_success") {
+        statusEl.classList.add("status-success");
+
+        const billedUsd = job.billing?.billed_usd;
+        priceEl.textContent =
+            typeof billedUsd === "number"
+                ? "$" + billedUsd.toFixed(2)
+                : "—";
+        priceLine.style.display = "block";
+
+        const paid = job.payment?.status === "PAID";
+        const paidAt = job.payment?.paid_at;
+
+        if (paid && paidAt) {
+            const ts = new Date(paidAt)
+                .toISOString()
+                .replace("T", " ")
+                .slice(0, 16);
+            paymentLine.textContent = "Payment confirmed at: " + ts;
+            paymentLine.style.display = "block";
+        }
+
+        actionArea.style.display = "block";
+        actionArea.innerHTML = paid
+            ? `<button class="btn" onclick="download()">Download output</button>`
+            : `<button class="btn" onclick="pay()">Pay to download</button>`;
+
+        return;
+    }
+
+    if (status === "queued") {
+        statusEl.classList.add("status-wait");
+        addLine("State", "Job is queued");
+        return;
+    }
+
+if (status === "running") {
+    statusEl.classList.add("status-wait");
+    addLine("State", "Rendering in progress…");
+
+    if (job.progress) {
+        progressPanel.style.display = "block";
+
+        const p = job.progress;
+
+        progressBar.style.width = (p.percent || 0) + "%";
+
+        progressText.textContent =
+            `Frames ${p.frames_done}/${p.frames_total} (${p.percent || 0}%)`;
+
+        if (p.eta_seconds) {
+            const min = Math.round(p.eta_seconds / 60);
+            progressEta.textContent = "ETA: " + min + " min";
+        } else {
+            progressEta.textContent = "ETA: calculating…";
+        }
+    }
+
+    return;
+}
+
+// fallback
+statusEl.classList.add("status-wait");
+addLine("Note", "Waiting for job updates…");
+}
+
+// ========================================
+// PAYMENT + DOWNLOAD ACTIONS
+// ========================================
+window.pay = async function () {
+    actionArea.textContent = "Starting payment…";
+
+    try {
+        const res = await fetch(API_BASE + "/api/pay/" + jobId, { method: "POST" });
+        if (!res.ok) throw new Error("payment-init-failed");
+
+        const data = await res.json();
+        location.href = data.checkout_url;
+
+    } catch (err) {
+        console.error("Payment failed:", err);
+        actionArea.textContent = "Unable to start payment.";
+    }
+};
+
+window.download = function () {
+    actionArea.textContent = "Starting download…";
+
+    const iframe = document.createElement("iframe");
+    iframe.style.display = "none";
+    iframe.src = API_BASE + "/api/download/" + jobId;
+    document.body.appendChild(iframe);
+
+    setTimeout(() => {
+        window.location.href = "https://sulmada.github.io/gpurenderstudio/";
+    }, 4000);
+};
+
+// ========================================
+// START
+// ========================================
+pollStatusLoop();
+
+})(); // end IIFE
 </script>
 
 </body>
