@@ -189,7 +189,7 @@
         }
 
         /* =========================================================
-           EXECUTION PROFILES – CONTRACT TABLE (PHASE 1.1)
+           EXECUTION PROFILES – CONTRACT TABLE
         ========================================================= */
         .profile-table {
             display: grid;
@@ -441,6 +441,7 @@
     <a href="#workflow">How it Works</a>
     <a href="#prices">Pricing</a>
     <a href="#express">Express</a>
+    <a href="#premium">Premium</a>
     <a href="#upload">Upload</a>
     <a href="#contact">Contact</a>
 </div>
@@ -450,11 +451,11 @@
 <!-- ========================================================= -->
 <div id="start" class="hero">
 
-    <!-- Phase badge -->
+    <!-- Live badge -->
     <div class="phase-label phase-1"
          style="position:absolute;top:22px;right:22px;"
-         data-tooltip="Phase 1 is fully automated. No manual review or creative intervention.">
-        Phase 1 · Live
+         data-tooltip="Fully automated GPU rendering. Your project is executed exactly as uploaded.">
+        Live · Automated Rendering
     </div>
 
     <!-- Preload -->
@@ -479,17 +480,24 @@
 
     <!-- Content -->
     <div class="hero-content">
-        <h1 class="shimmer">Automated GPU Rendering for Render-Ready Projects</h1>
+        <h1 class="shimmer">Automated GPU Rendering — Fast, Predictable, Transparent</h1>
         <p class="shimmer">
             Upload a finished Blender project.
-            The system executes automatically - or reports exactly why it cannot.
+            The system renders automatically — or explains exactly what needs fixing.
         </p>
         <p style="font-size:14px;opacity:0.7;margin-top:10px;">
-            Phase 1 is fully automated · No manual review · No creative decisions
+            Fully unattended · No creative changes · Clear technical feedback
         </p>
-        <a href="#upload"><button class="btn btn-primary">Upload Project</button></a>
-        <a href="#prices"><button class="btn">View Pricing</button></a>
+
+        <a href="#upload">
+            <button class="btn btn-primary">Upload Project</button>
+        </a>
+
+        <a href="#prices">
+            <button class="btn">View Pricing</button>
+        </a>
     </div>
+
 </div>
 
 <!-- ========================================================= -->
@@ -628,12 +636,12 @@
     <div class="content-box">
         <h2>How it Works</h2>
         <ul>
-            <li>Upload a render-ready Blender project</li>
-            <li>Automated validation and GPU rendering</li>
-            <li>Download the final output or receive precise fix instructions</li>
+            <li>Upload a finished Blender project ready for final rendering</li>
+            <li>Automatic validation, GPU allocation, and execution</li>
+            <li>Download your completed frames — or receive precise technical feedback</li>
             <li>
-                Phase 1 is fully automated.
-                Projects outside preset limits will fail with clear instructions.
+                The system runs fully unattended.
+                If a project exceeds limits, you get clear instructions on what to adjust.
             </li>
         </ul>
     </div>
@@ -644,25 +652,26 @@
 </div>
 
 <!-- ========================================================= -->
-<!--  PRICING – PHASE 1                                        -->
+<!--  PRICING – AUTOMATED RENDERING (LIVE)                    -->
 <!-- ========================================================= -->
 <section id="prices">
   <div class="content-box phase-box phase-1">
     <div class="phase-label"
-         data-tooltip="Phase 1 is fully automated. Pricing is per completed job.">
-      Phase 1 · Live
+         data-tooltip="Fully automated GPU rendering with fixed pricing per job.">
+      Live · Automated Rendering
     </div>
 
     <h2>Execution Profiles & Pricing</h2>
 
     <p style="font-size:13px;opacity:0.75;margin-bottom:14px;">
-      Phase 1 uses fixed execution profiles.
-      Each profile defines a base render window and a fixed price per job.
+      Choose a profile that matches the expected complexity of your scene.
+      Each profile reserves GPU capacity and includes a fixed base price per job.
     </p>
 
     <p style="font-size:13px;opacity:0.75;margin-bottom:22px;">
-      Price and base runtime are locked at submission.
-      Pricing represents risk and capacity reservation - not guaranteed render time.
+      Base price and runtime are locked at submission.
+      Jobs never exceed that price unless you explicitly enable overflow or set a higher spending cap.
+      Failed jobs are never billed.
     </p>
 
     <div class="profile-table">
@@ -670,15 +679,15 @@
         <div class="col-profile">Profile</div>
         <div class="col-runtime">Base runtime</div>
         <div class="col-price">Price</div>
-        <div class="col-risk">Risk</div>
+        <div class="col-risk">Complexity</div>
       </div>
 
       <div class="profile-row">
         <div class="col-profile">
           <strong>Strict</strong>
-          <span class="profile-note">Tight contract</span>
+          <span class="profile-note">Fast, predictable jobs</span>
         </div>
-        <div class="col-runtime">1.5 hours</div>
+        <div class="col-runtime">Up to 1.5 hours</div>
         <div class="col-price">$0.50</div>
         <div class="col-risk">Low</div>
       </div>
@@ -686,9 +695,9 @@
       <div class="profile-row">
         <div class="col-profile">
           <strong>Extended</strong>
-          <span class="profile-note">Increased tolerance</span>
+          <span class="profile-note">Medium-complex scenes</span>
         </div>
-        <div class="col-runtime">4 hours</div>
+        <div class="col-runtime">Up to 4 hours</div>
         <div class="col-price">$2.00</div>
         <div class="col-risk">Medium</div>
       </div>
@@ -696,9 +705,9 @@
       <div class="profile-row">
         <div class="col-profile">
           <strong>Flexible</strong>
-          <span class="profile-note">Long-running jobs</span>
+          <span class="profile-note">Heavy workloads</span>
         </div>
-        <div class="col-runtime">8 hours</div>
+        <div class="col-runtime">Up to 8 hours</div>
         <div class="col-price">$4.00</div>
         <div class="col-risk">High</div>
       </div>
@@ -706,55 +715,52 @@
       <div class="profile-row">
         <div class="col-profile">
           <strong>Open</strong>
-          <span class="profile-note">Minimal constraints</span>
+          <span class="profile-note">Maximum flexibility</span>
         </div>
-        <div class="col-runtime">12 hours</div>
+        <div class="col-runtime">Up to 12 hours</div>
         <div class="col-price">$5.00</div>
         <div class="col-risk">Highest</div>
       </div>
     </div>
 
-    <h3 style="font-size:15px;margin-top:30px;">System Capacity</h3>
+    <h3 style="font-size:15px;margin-top:30px;">Dynamic Capacity Windows</h3>
 
     <p style="font-size:13px;opacity:0.7;">
-      When system capacity is idle, the allowed render time
-      may be extended beyond the base runtime of the selected profile.
+      During low system load, some jobs may be allowed to run beyond their base
+      runtime window at no additional cost.
     </p>
 
     <p style="font-size:13px;opacity:0.7;">
-      This extension is automatic, does not affect price,
-      cannot reduce the base runtime, and is not guaranteed.
+      These extensions are automatic, depend on real-time capacity,
+      and are never guaranteed — but they can occasionally save you a re-submission.
     </p>
 
     <p style="font-size:12px;opacity:0.6;margin-top:12px;">
-      Prices are per completed job. Failed jobs are not charged.
-      One submission equals one execution attempt.
+      Prices apply per completed job. Failed jobs are not charged.
+      Each submission represents one execution attempt.
     </p>
   </div>
 </section>
 
 <!-- ========================================================= -->
-<!--  EXPRESS – PHASE 2                                        -->
+<!--  Assisted Studio — Express Rendering                           -->
 <!-- ========================================================= -->
 <section id="express">
     <div class="content-box phase-box phase-disabled">
         <div class="phase-label"
-             data-tooltip="Phase 2 adds manual validation, priority queues and delivery guarantees.">
-            Phase 2 · Coming Soon
+             data-tooltip="Adds manual validation, priority queues and delivery guarantees.">
+            Assisted Studio · Coming Soon
         </div>
 
         <h2>Express Rendering</h2>
 
-        <p><strong>Not available in Phase 1</strong></p>
+        <p><strong>Not part of the automated tier</strong></p>
         <p>
-            Express rendering introduces priority queues, manual validation
+            Express Rendering introduces priority queues, human validation
             and delivery guarantees through our Assisted Studio workflow.
         </p>
         <p style="font-size:13px;opacity:0.7;">
-            This feature will launch in Phase 2.
-        </p>
-        <p style="font-size:13px;opacity:0.6;">
-        Phase 2 operates as a separate workflow from Phase 1.
+            Ideal for deadline-critical projects and commercial delivery.
         </p>
     </div>
 </section>
@@ -764,25 +770,26 @@
 </div>
 
 <!-- ========================================================= -->
-<!--  PREMIUM STUDIO – PHASE 3 (PLACEHOLDER)                   -->
+<!--  PREMIUM STUDIO – PLANNED                                -->
 <!-- ========================================================= -->
 <section id="premium">
     <div class="content-box phase-box phase-disabled phase-3">
         <div class="phase-label"
-             data-tooltip="Phase 3 introduces full studio services, creative input and deadlines.">
-            Phase 3 · Planned
+             data-tooltip="Full studio services with creative input and delivery guarantees.">
+            Premium Studio · Planned
         </div>
 
         <h2>Premium Studio</h2>
         <p>
-            A future studio offering with creative collaboration,
-            human review and deadline-based delivery.
+            A future studio-grade service with creative collaboration,
+            scene optimization and deadline-based delivery.
         </p>
         <p style="font-size:13px;opacity:0.6;">
-            Phase 3 is currently in planning.
+            Currently in planning.
         </p>
     </div>
 </section>
+
 
 <!-- ========================================================= -->
 <!--  SYSTEM CAPACITY WINDOW (TIME-BASED, NOT PRICE-BASED)     -->
@@ -801,18 +808,18 @@
     ? "http://localhost:3001"
     : "https://api.gpurenderstudio.com";
 
-  var titleEl    = document.getElementById("pricing-title");
+  var titleEl = document.getElementById("pricing-title");
   var capacityEl = document.getElementById("pricing-capacity");
-  var barEl      = document.querySelector(".pricing-status-bar");
+  var barEl = document.querySelector(".pricing-status-bar");
 
   window.__CURRENT_TIME_MULTIPLIER = 1;
 
   var STATE_LABELS = {
-    IDLE:       "Idle",
-    LIGHT:      "Low utilization",
-    NORMAL:     "Normal load",
-    BUSY:       "High demand",
-    SATURATED:  "Fully booked"
+    IDLE: "Plenty of capacity",
+    LIGHT: "Low system load",
+    NORMAL: "Normal availability",
+    BUSY: "High demand",
+    SATURATED: "Fully booked"
   };
 
   async function updateCapacity() {
@@ -895,7 +902,7 @@
       <input class="input-field" type="file" name="file" accept=".blend" required>
 
       <p style="font-size:13px;opacity:0.75;margin-top:12px;">
-        Phase 1 accepts render-ready Blender projects only.
+        This automated tier accepts finished Blender projects only.
         No fixes, edits, or creative changes are performed.
       </p>
 
@@ -904,7 +911,7 @@
       </p>
 
       <button class="btn btn-primary" type="submit" style="width:100%;margin-top:18px;">
-        Submit to Phase 1
+        Start Automated Render
       </button>
     </form>
 
@@ -938,12 +945,19 @@ const confirmStatus = document.getElementById("confirmStatus");
 let CURRENT_JOB_ID = null;
 let CURRENT_PRECHECK = null;
 
+let CONFIRM_IN_FLIGHT = false;
+
 function safeNum(x) {
   return typeof x === "number" && isFinite(x) ? x : null;
 }
 
+/* =========================================================
+   UPLOAD + PRECHECK
+========================================================= */
+
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
+
   resultBox.textContent = "Uploading project...";
 
   const fd = new FormData(form);
@@ -960,7 +974,8 @@ form.addEventListener("submit", async (e) => {
     }
 
     const uploadData = await uploadRes.json();
-    if (!uploadData || !uploadData.job_id) {
+
+    if (!uploadData?.job_id) {
       resultBox.textContent = "Unexpected upload response.";
       return;
     }
@@ -975,22 +990,22 @@ form.addEventListener("submit", async (e) => {
       body: JSON.stringify({ job_id: CURRENT_JOB_ID })
     });
 
-    if (!precheckRes.ok) {
-              const t = await precheckRes.json().catch(()=>null);
-              resultBox.textContent = t?.error || "Precheck failed.";
-              return;
-            }
+    const precheck = await precheckRes.json().catch(() => null);
 
-
-    const precheck = await precheckRes.json();
-    CURRENT_PRECHECK = precheck;
+    if (!precheckRes.ok || !precheck?.real_precheck) {
+      resultBox.textContent =
+        precheck?.error || "Precheck failed.";
+      return;
+    }
 
     const rp = precheck.real_precheck;
 
-    if (!rp || safeNum(rp.estimated_hours_effective) === null) {
+    if (safeNum(rp.estimated_hours_effective) === null) {
       resultBox.textContent = "Precheck failed.";
       return;
     }
+
+    CURRENT_PRECHECK = precheck;
 
     renderSlotChooser(precheck);
 
@@ -999,6 +1014,10 @@ form.addEventListener("submit", async (e) => {
     resultBox.textContent = "Network error.";
   }
 });
+
+/* =========================================================
+   SLOT + CAP UI
+========================================================= */
 
 function renderSlotChooser(precheck) {
 
@@ -1010,7 +1029,8 @@ function renderSlotChooser(precheck) {
     precheck.slot_suggestion?.slot_analysis || [];
 
   const recommended =
-    precheck.slot_suggestion?.recommended_profile || slots?.[0]?.slot;
+    precheck.slot_suggestion?.recommended_profile ||
+    slots?.[0]?.slot;
 
   const slotHtml = slots.map(s => `
 <label style="display:block;margin-top:6px;">
@@ -1023,23 +1043,29 @@ function renderSlotChooser(precheck) {
 `).join("");
 
   resultBox.innerHTML = `
-<h3>Select execution window</h3>
+<h3>Select execution profile</h3>
 
 <p>Estimated GPU hours: <strong>${estText}</strong></p>
 
 <h4 style="margin-top:14px;">Execution profile</h4>
 ${slotHtml}
 
-<label>
+<label style="margin-top:10px;display:block;">
   <input type="checkbox" id="overflowToggle">
-  Allow overflow beyond slot
+  Allow overflow if capacity is available
 </label>
 
-<label style="display:block;margin-top:10px;">
-  Spending cap (USD):
-  <input type="range" min="1" max="20" step="0.5" id="capSlider">
-  <span id="capVal">—</span>
-</label>
+<div id="capBlock" style="margin-top:12px;display:none;">
+  <label>
+    Spending cap (USD):
+    <input type="range" min="1" max="20" step="0.5"
+           id="capSlider">
+    <span id="capVal">$5</span>
+  </label>
+  <div style="font-size:11px;opacity:0.6;">
+    Job will pause automatically when this limit is reached.
+  </div>
+</div>
 
 <div style="margin-top:14px;">
   <button class="btn btn-primary"
@@ -1052,60 +1078,77 @@ ${slotHtml}
 
   const slider = document.getElementById("capSlider");
   const capVal = document.getElementById("capVal");
+  const overflowToggle = document.getElementById("overflowToggle");
+  const capBlock = document.getElementById("capBlock");
 
-  if (slider && capVal) {
-    const sync = () => {
-      capVal.textContent = "$" + slider.value;
-    };
-    slider.addEventListener("input", sync);
-    sync();
+  const slotAnalysis = slots;
+
+  function getSlotInfo(slotName) {
+    return slotAnalysis.find(s => s.slot === slotName);
   }
+
+  function syncCapVisibility() {
+    const selected =
+      document.querySelector('input[name="slotRadio"]:checked')?.value;
+
+    const info = getSlotInfo(selected);
+
+    if (!info || !info.near_limit) {
+      capBlock.style.display = "none";
+      return;
+    }
+
+    capBlock.style.display = "block";
+    capVal.textContent = "$" + slider.value;
+  }
+
+  document
+    .querySelectorAll('input[name="slotRadio"]')
+    .forEach(r =>
+      r.addEventListener("change", syncCapVisibility)
+    );
+
+  slider.addEventListener("input", () => {
+    capVal.textContent = "$" + slider.value;
+  });
+
+  syncCapVisibility();
 
   document
     .getElementById("confirmBtn")
     ?.addEventListener("click", confirmContract);
 }
 
-let CONFIRM_IN_FLIGHT = false;
+/* =========================================================
+   CONFIRM
+========================================================= */
 
 async function confirmContract() {
-  if (CONFIRM_IN_FLIGHT) {
-    return; // hard guard against double-click / retry spam
-  }
+
+  if (CONFIRM_IN_FLIGHT) return;
 
   if (!CURRENT_JOB_ID) {
-    if (confirmStatus)
-      confirmStatus.textContent = "Missing job id.";
+    confirmStatus.textContent = "Missing job id.";
     return;
   }
 
-  const btn = document.getElementById("confirmBtn");
-  const form = document.getElementById("slotForm");
-
   CONFIRM_IN_FLIGHT = true;
 
+  const btn = document.getElementById("confirmBtn");
   if (btn) {
     btn.disabled = true;
     btn.textContent = "Confirming...";
   }
 
-  if (form) {
-    [...form.elements].forEach(el => (el.disabled = true));
-  }
+  confirmStatus.textContent =
+    "Confirming execution contract...";
 
-  if (confirmStatus)
-    confirmStatus.textContent = "Confirming execution contract...";
-
-  // ------------------------
-  // SLOT
-  // ------------------------
   const slot =
     document.querySelector('input[name="slotRadio"]:checked')?.value;
 
   if (!slot) {
-    if (confirmStatus)
-      confirmStatus.textContent = "No execution profile selected.";
-
+    confirmStatus.textContent =
+      "No execution profile selected.";
     unlockConfirmUI();
     return;
   }
@@ -1113,16 +1156,26 @@ async function confirmContract() {
   const overflow =
     !!document.getElementById("overflowToggle")?.checked;
 
-  const capSlider = document.getElementById("capSlider");
-  const capUsd = capSlider ? Number(capSlider.value) : null;
+  const capBlock =
+    document.getElementById("capBlock");
 
-  const capEnabled = capUsd !== null && isFinite(capUsd);
+  const capVisible =
+    capBlock && capBlock.style.display !== "none";
+
+  const capSlider =
+    document.getElementById("capSlider");
+
+  const capUsd =
+    capVisible && capSlider
+      ? Number(capSlider.value)
+      : null;
 
   let contract_type = "HOURLY_BUDGET";
 
-  if (overflow && capEnabled) {
+  if (capUsd && isFinite(capUsd)) {
     contract_type = "HOURLY_OVERFLOW_CAP";
-  } else if (overflow) {
+  }
+  else if (overflow) {
     contract_type = "HOURLY_OVERFLOW";
   }
 
@@ -1130,10 +1183,11 @@ async function confirmContract() {
     job_id: CURRENT_JOB_ID,
     slot,
     contract_type,
-    cap_usd: capEnabled ? capUsd : null
+    cap_usd: capUsd
   };
 
   try {
+
     const res = await fetch(API_BASE + "/api/contracts/confirm", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -1142,25 +1196,9 @@ async function confirmContract() {
 
     const data = await res.json().catch(() => null);
 
-    if (!res.ok) {
-      if (confirmStatus)
-        confirmStatus.textContent =
-          data?.error || "Confirm failed.";
-
-      unlockConfirmUI();
-      return;
-    }
-
-    // backend idempotent replay is OK
-    if (data?.idempotent) {
-      console.info("Confirm already processed for job", CURRENT_JOB_ID);
-    }
-
-    if (!data || data.status !== "OK") {
-      if (confirmStatus)
-        confirmStatus.textContent =
-          data?.error || "Confirm failed.";
-
+    if (!res.ok || data?.status !== "OK") {
+      confirmStatus.textContent =
+        data?.error || "Confirm failed.";
       unlockConfirmUI();
       return;
     }
@@ -1171,31 +1209,24 @@ async function confirmContract() {
       encodeURIComponent(CURRENT_JOB_ID);
 
   } catch (err) {
+
     console.error(err);
-
-    if (confirmStatus)
-      confirmStatus.textContent = "Network error.";
-
+    confirmStatus.textContent = "Network error.";
     unlockConfirmUI();
   }
 }
 
 function unlockConfirmUI() {
+
   CONFIRM_IN_FLIGHT = false;
 
   const btn = document.getElementById("confirmBtn");
-  const form = document.getElementById("slotForm");
 
   if (btn) {
     btn.disabled = false;
-    btn.textContent = "Confirm";
-  }
-
-  if (form) {
-    [...form.elements].forEach(el => (el.disabled = false));
+    btn.textContent = "Confirm & Start";
   }
 }
-
 </script>
 
 </body>
