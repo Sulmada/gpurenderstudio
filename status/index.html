@@ -161,8 +161,8 @@ section {
     </video>
 
     <div class="hero-content">
-        <h1>Job Processing Status</h1>
-        <p>This page reflects the live execution state of your submission.</p>
+        <h1>Your Render Is Running</h1>
+        <p>Track progress, cost and delivery in real time.</p>
     </div>
 </div>
 
@@ -193,6 +193,14 @@ section {
 
     <div id="actionArea"></div>
 
+    <a id="newUploadBtn"
+       class="btn"
+       href="../"
+       style="display:none; background:#141414; border-color:#2fffff;">
+       Start a new upload
+    </a>
+
+    
 </div> <!-- status-left -->
 
 <div class="status-right" id="progressPanel" style="display:none;">
@@ -230,6 +238,7 @@ const priceEl     = document.getElementById("finalPrice");
 const priceLine   = document.getElementById("priceLine");
 const paymentLine = document.getElementById("paymentLine");
 const actionArea  = document.getElementById("actionArea");
+const newUploadBtn = document.getElementById("newUploadBtn");
 const progressPanel = document.getElementById("progressPanel");
 const progressBar   = document.getElementById("progressBar");
 const progressText  = document.getElementById("progressText");
@@ -271,6 +280,25 @@ const PHASE1_PROFILES = {
         price: "$5.00",
         purpose: "For heavy or experimental workloads."
     }
+};
+
+// ===============================
+// Status Copy (human friendly)
+// ===============================
+const STATUS_COPY = {
+    queued: "Waiting for an available GPU. Rendering will start automatically.",
+    running: "Rendering on GPU. Live progress updates below.",
+    success: "Rendering complete. Your files are ready.",
+    partial_success: "Time limit reached. Partial output is ready.",
+    paused_cap: "Paused because your spending limit was reached.",
+    failed: "The job could not be completed. No charge was applied."
+};
+
+const STOP_REASON_COPY = {
+    BUDGET: "Reached the selected profile limit.",
+    CAP: "Reached your spending limit.",
+    FAILED: "Render failed.",
+    USER_CANCEL: "Cancelled by user."
 };
 
 // ===============================
@@ -450,6 +478,7 @@ function renderJob(job) {
     paymentLine.style.display = "none";
     actionArea.innerHTML = "";
     actionArea.style.display = "none";
+    newUploadBtn.style.display = "none";
     dynamicInfo.innerHTML = "";
     progressPanel.style.display = "none";
 
@@ -463,7 +492,10 @@ function renderJob(job) {
 
     const stopReason = job.stop_reason || null;
     if (stopReason) {
-        addLine("Stop reason", stopReason);
+        addLine(
+            "Why it stopped",
+            STOP_REASON_COPY[stopReason] || stopReason
+        );
     }
 
     const stopMechanism = job.stop_mechanism || null;
@@ -498,14 +530,23 @@ function renderJob(job) {
 
     if (status === "paused_cap") {
         statusEl.classList.add("status-wait");
-        addLine("State", "Job paused at CAP. Resume will be available in Phase 1.4.");
-        priceLine.style.display = "block";
+
+        addLine(
+            "State",
+            "Rendering paused because your spending cap was reached."
+        );
 
         const billedUsd = job.billing?.billed_usd;
-        priceEl.textContent =
-            typeof billedUsd === "number"
-                ? "$" + billedUsd.toFixed(2)
-                : "—";
+        if (typeof billedUsd === "number") {
+            priceEl.textContent = "$" + billedUsd.toFixed(2);
+            priceLine.style.display = "block";
+        }
+
+        actionArea.style.display = "block";
+        actionArea.innerHTML = `
+            <button class="btn" onclick="resumeWithCap()">Increase limit & resume</button>
+            <button class="btn" onclick="goUpload()" style="margin-left:10px;">Start new job</button>
+        `;
 
         return;
     }
@@ -542,13 +583,15 @@ function renderJob(job) {
 
     if (status === "queued") {
         statusEl.classList.add("status-wait");
-        addLine("State", "Job is queued");
+        addLine("State", STATUS_COPY.queued);
         return;
+    }
+
     }
 
 if (status === "running") {
     statusEl.classList.add("status-wait");
-    addLine("State", "Rendering in progress…");
+    addLine("State", STATUS_COPY.running);
 
     if (job.progress) {
         progressPanel.style.display = "block";
@@ -596,16 +639,29 @@ window.pay = async function () {
 };
 
 window.download = function () {
-    actionArea.textContent = "Starting download…";
+    actionArea.innerHTML = "";
 
+    const msg = document.createElement("div");
+    msg.className = "status-line";
+    msg.textContent = "Download started. Your browser will save the render archive.";
+    actionArea.appendChild(msg);
+
+    // start download
     const iframe = document.createElement("iframe");
     iframe.style.display = "none";
     iframe.src = API_BASE + "/api/download/" + jobId;
     document.body.appendChild(iframe);
 
-    setTimeout(() => {
-        window.location.href = "https://sulmada.github.io/gpurenderstudio/";
-    }, 4000);
+    // Render another job button
+    const againBtn = document.createElement("button");
+    againBtn.className = "btn";
+    againBtn.style.marginTop = "16px";
+    againBtn.textContent = "Render another job";
+    againBtn.onclick = () => {
+        window.location.href = "https://sulmada.github.io/gpurenderstudio/#upload";
+    };
+
+    actionArea.appendChild(againBtn);
 };
 
 // ========================================
