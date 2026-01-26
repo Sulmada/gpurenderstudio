@@ -1,6 +1,9 @@
 # --- Secrets ---
 .env
 
+tests/
+results_*.log
+
 # --- Node / deps ---
 node_modules/
 
