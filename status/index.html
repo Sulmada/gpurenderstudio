@@ -617,11 +617,13 @@ if (status === "running") {
 // fallback
 statusEl.classList.add("status-wait");
 addLine("Note", "Waiting for job updates…");
-}
 
 // ========================================
 // PAYMENT + DOWNLOAD ACTIONS
 // ========================================
+
+;
+
 window.pay = async function () {
     actionArea.textContent = "Starting payment…";
 
