@@ -1,21 +1,52 @@
+# --- Secrets ---
+.env
+
+# --- Node / deps ---
+node_modules/
+
+# --- Runtime state / queues ---
+queue_store*.json
+pricing_state*.json
+pricing_log.jsonl
+pricing_state_log.jsonl
+projects.json
+system_control.json
+worker_control.json
+backendqueue_store.json
+
+# --- Output / artifacts ---
+output.log
+output/
+renders/
+uploads/
+metrics/
+logs/
+tmp/
+tmp.json
+
+# --- Blender temp files ---
 *.blend
 *.blend1
 *.blend2
-renders/
-output/
-metrics/
-node_modules/
-logs/
-tmp/
-uploads/
-queue_store.json
-queue_store*.json
-pricing_log.jsonl
-pricing_state_log.jsonl
-system_control.json
-worker_control.json
-*.blend
+
+# --- Backups ---
 *.bak
+*.bak.*
+*.save
 *.BROKEN
-*.txt
+
+# --- Dev scripts / local tooling ---
+backup.sh
+run_*.sh
+run_*.py
+scripts/
+
+# --- OS junk ---
 .DS_Store
+
+backend/
+confirm.json
+job_contract.json
+server_COPY.txt
+status/system_status.js
+docs/

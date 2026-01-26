@@ -1,65 +1,172 @@
 // =============================================================
-// GPU RENDER STUDIO – PHASE 1.1
-// server.js (CANONICAL – SANITIZED)
+// GPU RENDER STUDIO – PHASE 1.3
+// server.js – Backend API (UPLOAD, CONTRACTS, STATUS, PAYMENT)
 // =============================================================
 
+"use strict";
+
 const path = require("path");
-
-require("dotenv").config({
-  path: path.join(__dirname, ".env")
-});
-
-// -------------------------------------------------------------
-// BOOT
-// -------------------------------------------------------------
-console.log(
-  "[BOOT] STRIPE_SECRET_KEY:",
-  process.env.STRIPE_SECRET_KEY ? "LOADED" : "MISSING"
-);
-const archiver = require("archiver");
 const fs = require("fs-extra");
 const express = require("express");
 const multer = require("multer");
 const rateLimit = require("express-rate-limit");
 const { v4: uuidv4 } = require("uuid");
 const Stripe = require("stripe");
-const RENDER_ROOT = "/mnt/c/gpu_render_service/renders";
+const archiver = require("archiver");
+const STALE_HEARTBEAT_MS = Number(process.env.STALE_HEARTBEAT_MS || 120000);
+const REAPER_INTERVAL_MS = Number(process.env.REAPER_INTERVAL_MS || 60000);
+
+require("dotenv").config({
+  path: path.join(__dirname, ".env")
+});
 
 // -------------------------------------------------------------
-// STRIPE (SINGLE INSTANCE)
+// CORE BACKEND MODULES (Phase 1.3)
 // -------------------------------------------------------------
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+const queue = require("./queue");
+const getCurrentPricingState =
+  require("./pricing_reader").getCurrentPricingState;
+const pricingEngine = require("./pricing_engine");
+const apiPrecheckReal = require("./contracts/api_precheck_real");
+const apiPrecheck = require("./contracts/api_precheck");
+const apiConfirm = require("./contracts/api_confirm");
 
 // -------------------------------------------------------------
-// APP
+// PHASE CONTROL
+// -------------------------------------------------------------
+console.log("[BOOT] Phase 1.3 Server Initializing");
+
+const STRIPE_SECRET = process.env.STRIPE_SECRET_KEY || null;
+if (!STRIPE_SECRET) {
+  console.warn("[BOOT] WARNING: STRIPE_SECRET_KEY missing, payment disabled.");
+}
+const stripe = STRIPE_SECRET ? new Stripe(STRIPE_SECRET) : null;
+
+// -------------------------------------------------------------
+// EXPRESS APP
 // -------------------------------------------------------------
 const app = express();
 app.set("trust proxy", 1);
 
 // -------------------------------------------------------------
-// HEALTH CHECK (DEBUG / OPS ONLY)
+// UUID VALIDATION
 // -------------------------------------------------------------
-app.get("/api/health", (req, res) => {
-  res.json({
-    status: "ok",
-    time: new Date().toISOString()
-  });
+function isUuid(str) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+    str
+  );
+}
+
+// -------------------------------------------------------------
+// HELPER
+// -------------------------------------------------------------
+function pidAlive(pid) {
+  if (!pid || typeof pid !== "number") return false;
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// -------------------------------------------------------------
+// BLENDER FILE SIGNATURE CHECK (after upload)
+// -------------------------------------------------------------
+async function validateBlendSignature(filePath) {
+  const fd = await fs.open(filePath, "r");
+  const buf = Buffer.alloc(16);
+  await fs.read(fd, buf, 0, 16, 0);
+  await fs.close(fd);
+
+  // RAW .blend
+  if (buf.slice(0, 7).toString("ascii") === "BLENDER") {
+    return true;
+  }
+
+  // GZIP magic bytes
+  if (buf[0] === 0x1f && buf[1] === 0x8b) {
+    return true;
+  }
+
+  // ZSTD magic bytes
+  if (
+    buf[0] === 0x28 &&
+    buf[1] === 0xb5 &&
+    buf[2] === 0x2f &&
+    buf[3] === 0xfd
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
+// -------------------------------------------------------------
+// REAPER
+// -------------------------------------------------------------
+function reaperTick() {
+  try {
+    const jobs = queue.listJobs ? queue.listJobs() : queue.getAllJobs?.() || [];
+    const now = Date.now();
+
+    for (const job of jobs) {
+      if (job.status !== "running") continue;
+
+      const w = job.worker || {};
+      const lastSeenMs = w.last_seen ? Date.parse(w.last_seen) : null;
+
+      let staleReason = null;
+
+      if (!w.pid) {
+        staleReason = "STALE_NO_PID";
+      } else if (!pidAlive(w.pid)) {
+        staleReason = "STALE_PID_DEAD";
+      } else if (!lastSeenMs) {
+        // pid exists but heartbeat not written yet – give grace
+        console.warn(
+          `[REAPER] heartbeat missing but pid alive job=${job.job_id}`
+        );
+      } else if (now - lastSeenMs > STALE_HEARTBEAT_MS) {
+        staleReason = "STALE_HEARTBEAT";
+      }
+
+      if (!staleReason) continue;
+
+      console.error(
+        `[REAPER] job=${job.job_id} stale=${staleReason} pid=${w.pid} last_seen=${w.last_seen}`
+      );
+
+      job.status = "failed";
+      job.stop_reason = "FAILED";
+      job.stop_mechanism = "REAPER";
+      job.fail_code = staleReason;
+      job.timestamps = job.timestamps || {};
+      job.timestamps.ended = new Date().toISOString();
+
+      queue.updateJob(job);
+    }
+  } catch (err) {
+    console.error("[REAPER] tick failed", err);
+  }
+}
+
+// -------------------------------------------------------------
+// HEALTH CHECK
+// -------------------------------------------------------------
+app.get("/api/health", (_, res) => {
+  res.json({ status: "ok", time: new Date().toISOString() });
 });
 
 // -------------------------------------------------------------
-// INTERNAL MODULES
+// GLOBAL REJECTION GUARD
 // -------------------------------------------------------------
-const executionProfiles = require("./execution_profiles");
-const { getCurrentPricingState } = require("./pricing_reader");
-const pricingEngine = require("./pricing_engine");
-const queue = require("./queue");
-
 process.on("unhandledRejection", err => {
-  console.error("UNHANDLED REJECTION", err);
+  console.error("UNHANDLED_REJECTION", err);
 });
 
 // -------------------------------------------------------------
-// PRICING OBSERVER (PASSIVE, READ-ONLY)
+// PASSIVE PRICING OBSERVER (Phase 1.3)
 // -------------------------------------------------------------
 function runPricingEvaluation() {
   try {
@@ -71,34 +178,47 @@ function runPricingEvaluation() {
     console.error("PRICING_EVALUATION_FAILED", err);
   }
 }
-
 runPricingEvaluation();
-setInterval(runPricingEvaluation, 30_000);
+setInterval(runPricingEvaluation, 30000);
 
 // -------------------------------------------------------------
-// CORS (PHASE 1 – EXPLICIT)
+// CORS
 // -------------------------------------------------------------
-const ALLOWED_ORIGIN = "https://sulmada.github.io";
-
+const PROD_ORIGIN = "https://sulmada.github.io";
 app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", ALLOWED_ORIGIN);
+  const origin = req.headers.origin;
+  if (origin === PROD_ORIGIN || process.env.NODE_ENV === "development") {
+    res.setHeader("Access-Control-Allow-Origin", origin || PROD_ORIGIN);
+  }
   res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+    res.setHeader(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Authorization, X-Admin-Token"
+  );
 
   if (req.method === "OPTIONS") return res.sendStatus(204);
   next();
 });
 
 // -------------------------------------------------------------
-// STRIPE WEBHOOK (RAW BODY – MUST COME BEFORE JSON)
+// STATUS ENDPOINT CACHE CONTROL
+// -------------------------------------------------------------
+app.use("/api/status", (req, res, next) => {
+  res.setHeader("Cache-Control", "no-store");
+  next();
+});
+
+// -------------------------------------------------------------
+// WEBHOOK MUST COME BEFORE JSON PARSER
 // -------------------------------------------------------------
 app.post(
   "/api/stripe/webhook",
   express.raw({ type: "application/json" }),
-  (req, res) => {
+  async (req, res) => {
+    if (!stripe) return res.status(503).send("Stripe disabled");
+
     const sig = req.headers["stripe-signature"];
     let event;
-
     try {
       event = stripe.webhooks.constructEvent(
         req.body,
@@ -106,7 +226,7 @@ app.post(
         process.env.STRIPE_WEBHOOK_SECRET
       );
     } catch (err) {
-      console.error("[STRIPE] Invalid signature:", err.message);
+      console.error("[STRIPE] Invalid signature", err.message);
       return res.status(400).send("Webhook Error");
     }
 
@@ -115,22 +235,23 @@ app.post(
       const jobId = session.metadata?.job_id;
 
       if (!jobId) {
-        console.error("[STRIPE] Missing job_id metadata");
+        console.error("[STRIPE] Missing job_id");
         return res.json({ received: true });
       }
 
       const job = queue.getJob(jobId);
       if (!job) {
-        console.error("[STRIPE] Job not found:", jobId);
+        console.error("[STRIPE] Job not found", jobId);
         return res.json({ received: true });
       }
 
-      if (job.payment.status !== "PAID") {
-        job.payment.status = "PAID";
-        job.payment.stripe_session_id = session.id;
-        job.payment.paid_at = new Date().toISOString();
+      if (job.payment?.status !== "PAID") {
+        job.payment = {
+          status: "PAID",
+          stripe_session_id: session.id,
+          paid_at: new Date().toISOString()
+        };
         queue.updateJob(job);
-
         console.log(`[STRIPE] Job ${jobId} marked as PAID`);
       }
     }
@@ -140,28 +261,32 @@ app.post(
 );
 
 // -------------------------------------------------------------
-// JSON BODY (AFTER WEBHOOK)
+// JSON BODY FOR REGULAR ROUTES (BODY SIZE LIMIT)
 // -------------------------------------------------------------
-app.use(express.json());
+app.use(express.json({ limit: "2mb" }));
+app.use(express.urlencoded({ extended: true, limit: "2mb" }));
 
 // -------------------------------------------------------------
-// RATE LIMITING
+// RATE LIMITERS (JSON RESPONSES + STANDARD HEADERS)
 // -------------------------------------------------------------
-const uploadLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 20
-});
+function limiter(opts) {
+  return rateLimit({
+    ...opts,
+    standardHeaders: true,
+    legacyHeaders: false,
+    handler: (_, res) => res.status(429).json({ error: "RATE_LIMITED" })
+  });
+}
 
-const statusLimiter = rateLimit({
-  windowMs: 60 * 1000,
-  max: 120
-});
+const uploadLimiter = limiter({ windowMs: 15 * 60000, max: 20 });
+const statusLimiter = limiter({ windowMs: 60000, max: 120 });
+const contractsLimiter = limiter({ windowMs: 10000, max: 20 });
+const downloadLimiter = limiter({ windowMs: 10 * 60 * 1000, max: 20 });
 
 // -------------------------------------------------------------
 // SYSTEM CONTROL
 // -------------------------------------------------------------
 const SYSTEM_CONTROL_PATH = path.join(__dirname, "system_control.json");
-
 function getSystemControl() {
   try {
     return JSON.parse(fs.readFileSync(SYSTEM_CONTROL_PATH, "utf8"));
@@ -177,24 +302,39 @@ const uploadDir = "/mnt/c/gpu_render_service/uploads/projects";
 fs.ensureDirSync(uploadDir);
 
 // -------------------------------------------------------------
-// MULTER
+// UPLOAD STORAGE
 // -------------------------------------------------------------
 const upload = multer({
   storage: multer.diskStorage({
     destination: (_, __, cb) => cb(null, uploadDir),
     filename: (_, file, cb) =>
       cb(null, uuidv4() + path.extname(file.originalname))
-  })
+  }),
+  limits: {
+    fileSize: 2 * 1024 * 1024 * 1024 // 2 GB hard cap
+  }
+});
+
+
+// -------------------------------------------------------------
+// CLEANUP ON MULTER SIZE ERROR
+// -------------------------------------------------------------
+app.use((err, req, res, next) => {
+  if (err && err.code === "LIMIT_FILE_SIZE") {
+    console.warn("[UPLOAD] rejected oversized file");
+    return res.status(413).json({ error: "UPLOAD_TOO_LARGE" });
+  }
+  next(err);
 });
 
 // =============================================================
-// 1. UPLOAD JOB (SNAPSHOT-BASED)
+// 1. UPLOAD JOB (Phase 1.3)
 // =============================================================
 app.post(
   "/api/upload",
   uploadLimiter,
   upload.single("file"),
-  (req, res) => {
+  async (req, res) => {
     const sys = getSystemControl();
     if (!sys.ingest_enabled) {
       return res.status(403).json({ error: "INGEST_DISABLED" });
@@ -204,46 +344,25 @@ app.post(
       return res.status(400).json({ error: "NO_FILE" });
     }
 
-    if (req.body.project_type !== "blender") {
-      return res.status(400).json({ error: "UNSUPPORTED_PROJECT_TYPE" });
+    const ext = path.extname(req.file.originalname || "").toLowerCase();
+    if (ext !== ".blend") {
+      await fs.remove(req.file.path);
+      return res.status(400).json({
+        error: "UNSUPPORTED_FILE_TYPE",
+        supported: [".blend"]
+      });
+    }
+
+    // Signature check: reject fake .blend
+    if (!(await validateBlendSignature(req.file.path))) {
+      console.warn("[UPLOAD] invalid blend header:", req.file.path);
+      await fs.remove(req.file.path);
+      return res.status(400).json({ error: "INVALID_BLEND_FILE" });
     }
 
     const email =
       (req.body.email && req.body.email.toLowerCase().trim()) ||
       `anonymous:${req.ip}`;
-
-    const execution_profile =
-      req.body.execution_profile || "entry-120min";
-
-    const profile = executionProfiles[execution_profile];
-    if (!profile) {
-      return res.status(400).json({ error: "UNKNOWN_EXECUTION_PROFILE" });
-    }
-
-    const pricingState = getCurrentPricingState();
-    const timeMultiplier =
-      typeof pricingState.time_multiplier === "number"
-        ? pricingState.time_multiplier
-        : 1.0;
-
-    const runtime_ms = Math.round(
-      profile.base_runtime_ms * timeMultiplier
-    );
-
-    if (!Number.isFinite(runtime_ms) || runtime_ms <= 0) {
-      return res.status(500).json({
-        error: "INTERNAL_CONTRACT_VIOLATION"
-      });
-    }
-
-    const pricing_snapshot = {
-      execution_profile,
-      pricing_state: pricingState.state,
-      time_multiplier: timeMultiplier,
-      runtime_ms,
-      price_usd: profile.entry_price_usd,
-      locked_at: new Date().toISOString()
-    };
 
     const job_id = uuidv4();
     const trace_id = `job-${Date.now().toString(36)}-${Math.random()
@@ -253,15 +372,13 @@ app.post(
     const job = {
       job_id,
       trace_id,
-      phase: "1.1",
-      status: "queued",
+      phase: "1.3",
+      status: "uploaded",
       file_path: req.file.path,
       meta: { email },
-      pricing_snapshot,
-      payment: {
-        status: "UNPAID",
-        stripe_session_id: null
-      },
+      contract: null,
+      billing: null,
+      payment: { status: "UNPAID" },
       timestamps: {
         created: new Date().toISOString(),
         started: null,
@@ -271,93 +388,204 @@ app.post(
 
     queue.addProject(job);
 
-    res.json({
-      ok: true,
-      job_id,
-      pricing_snapshot
-    });
+    return res.status(200).json({ status: "OK", job_id });
   }
 );
 
 // =============================================================
-// 2. JOB STATUS
+// 2. REAL PRECHECK & CONFIRM (Phase 1.3)
+// =============================================================
+app.post("/api/contracts/precheck", (_, res) => {
+  res.status(410).json({
+    error: "DEPRECATED",
+    use: "/api/contracts/precheck/real"
+  });
+});
+
+app.post("/api/contracts/precheck/real", contractsLimiter, apiPrecheckReal);
+app.post("/api/contracts/confirm", contractsLimiter, apiConfirm);
+
+// =============================================================
+// 3. STATUS (Phase 1.3 canonical)
 // =============================================================
 const { mapInternalToReason } = require("./reason/reason_mapper");
 
+// Version
+app.get("/api/status/version", statusLimiter, (_, res) => {
+  res.json({
+    phase: "1.3",
+    module: "server.js",
+    build: "2026-01-19",
+    queue_store: "file:queue_store.json"
+  });
+});
+
+// Översikt
+app.get("/api/status", statusLimiter, (_, res) => {
+  res.json({
+    ok: true,
+    time: new Date().toISOString(),
+    queue_length: queue.getQueueLength(),
+    has_running: queue.hasRunningJob()
+  });
+});
+
+// Köade jobb
+app.get("/api/status/queue", statusLimiter, (_, res) => {
+  const queued = queue.getJobsByStatus("queued").concat(
+    queue.getJobsByStatus("confirmed")
+  );
+  res.json({ queued });
+});
+
+// Running
+app.get("/api/status/running", statusLimiter, (_, res) => {
+  const running = queue.getJobsByStatus("running");
+  res.json({ running });
+});
+
+// Completed
+app.get("/api/status/completed", statusLimiter, (_, res) => {
+  const completed = queue.listCompleted();
+  res.json({ completed });
+});
+
+// Alla jobb
+app.get("/api/status/jobs", statusLimiter, (_, res) => {
+  const all = queue.listJobs();
+  res.json({ all });
+});
+
+// Enskilt jobb (kanonisk)
 app.get("/api/status/:job_id", statusLimiter, (req, res) => {
   const job = queue.getJob(req.params.job_id);
   if (!job) {
     return res.status(404).json({ error: "JOB_NOT_FOUND" });
   }
 
-  // Kopiera ut från queue utan att mutera lagring
-  const response = { ...job };
+  const {
+    job_id,
+    status,
+    pricing_snapshot,
+    contract,
+    billing,
+    stop_reason,
+    payment,
+    meta,
+    timestamps,
+    fail_code,
+    fail_class,
+    customer_action
+  } = job;
 
-  // Enrich reason för failed-jobb (Phase 1.1 style)
-  if (response.status === "failed") {
-    const internalCode =
-      response.fail_internal ||  // framtida granular
-      response.fail_code ||      // Phase 1.1 backend policy string
-      null;
+  const execution_mode =
+    (contract && contract.execution_mode) ||
+    (pricing_snapshot && pricing_snapshot.execution_profile) ||
+    "UNKNOWN";
 
-    if (internalCode) {
-      const context = {
-        pricing_snapshot: response.pricing_snapshot || null
-      };
-      response.reason = mapInternalToReason(internalCode, context);
-    } else {
-      response.reason = null;
-    }
-  } else {
-    response.reason = null;
+  const contract_type =
+    (contract && contract.contract_type) ||
+    (pricing_snapshot && pricing_snapshot.contract_type) ||
+    "UNKNOWN";
+
+  const pricing_state =
+    (pricing_snapshot && pricing_snapshot.pricing_state) || "UNKNOWN";
+
+  let canonical_reason = null;
+  if (status === "failed" && fail_code) {
+    const context = { pricing_snapshot };
+    canonical_reason = mapInternalToReason(fail_code, context);
   }
 
-  // Phase 1.1 compatibility block (legacy json)
-  response.compat = {
-    fail_code: response.fail_code || null,
-    fail_class: response.fail_class || null,
-    customer_action: response.customer_action || null
+  const normalized_status = status || "unknown";
+
+  const billing_safe = billing
+    ? {
+        slot: billing.slot || (contract && contract.slot) || null,
+        execution_mode: billing.execution_mode || execution_mode,
+        elapsed_hours: billing.elapsed_hours,
+        base_hours_limit: billing.base_hours_limit,
+        slot_budget_limit_hours: billing.slot_budget_limit_hours,
+        cap_hours: billing.cap_hours,
+        overflow_allowed: billing.overflow_allowed,
+        overflow_hours: billing.overflow_hours,
+        hourly_rate_usd: billing.hourly_rate_usd,
+        base_price_usd: billing.base_price_usd,
+        overflow_usd: billing.overflow_usd,
+        billed_usd: billing.billed_usd,
+        cap_enabled: billing.cap_enabled,
+        cap_usd: billing.cap_usd,
+        completed_with_cap: billing.completed_with_cap,
+        completed_with_budget: billing.completed_with_budget,
+        completed_partial: billing.completed_partial,
+        stop_reason: billing.stop_reason
+      }
+    : null;
+
+  const contract_safe = contract
+    ? {
+        slot: contract.slot,
+        base_hours_limit: contract.base_hours_limit,
+        hourly_rate_usd: contract.hourly_rate_usd,
+        base_price_usd: contract.base_price_usd,
+        contract_type,
+        execution_mode
+      }
+    : null;
+
+  const compat = {
+    fail_code: fail_code || null,
+    fail_class: fail_class || null,
+    customer_action: customer_action || null
   };
 
-  // Markera legacy-fält som deprecated i API-responsen
-  // men låt dem ligga kvar i queue_store.json på disk
-  delete response.fail_code;
-  delete response.fail_class;
-  delete response.customer_action;
+  const response = {
+    job_id,
+    status: normalized_status,
+    pricing_state,
+    pricing_snapshot: pricing_snapshot || null,
+    contract: contract_safe,
+    billing: billing_safe,
+    stop_reason:
+      stop_reason || (billing_safe && billing_safe.stop_reason) || null,
+    payment: payment || null,
+    meta: meta || null,
+    timestamps: timestamps || null,
+    reason: canonical_reason,
+    compat,
+    progress: job.progress || null
+  };
 
   return res.json(response);
 });
 
 // =============================================================
-// 3. PRICING STATUS
+// 4. PRICING ENGINE STATE
 // =============================================================
 app.get("/api/pricing/status", (_, res) => {
   res.json(getCurrentPricingState());
 });
 
 // =============================================================
-// 4. EXECUTION PROFILES
+// 5. PAYMENT (Phase 1.3: billing-based)
 // =============================================================
-app.get("/api/profiles", (_, res) => {
-  res.json(executionProfiles);
-});
+app.post("/api/pay/:job_id", statusLimiter, async (req, res) => {
+  if (!stripe) return res.status(503).json({ error: "PAYMENT_DISABLED" });
 
-// =============================================================
-// 5. STRIPE CHECKOUT
-// =============================================================
-app.post("/api/pay/:job_id", async (req, res) => {
   const job = queue.getJob(req.params.job_id);
-
   if (!job) return res.status(404).json({ error: "JOB_NOT_FOUND" });
-  if (job.status !== "success")
+
+  if (job.status !== "success" && job.status !== "partial_success") {
     return res.status(400).json({ error: "JOB_NOT_COMPLETED" });
-  if (job.payment.status === "PAID")
-    return res.status(400).json({ error: "ALREADY_PAID" });
+  }
+
+  const billed = job.billing?.billed_usd;
+  if (typeof billed !== "number" || billed <= 0) {
+    return res.status(400).json({ error: "INVALID_BILLING" });
+  }
 
   try {
-    const amountCents = Math.round(
-      Math.max(job.pricing_snapshot.price_usd, 0.5) * 100
-    );
+    const amountCents = Math.round(billed * 100);
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
@@ -375,92 +603,160 @@ app.post("/api/pay/:job_id", async (req, res) => {
           quantity: 1
         }
       ],
-      metadata: {
-        job_id: job.job_id,
-        trace_id: job.trace_id
-      },
-      success_url:
-        `https://sulmada.github.io/gpurenderstudio/status/?job_id=${job.job_id}&paid=1`,
-      cancel_url:
-        `https://sulmada.github.io/gpurenderstudio/status/?job_id=${job.job_id}&cancelled=1`
+      metadata: { job_id: job.job_id, trace_id: job.trace_id },
+      success_url: `${PROD_ORIGIN}/gpurenderstudio/status/?job_id=${job.job_id}&paid=1`,
+      cancel_url: `${PROD_ORIGIN}/gpurenderstudio/status/?job_id=${job.job_id}&cancelled=1`
     });
 
     job.payment.stripe_session_id = session.id;
     queue.updateJob(job);
 
     res.json({ checkout_url: session.url });
-
   } catch (err) {
-    console.error("[STRIPE_SESSION_FAILED]", {
-      message: err.message,
-      type: err.type,
-      rawType: err.rawType,
-      statusCode: err.statusCode
-    });
-
-    res.status(502).json({
-      error: "STRIPE_SESSION_FAILED",
-      detail: err.message
-    });
+    console.error("[STRIPE_SESSION_FAILED]", err);
+    res
+      .status(502)
+      .json({ error: "STRIPE_SESSION_FAILED", detail: err.message });
   }
 });
 
 // =============================================================
-// 6. DOWNLOAD OUTPUT (PAID ONLY)
+// 5b. EXTEND CAP + RESUME (Phase 1.3 final)
 // =============================================================
-app.get("/api/download/:job_id", async (req, res) => {
-  try {
-    const jobId = req.params.job_id;
-    const job = queue.getJob(jobId);
+app.post("/api/contracts/extend/:job_id", contractsLimiter, async (req, res) => {
+  const job = queue.getJob(req.params.job_id);
+  if (!job) return res.status(404).json({ error: "JOB_NOT_FOUND" });
 
-    if (!job) {
-      return res.status(404).json({ error: "JOB_NOT_FOUND" });
-    }
-
-    if (job.status !== "success") {
-      return res.status(400).json({ error: "JOB_NOT_COMPLETED" });
-    }
-
-    if (job.payment?.status !== "PAID") {
-      return res.status(402).json({ error: "PAYMENT_REQUIRED" });
-    }
-
-    const renderDir = path.join(RENDER_ROOT, jobId);
-
-    console.log("[DOWNLOAD] cwd =", process.cwd());
-    console.log("[DOWNLOAD] checking =", renderDir);
-
-    if (!fs.existsSync(renderDir)) {
-      console.error("[DOWNLOAD] Missing render directory:", renderDir);
-      return res.status(500).json({ error: "OUTPUT_NOT_FOUND" });
-    }
-
-    res.setHeader("Content-Type", "application/zip");
-    res.setHeader(
-      "Content-Disposition",
-      `attachment; filename="render_${jobId}.zip"`
-    );
-
-    const archive = archiver("zip", { zlib: { level: 9 } });
-
-    archive.on("error", err => {
-      console.error("[DOWNLOAD] Archive error:", err);
-      res.status(500).end();
-    });
-
-    archive.pipe(res);
-    archive.directory(renderDir, false);
-    archive.finalize();
-
-  } catch (err) {
-    console.error("[DOWNLOAD_FAILED]", err);
-    res.status(500).json({ error: "DOWNLOAD_FAILED" });
+  if (job.status !== "paused_cap") {
+    return res.status(400).json({ error: "JOB_NOT_PAUSED_CAP" });
   }
+
+  const newCap = Number(req.body.new_cap_usd);
+  if (!Number.isFinite(newCap) || newCap <= job.billing?.cap_usd) {
+    return res.status(400).json({ error: "INVALID_NEW_CAP" });
+  }
+
+  // --- update billing ---
+  job.billing.cap_usd = newCap;
+  job.billing.completed_with_cap = false;
+  job.billing.stop_reason = null;
+
+  // --- update contract ---
+  if (job.contract) {
+    job.contract.cap_usd = newCap;
+  }
+
+  // --- reset job state ---
+  job.status = "queued";
+  job.stop_reason = null;
+  job.stop_mechanism = null;
+  job.timestamps.started = null;
+  job.timestamps.ended = null;
+
+  queue.updateJob(job);
+
+  console.log(
+    `[RESUME] job=${job.job_id} cap_extended=${newCap} USD`
+  );
+
+  res.json({
+    status: "OK",
+    resumed: true,
+    new_cap_usd: newCap
+  });
 });
+
+// =============================================================
+// 6. DOWNLOAD (PAID)
+// =============================================================
+const RENDER_ROOT = "/mnt/c/gpu_render_service/renders";
+
+app.get("/api/download/:job_id", downloadLimiter, async (req, res) => {
+  const jobId = req.params.job_id;
+  console.log(
+    `[DOWNLOAD] start job=${jobId} ip=${req.ip} ua="${req.headers["user-agent"] || ""}"`
+  );
+
+  // ---- basic validation ----
+  if (!isUuid(jobId)) {
+    return res.status(400).json({ error: "INVALID_JOB_ID" });
+  }
+
+  const job = queue.getJob(jobId);
+  if (!job) return res.status(404).json({ error: "JOB_NOT_FOUND" });
+
+  if (job.status !== "success" && job.status !== "partial_success") {
+    return res.status(400).json({ error: "JOB_NOT_COMPLETED" });
+  }
+
+  if (job.payment?.status !== "PAID") {
+    return res.status(402).json({ error: "PAYMENT_REQUIRED" });
+  }
+
+  // ---- resolve path safely ----
+  const renderDir = path.resolve(RENDER_ROOT, job.job_id);
+  const baseDir = path.resolve(RENDER_ROOT);
+
+  if (!renderDir.startsWith(baseDir + path.sep)) {
+    console.error("[DOWNLOAD] Path escape blocked:", renderDir);
+    return res.status(400).json({ error: "INVALID_RENDER_PATH" });
+  }
+
+  if (!(await fs.pathExists(renderDir))) {
+    console.error("[DOWNLOAD] Missing render dir", renderDir);
+    return res.status(404).json({ error: "OUTPUT_NOT_FOUND" });
+  }
+
+  // ---- ensure directory only contains files ----
+  const entries = await fs.readdir(renderDir, { withFileTypes: true });
+
+  const files = entries.filter(e => e.isFile());
+  if (!files.length) {
+    return res.status(404).json({ error: "NO_OUTPUT_FILES" });
+  }
+
+  res.setHeader("Content-Type", "application/zip");
+  res.setHeader(
+    "Content-Disposition",
+    `attachment; filename="render_${job.job_id}.zip"`
+  );
+
+  const archive = archiver("zip", { zlib: { level: 9 } });
+
+  archive.on("error", err => {
+    console.error("[DOWNLOAD] Archive error:", err);
+    if (!res.headersSent) res.status(500).end();
+  });
+
+  archive.on("warning", err => {
+    console.warn("[DOWNLOAD] Archive warning:", err);
+  });
+
+  archive.on("end", () => {
+    console.log(`[DOWNLOAD] completed job=${jobId}`);
+  });
+
+  // Abort zip if client disconnects
+  res.on("close", () => {
+    console.warn("[DOWNLOAD] client aborted", jobId);
+    archive.abort();
+  });
+
+  archive.pipe(res);
+
+  for (const f of files) {
+    archive.file(path.join(renderDir, f.name), { name: f.name });
+  }
+
+  await archive.finalize();
+});
+
 
 // =============================================================
 // LISTEN
 // =============================================================
 app.listen(3001, "0.0.0.0", () => {
-  console.log("Backend running on http://0.0.0.0:3001");
+  console.log("Phase 1.3 Backend running at http://0.0.0.0:3001");
 });
+
+setInterval(reaperTick, REAPER_INTERVAL_MS);
