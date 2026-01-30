@@ -3,13 +3,138 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GPU Render Studio</title>
+    <title>GPU Render Studio — Automated Blender GPU Rendering</title>
+
+    <!-- SEO + LLM STRUCTURED DATA -->
+    <meta name="description" content="Automated GPU rendering for Blender. Upload your scene, run real GPU prechecks, choose fixed pricing slots, control overflow with CAP, and download finished frames — fully unattended.">
+
+    <meta name="keywords" content="GPU rendering, Blender render farm, automated rendering, Cycles GPU, cloud rendering, NVIDIA GPU render, batch rendering">
+
+    <link rel="canonical" href="https://sulmada.github.io/gpurenderstudio/">
+
+    <meta property="og:title" content="GPU Render Studio — Automated GPU Rendering">
+    <meta property="og:description" content="Upload Blender scenes, get real GPU timing, fixed slot pricing, overflow control, and instant downloads.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://sulmada.github.io/gpurenderstudio/">
+    <meta property="og:image" content="https://sulmada.github.io/gpurenderstudio/assets/images/hero_poster_desktop.jpg">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="GPU Render Studio — Automated GPU Rendering">
+    <meta name="twitter:description" content="Real GPU prechecks, fixed pricing slots, overflow CAP, and automated Blender rendering.">
+    <meta name="twitter:image" content="https://sulmada.github.io/gpurenderstudio/assets/images/hero_poster_desktop.jpg">
+
+    <!-- FAQ STRUCTURED DATA -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How does GPU Render Studio pricing work?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Pricing uses fixed execution slots, optional overflow runtime, and CAP limits extra spend only. Slot price always covers base runtime."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What is CAP in GPU Render Studio?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "CAP limits overflow spending above the base slot price and never stops a job during the base slot window."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do you run real GPU timing prechecks?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. We render test frames on real NVIDIA GPUs to estimate runtime and recommend the correct execution profile."
+          }
+        }
+      ]
+    }
+    </script>
+
+<!-- PRODUCT + PRICING STRUCTURED DATA -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Product",
+  "name": "GPU Render Studio – Automated Blender Rendering",
+  "description": "Automated GPU rendering platform for Blender with real GPU prechecks, fixed execution slots, overflow control and spending CAP.",
+  "brand": {
+    "@type": "Brand",
+    "name": "GPU Render Studio"
+  },
+  "category": "Cloud Rendering Service",
+  "image": "https://sulmada.github.io/gpurenderstudio/assets/images/hero_poster_desktop.jpg",
+  "url": "https://sulmada.github.io/gpurenderstudio/",
+  "offers": [
+    {
+      "@type": "Offer",
+      "name": "Strict Slot",
+      "price": "0.50",
+      "priceCurrency": "USD",
+      "availability": "https://schema.org/InStock",
+      "description": "Up to 1.5 hours GPU runtime. Fixed price automated render."
+    },
+    {
+      "@type": "Offer",
+      "name": "Extended Slot",
+      "price": "2.00",
+      "priceCurrency": "USD",
+      "availability": "https://schema.org/InStock",
+      "description": "Up to 4 hours GPU runtime. Fixed price automated render."
+    },
+    {
+      "@type": "Offer",
+      "name": "Flexible Slot",
+      "price": "4.00",
+      "priceCurrency": "USD",
+      "availability": "https://schema.org/InStock",
+      "description": "Up to 8 hours GPU runtime. Heavy scenes supported."
+    },
+    {
+      "@type": "Offer",
+      "name": "Open Slot",
+      "price": "5.00",
+      "priceCurrency": "USD",
+      "availability": "https://schema.org/InStock",
+      "description": "Up to 12 hours GPU runtime. Maximum flexibility."
+    }
+  ]
+}
+</script>
+
+<!-- ORGANIZATION / BRAND STRUCTURED DATA -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "GPU Render Studio",
+  "url": "https://sulmada.github.io/gpurenderstudio/",
+  "logo": "https://sulmada.github.io/gpurenderstudio/assets/images/logo.png",
+  "description": "European automated GPU rendering service for Blender with fixed pricing, overflow control and transparent billing.",
+  "areaServed": {
+    "@type": "AdministrativeArea",
+    "name": "European Union"
+  },
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "contactType": "Customer Support",
+    "availableLanguage": ["English"]
+  }
+}
+</script>
+
 
     <style>
 
         /* =========================================================
            BASE STYLES
-        ========================================================= */
+        ========================================================= /*
         body {
             margin: 0;
             font-family: Arial, sans-serif;
@@ -50,30 +175,44 @@
            NAVIGATION BAR
         ========================================================= */
         .topnav {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            backdrop-filter: blur(10px);
-            background: rgba(15,15,15,0.45);
-            padding: 12px 20px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            z-index: 99;
-            display: flex;
-            justify-content: center;
+                position: fixed;
+                top: 0;
+                width: 100%;
+                backdrop-filter: blur(10px);
+                background: rgba(15,15,15,0.45);
+
+                padding:
+                        12px max(20px, env(safe-area-inset-left))
+                        12px max(20px, env(safe-area-inset-right));
+
+                border-bottom: 1px solid rgba(255,255,255,0.05);
+                z-index: 99;
+
+                display: flex;
+                justify-content: center;
+                flex-wrap: wrap;
         }
 
         .topnav a {
-            margin: 0 18px;
-            text-decoration: none;
-            color: #cceeee;
-            font-size: 14px;
-            letter-spacing: 1px;
-            transition: 0.2s;
+                margin: 0 18px;
+                text-decoration: none;
+                color: #cceeee;
+                font-size: 14px;
+                letter-spacing: 1px;
+                transition: 0.2s;
+                white-space: nowrap;
         }
 
         .topnav a:hover {
-            color: #74ffff;
-            text-shadow: 0 0 8px rgba(0,255,255,0.4);
+                color: #74ffff;
+                text-shadow: 0 0 8px rgba(0,255,255,0.4);
+        }
+
+        @media (max-width: 600px) {
+                .topnav a {
+                        margin: 0 10px;
+                        font-size: 13px;
+                }
         }
 
         /* =========================================================
@@ -401,6 +540,68 @@
         }
 
         /* =========================================================
+           TRUST & RELIABILITY
+        ========================================================= */
+        .trust-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 18px;
+                margin-top: 18px;
+        }
+
+        .trust-card {
+                background: rgba(10,10,10,0.55);
+                border: 1px solid rgba(255,255,255,0.08);
+                border-radius: 12px;
+                padding: 18px 18px;
+                box-shadow: 0 0 22px rgba(0,255,255,0.06);
+        }
+
+        .trust-card h3 {
+                margin: 0 0 8px 0;
+                font-size: 15px;
+                color: #baffff;
+                text-shadow: 0 0 10px rgba(0,255,255,0.12);
+        }
+
+        .trust-card p {
+                margin: 0;
+                font-size: 13px;
+                opacity: 0.8;
+        }
+
+        .trust-list {
+                margin-top: 16px;
+                padding-left: 18px;
+                font-size: 13px;
+                opacity: 0.85;
+        }
+
+        .trust-inline-badge {
+                display: inline-block;
+                margin-top: 10px;
+                padding: 7px 10px;
+                border-radius: 8px;
+                border: 1px solid rgba(0,255,255,0.25);
+                background: rgba(0,40,40,0.45);
+                color: #baffff;
+                font-size: 12px;
+                letter-spacing: 0.02em;
+        }
+
+        .trust-footnote {
+                margin-top: 12px;
+                font-size: 12px;
+                opacity: 0.6;
+        }
+
+        @media (max-width: 760px) {
+                .trust-grid {
+                        grid-template-columns: 1fr;
+                }
+        }
+
+        /* =========================================================
            TOOLTIP (HOVER)
         ========================================================= */
         .phase-label::after {
@@ -442,7 +643,9 @@
     <a href="#prices">Pricing</a>
     <a href="#express">Express</a>
     <a href="#premium">Premium</a>
+    <a href="#trust">Trust</a>
     <a href="#upload">Upload</a>
+    <a href="#faq">FAQ</a>
     <a href="#contact">Contact</a>
 </div>
 
@@ -882,6 +1085,164 @@
 
 })();
 </script>
+
+<!-- ========================================================= -->
+<!--  TRUST & RELIABILITY                                     -->
+<!-- ========================================================= -->
+<section id="trust">
+  <div class="content-box">
+
+    <h2>Trust & Reliability</h2>
+
+    <div class="trust-grid">
+
+      <div class="trust-card">
+        <h3>Real GPU Execution</h3>
+        <p>
+          All renders run on dedicated NVIDIA GPUs.
+          No virtualization tricks. No simulated benchmarks.
+        </p>
+        <span class="trust-inline-badge">Physical GPUs · Measured Runtime</span>
+      </div>
+
+      <div class="trust-card">
+        <h3>Transparent Billing</h3>
+        <p>
+          Fixed base pricing per execution slot.
+          Overflow only applies beyond that window.
+          CAP limits extra spend automatically.
+        </p>
+        <span class="trust-inline-badge">No hidden fees · Predictable cost</span>
+      </div>
+
+      <div class="trust-card">
+        <h3>EU-Hosted Infrastructure</h3>
+        <p>
+          All systems operate inside the European Union,
+          supporting GDPR-aware production workflows.
+        </p>
+        <span class="trust-inline-badge">EU Datacenters · GDPR aware</span>
+      </div>
+
+      <div class="trust-card">
+        <h3>Failure-Safe Execution</h3>
+        <p>
+          Failed jobs are never billed.
+          Partial jobs are charged only for completed runtime.
+          Every termination includes a technical reason code.
+        </p>
+        <span class="trust-inline-badge">No charge on failure · Full audit trail</span>
+      </div>
+
+    </div>
+
+    <ul class="trust-list">
+      <li>Real GPU timing prechecks before confirmation</li>
+      <li>Live status dashboard with ETA and billing counters</li>
+      <li>Automatic cleanup and retention policies</li>
+      <li>Admin-verified job execution logs</li>
+    </ul>
+
+    <div class="trust-footnote">
+      GPU Render Studio is a fully automated system.
+      No creative changes are performed on uploaded projects.
+      All execution follows published contract rules.
+    </div>
+
+  </div>
+</section>
+
+<!-- ========================================================= -->
+<!--  FAQ — SEO / LLM OPTIMIZED                                -->
+<!-- ========================================================= -->
+<section id="faq">
+  <div class="content-box">
+
+    <h2>Frequently Asked Questions</h2>
+
+    <h3>What is GPU Render Studio?</h3>
+    <p>
+      GPU Render Studio is an automated GPU rendering platform for Blender.
+      You upload a finished scene, run a real GPU timing precheck,
+      choose a pricing slot, and the system renders your project unattended.
+    </p>
+
+    <h3>Which software is supported?</h3>
+    <p>
+      Currently Blender with Cycles GPU rendering on NVIDIA hardware.
+      Additional engines will be added over time.
+    </p>
+
+    <h3>How does pricing work?</h3>
+    <p>
+      Pricing is based on execution slots, overflow runtime,
+      and an optional spending CAP.
+      The slot price always covers the base runtime.
+      Overflow is billed hourly after the slot window.
+      CAP limits extra spending only.
+    </p>
+
+    <h3>What is a CAP?</h3>
+    <p>
+      CAP is a safety limit on extra cost above the slot price.
+      It never stops a job during the base slot window.
+      If reached after the slot is exhausted,
+      the job pauses automatically with status <strong>paused_cap</strong>.
+    </p>
+
+    <h3>What happens when a job is paused?</h3>
+    <p>
+      When paused due to CAP, all frames are preserved.
+      No further charges occur.
+      Resume support will be added in a later phase.
+    </p>
+
+    <h3>What does “real GPU precheck” mean?</h3>
+    <p>
+      Before confirming a job, we render test frames on real GPUs.
+      This measures performance, estimates total runtime,
+      and recommends the correct execution profile.
+    </p>
+
+    <h3>Can I see progress while rendering?</h3>
+    <p>
+      Yes. The live status page shows frames completed,
+      percent done, ETA, and billing progress.
+    </p>
+
+    <h3>Do I pay before or after rendering?</h3>
+    <p>
+      Payment is required before downloading final results.
+      This keeps pricing predictable and protects compute resources.
+    </p>
+
+    <h3>Where are your GPUs located?</h3>
+    <p>
+      All systems are hosted in the European Union,
+      suitable for EU customers and GDPR-aware workflows.
+    </p>
+
+    <h3>What happens if rendering fails?</h3>
+    <p>
+      Failed jobs are not billed.
+      Partial jobs are charged only for completed runtime.
+      The status page always explains the reason.
+    </p>
+
+    <h3>How long are my files stored?</h3>
+    <p>
+      Uploaded projects and renders are kept temporarily
+      and cleaned up automatically after a retention period.
+    </p>
+
+    <h3>How can I contact you?</h3>
+    <p>
+      Email <strong>support@gpurenderstudio.com</strong>
+      or use the contact section below.
+    </p>
+
+  </div>
+</section>
 
 <!-- ========================================================= -->
 <!--  UPLOAD PROJECT                                           -->
