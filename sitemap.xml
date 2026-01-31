@@ -41,11 +41,4 @@
     <priority>0.85</priority>
   </url>
 
-  <!-- Status page -->
-  <url>
-    <loc>https://sulmada.github.io/gpurenderstudio/status/</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-
 </urlset>
