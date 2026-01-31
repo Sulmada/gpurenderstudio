@@ -1,184 +1,269 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>GPU Render Pricing Explained – Slots, Overflow & CAP | GPU Render Studio</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <meta name="description" content="Understand GPU Render Studio pricing: fixed slot runtimes, hourly overflow, CAP spending limits, paused jobs and resume. Transparent Blender GPU rendering costs." />
+<title>GPU Render Pricing Explained — Slots, Overflow & CAP</title>
 
-  <link rel="canonical" href="https://sulmada.github.io/gpurenderstudio/pricing-explained.html" />
+<meta name="description"
+content="Detailed explanation of GPU Render Studio pricing: fixed execution slots, hourly overflow, CAP limits, paused jobs, resume flow and transparent Blender GPU rendering costs."/>
 
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="canonical" href="https://sulmada.github.io/gpurenderstudio/pricing-explained.html">
 
-  <!-- OpenGraph -->
-  <meta property="og:title" content="GPU Render Pricing Explained – Slots, Overflow & CAP" />
-  <meta property="og:description" content="How GPU Render Studio pricing works: slot packages, overflow billing, CAP spend limits, paused jobs and resume." />
-  <meta property="og:url" content="https://sulmada.github.io/gpurenderstudio/pricing-explained.html" />
-  <meta property="og:type" content="article" />
+<meta property="og:title" content="GPU Render Pricing Explained — Slots, Overflow & CAP">
+<meta property="og:description" content="How GPU Render Studio pricing works: slot packages, overflow billing, CAP limits and paused jobs.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://sulmada.github.io/gpurenderstudio/pricing-explained.html">
 
-  <!-- Twitter -->
-  <meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:card" content="summary_large_image">
 
-  <!-- Schema: Product / Offer -->
-  <script type="application/ld+json">
-  {
-    "@context":"https://schema.org",
-    "@type":"Product",
-    "name":"GPU Render Studio",
-    "description":"Slot-based GPU rendering service with overflow billing and CAP spending limits.",
-    "brand":{
-      "@type":"Organization",
-      "name":"GPU Render Studio"
-    },
-    "offers":{
-      "@type":"AggregateOffer",
-      "priceCurrency":"USD",
-      "lowPrice":"0.50",
-      "highPrice":"5.00",
-      "offerCount":"4",
-      "availability":"https://schema.org/InStock"
-    }
-  }
-  </script>
+<!-- PRODUCT / OFFER SCHEMA -->
+<script type="application/ld+json">
+{
+"@context":"https://schema.org",
+"@type":"Product",
+"name":"GPU Render Studio",
+"description":"Slot-based GPU rendering service with overflow billing and CAP spending limits.",
+"brand":{
+  "@type":"Organization",
+  "name":"GPU Render Studio"
+},
+"offers":{
+  "@type":"AggregateOffer",
+  "priceCurrency":"USD",
+  "lowPrice":"0.50",
+  "highPrice":"5.00",
+  "offerCount":"4",
+  "availability":"https://schema.org/InStock"
+}
+}
+</script>
 
-  <style>
-    body{font-family:system-ui,Arial,sans-serif;margin:0;background:#0b0f14;color:#eaeef3;}
-    header,main,footer{max-width:1100px;margin:auto;padding:32px;}
-    h1,h2,h3{color:#ffffff;}
-    a{color:#6ab7ff;text-decoration:none;}
-    .box{background:#131a24;border-radius:12px;padding:20px;margin:20px 0;}
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;}
-    table{width:100%;border-collapse:collapse;}
-    th,td{border-bottom:1px solid #273042;padding:10px;text-align:left;}
-  </style>
+<style>
+body {
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#0b0b0b;
+  color:#e0e0e0;
+}
+
+section {
+  padding:120px 20px;
+}
+
+.content-box {
+  max-width:900px;
+  margin:auto;
+  background:rgba(20,20,20,0.65);
+  padding:40px 50px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,0.04);
+  box-shadow:0 0 50px rgba(0,255,255,0.05);
+}
+
+/* NAV */
+.topnav {
+  position:fixed;
+  top:0;
+  width:100%;
+  backdrop-filter:blur(10px);
+  background:rgba(15,15,15,0.45);
+  padding:12px 20px;
+  border-bottom:1px solid rgba(255,255,255,0.05);
+  z-index:99;
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+}
+
+.topnav a {
+  margin:0 16px;
+  text-decoration:none;
+  color:#cceeee;
+  font-size:14px;
+}
+
+.topnav a:hover {
+  color:#74ffff;
+}
+
+.doc-section {
+  margin-bottom:40px;
+}
+
+.doc-section h2 {
+  color:#7ffcff;
+}
+
+.grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:20px;
+}
+
+table {
+  width:100%;
+  border-collapse:collapse;
+}
+
+th, td {
+  padding:10px;
+  border-bottom:1px solid rgba(255,255,255,0.1);
+}
+</style>
 </head>
 
 <body>
 
-<header>
-  <h1>GPU Render Pricing Explained</h1>
-  <p>Transparent pricing for Blender GPU rendering. Fixed slot packages, optional overflow, and CAP spending limits — no surprises.</p>
-  <p><a href="./">← Back to main site</a></p>
-</header>
+<!-- NAV -->
+<div class="topnav">
+  <a href="/gpurenderstudio/#start">Home</a>
+  <a href="/gpurenderstudio/how-it-works.html">How it Works</a>
+  <a href="/gpurenderstudio/pricing-explained.html">Pricing</a>
+  <a href="/gpurenderstudio/cap-model.html">CAP Model</a>
+  <a href="/gpurenderstudio/eu-gpu-hosting.html">EU Hosting</a>
+  <a href="/gpurenderstudio/faq.html">FAQ</a>
+  <a href="/gpurenderstudio/#upload">Upload</a>
+</div>
 
-<main>
+<section>
+<div class="content-box">
 
-<section class="box">
-  <h2>How Pricing Works</h2>
-  <p>
-    GPU Render Studio uses a slot-based model instead of unpredictable pay-as-you-go.
-    Every job starts with a fixed-price runtime package. You may optionally allow
-    hourly overflow and protect yourself with a CAP limit.
-  </p>
+<h1>GPU Render Pricing Explained</h1>
 
-  <ol>
-    <li>Select a slot package.</li>
-    <li>Optionally allow overflow.</li>
-    <li>Set a CAP for extra spend.</li>
-    <li>Follow progress in real time.</li>
-  </ol>
+<p>
+GPU Render Studio uses a deterministic pricing model for Blender GPU rendering:
+<strong>fixed execution slots</strong>, optional overflow runtime,
+and configurable CAP limits for predictable total cost.
+</p>
+
+<!-- HOW -->
+<div class="doc-section">
+<h2>How Pricing Works</h2>
+
+<ol>
+<li>Select a fixed execution slot.</li>
+<li>Optionally allow overflow runtime.</li>
+<li>Set a CAP limit for extra spending.</li>
+<li>Track runtime, billing and ETA in real time.</li>
+</ol>
+</div>
+
+<!-- SLOT TABLE -->
+<div class="doc-section">
+<h2>Slot Packages</h2>
+
+<table>
+<thead>
+<tr>
+<th>Slot</th>
+<th>Base Runtime</th>
+<th>Price</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>Strict</td><td>Up to 1.5 hours</td><td>$0.50</td></tr>
+<tr><td>Extended</td><td>Up to 4 hours</td><td>$2.00</td></tr>
+<tr><td>Flexible</td><td>Up to 8 hours</td><td>$4.00</td></tr>
+<tr><td>Open</td><td>Up to 12 hours</td><td>$5.00</td></tr>
+</tbody>
+</table>
+
+<p>
+The base slot price is always billed first and guarantees execution
+for the selected runtime window.
+</p>
+</div>
+
+<!-- OVERFLOW -->
+<div class="doc-section">
+<h2>Overflow Billing</h2>
+
+<ul>
+<li>No overflow unless explicitly enabled.</li>
+<li>Billed only after slot runtime is consumed.</li>
+<li>Visible live in the status UI.</li>
+</ul>
+</div>
+
+<!-- CAP -->
+<div class="doc-section">
+<h2>CAP Spending Limits</h2>
+
+<p>
+CAP defines how much extra you allow to spend <strong>after</strong>
+the base slot price.
+It never replaces the slot and only applies to overflow runtime.
+</p>
+
+<p>
+<strong>Example:</strong><br>
+Flexible Slot: 8h / $4.00<br>
+CAP Extra: $4.50<br>
+→ Maximum total: $8.50<br>
+→ Runtime ≈ 12.5h
+</p>
+
+<ul>
+<li>CAP applies only to overflow.</li>
+<li>CAP never triggers inside the slot window.</li>
+<li>Jobs pause safely when CAP is reached.</li>
+</ul>
+</div>
+
+<!-- PAUSED -->
+<div class="doc-section">
+<h2>Paused Jobs & Resume</h2>
+
+<p>
+When CAP is reached, the job transitions to
+<strong>paused_cap</strong>.
+Rendered frames are preserved and billing is locked.
+</p>
+
+<p>
+Resume orchestration is planned for Phase 1.4.
+</p>
+</div>
+
+<!-- WHAT YOU PAY -->
+<div class="doc-section">
+<h2>What You Pay For</h2>
+
+<div class="grid">
+
+<div class="content-box">
+<h3>Real GPU Time</h3>
+<p>All billing reflects physical NVIDIA GPUs executing Blender scenes.</p>
+</div>
+
+<div class="content-box">
+<h3>Successful Frames</h3>
+<p>Technical failures are never billed.</p>
+</div>
+
+<div class="content-box">
+<h3>Audit Trail</h3>
+<p>Every job includes logs, timing data and billing breakdown.</p>
+</div>
+
+</div>
+</div>
+
+<!-- RELATED -->
+<div class="doc-section">
+<h2>Related Guides</h2>
+
+<ul>
+<li><a href="/gpurenderstudio/cap-model.html">How CAP Works →</a></li>
+<li><a href="/gpurenderstudio/faq.html">FAQ →</a></li>
+<li><a href="/gpurenderstudio/how-it-works.html">How the Render Pipeline Works →</a></li>
+</ul>
+</div>
+
+</div>
 </section>
-
-<section class="box">
-  <h2>Slot Packages</h2>
-
-  <table>
-    <thead>
-      <tr>
-        <th>Slot</th>
-        <th>Base Runtime</th>
-        <th>Price</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr><td>STRICT</td><td>1.5 hours</td><td>$0.50</td></tr>
-      <tr><td>EXTENDED</td><td>4 hours</td><td>$2.00</td></tr>
-      <tr><td>FLEXIBLE</td><td>8 hours</td><td>$4.00</td></tr>
-      <tr><td>OPEN_FIXED_MAX</td><td>12 hours</td><td>$5.00</td></tr>
-    </tbody>
-  </table>
-
-  <p>Slot time is always billed first and is guaranteed for the selected package.</p>
-</section>
-
-<section class="box">
-  <h2>Overflow Billing</h2>
-  <p>
-    If your render exceeds the slot window, overflow may continue at the hourly rate.
-    Overflow is optional and must be explicitly enabled during contract confirmation.
-  </p>
-
-  <ul>
-    <li>No overflow unless you allow it.</li>
-    <li>Billed only after slot time is used.</li>
-    <li>Visible live in the status UI.</li>
-  </ul>
-</section>
-
-<section class="box">
-  <h2>CAP Spending Limits</h2>
-
-  <p>
-    CAP defines how much extra you allow to spend <strong>after</strong> the slot price.
-    It never replaces the base slot — it only limits overflow.
-  </p>
-
-  <div class="box">
-    <strong>Example:</strong><br/>
-    FLEXIBLE = 8h / $4<br/>
-    CAP = $4.50<br/>
-    → Max total = $8.50<br/>
-    → Runtime ≈ 12.5h
-  </div>
-
-  <ul>
-    <li>CAP applies only to overflow.</li>
-    <li>CAP never triggers inside slot window.</li>
-    <li>Jobs pause safely when CAP is reached.</li>
-  </ul>
-</section>
-
-<section class="box">
-  <h2>Paused Jobs & Resume</h2>
-  <p>
-    When CAP is reached, rendering pauses automatically. Frames are preserved and
-    billing is locked. You can later extend CAP and resume the job.
-  </p>
-</section>
-
-<section class="box">
-  <h2>What You Pay For</h2>
-
-  <div class="grid">
-    <div class="box">
-      <h3>✔ Real GPU Time</h3>
-      <p>All pricing reflects physical NVIDIA GPUs executing your Blender scenes.</p>
-    </div>
-    <div class="box">
-      <h3>✔ Successful Frames</h3>
-      <p>No billing for failed technical runs.</p>
-    </div>
-    <div class="box">
-      <h3>✔ Audit Trail</h3>
-      <p>Every job includes logs, timing data and billing breakdown.</p>
-    </div>
-  </div>
-</section>
-
-<section class="box">
-  <h2>Related Guides</h2>
-  <ul>
-    <li><a href="cap-model.html">How CAP Works in Detail →</a></li>
-    <li><a href="faq.html">Full FAQ →</a></li>
-    <li><a href="how-it-works.html">How the Render Pipeline Works →</a></li>
-  </ul>
-</section>
-
-</main>
-
-<footer>
-  <p>© GPU Render Studio — EU Hosted GPU Rendering.</p>
-</footer>
 
 </body>
 </html>

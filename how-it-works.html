@@ -1,57 +1,221 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<title>How GPU Render Studio Works – Automated Blender GPU Rendering</title>
-<meta name="description" content="Learn how GPU Render Studio works: upload, GPU precheck, slot pricing, rendering, payment and download."/>
-<link rel="canonical" href="https://sulmada.github.io/gpurenderstudio/how-it-works.html"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>How GPU Render Studio Works — Automated Blender GPU Rendering</title>
+
+<meta name="description"
+content="Learn how GPU Render Studio works: upload your Blender scene, run real GPU prechecks, choose slot pricing with overflow and CAP, track progress live, and download finished frames."/>
+
+<link rel="canonical" href="https://sulmada.github.io/gpurenderstudio/how-it-works.html">
+
+<meta property="og:title" content="How GPU Render Studio Works — Automated Blender GPU Rendering">
+<meta property="og:description" content="From upload to download: real GPU prechecks, slot pricing, overflow control, CAP enforcement and live rendering status.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://sulmada.github.io/gpurenderstudio/how-it-works.html">
+
+<meta name="twitter:card" content="summary_large_image">
+
+<!-- ORGANIZATION SCHEMA -->
+<script type="application/ld+json">
+{
+"@context":"https://schema.org",
+"@type":"Organization",
+"name":"GPU Render Studio",
+"url":"https://sulmada.github.io/gpurenderstudio/",
+"description":"European automated GPU rendering service for Blender with transparent pricing and real GPU execution."
+}
+</script>
 
 <style>
-body{font-family:system-ui;background:#0b0f14;color:#eaeef3;margin:0}
-main,header,footer{max-width:1100px;margin:auto;padding:32px}
-.box{background:#131a24;border-radius:12px;padding:20px;margin:20px 0}
+body {
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#0b0b0b;
+  color:#e0e0e0;
+}
+
+section {
+  padding:120px 20px;
+}
+
+.content-box {
+  max-width:900px;
+  margin:auto;
+  background:rgba(20,20,20,0.65);
+  padding:40px 50px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,0.04);
+  box-shadow:0 0 50px rgba(0,255,255,0.05);
+}
+
+/* NAV */
+.topnav {
+  position:fixed;
+  top:0;
+  width:100%;
+  backdrop-filter:blur(10px);
+  background:rgba(15,15,15,0.45);
+  padding:12px 20px;
+  border-bottom:1px solid rgba(255,255,255,0.05);
+  z-index:99;
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+}
+
+.topnav a {
+  margin:0 16px;
+  text-decoration:none;
+  color:#cceeee;
+  font-size:14px;
+}
+
+.topnav a:hover {
+  color:#74ffff;
+}
+
+.doc-section {
+  margin-bottom:46px;
+}
+
+.doc-section h2 {
+  color:#7ffcff;
+}
+
+ul,ol {
+  padding-left:22px;
+}
 </style>
 </head>
 
 <body>
-<header>
-<h1>How It Works</h1>
-<p>From upload to download in one automated GPU pipeline.</p>
-<p><a href="./">← Back to main site</a></p>
-</header>
 
-<main>
+<!-- NAV -->
+<div class="topnav">
+  <a href="/gpurenderstudio/#start">Home</a>
+  <a href="/gpurenderstudio/how-it-works.html">How it Works</a>
+  <a href="/gpurenderstudio/pricing-explained.html">Pricing</a>
+  <a href="/gpurenderstudio/cap-model.html">CAP Model</a>
+  <a href="/gpurenderstudio/eu-gpu-hosting.html">EU Hosting</a>
+  <a href="/gpurenderstudio/faq.html">FAQ</a>
+  <a href="/gpurenderstudio/#upload">Upload</a>
+</div>
 
-<section class="box">
-<h2>1. Upload</h2>
-<p>Upload your Blender project securely.</p>
-</section>
+<section>
+<div class="content-box">
 
-<section class="box">
+<h1>How GPU Render Studio Works</h1>
+
+<p>
+GPU Render Studio is a fully automated Blender GPU rendering pipeline.
+Every job follows the same deterministic flow — from upload,
+to real GPU prechecks, to controlled billing and final delivery.
+</p>
+
+<!-- STEP 1 -->
+<div class="doc-section">
+<h2>1. Upload Your Scene</h2>
+
+<p>
+Upload your Blender project through the web interface.
+Files are encrypted in transit and staged inside isolated
+execution environments.
+</p>
+
+<ul>
+<li>Secure upload</li>
+<li>Temporary storage</li>
+<li>Automatic cleanup after retention period</li>
+</ul>
+</div>
+
+<!-- STEP 2 -->
+<div class="doc-section">
 <h2>2. Real GPU Precheck</h2>
-<p>Your scene is rendered on real hardware to estimate runtime.</p>
+
+<p>
+Before committing to a full render, the system runs test frames on
+physical NVIDIA GPUs.
+This produces accurate runtime estimates and recommends the correct
+slot profile.
+</p>
+
+<ul>
+<li>Frame sampling on real hardware</li>
+<li>Cycles GPU execution</li>
+<li>Performance-based slot recommendation</li>
+</ul>
+</div>
+
+<!-- STEP 3 -->
+<div class="doc-section">
+<h2>3. Slot Selection & Cost Controls</h2>
+
+<p>
+You select a fixed slot package that guarantees base runtime.
+Overflow may optionally continue at the hourly rate.
+A CAP lets you limit extra spend after the slot window ends.
+</p>
+
+<ul>
+<li>Slot price always billed first</li>
+<li>Overflow opt-in only</li>
+<li>CAP limits overflow spend</li>
+<li>No CAP enforcement during slot window</li>
+</ul>
+</div>
+
+<!-- STEP 4 -->
+<div class="doc-section">
+<h2>4. Automated Rendering</h2>
+
+<p>
+Jobs run unattended on NVIDIA GPUs inside sandboxed workers.
+Live telemetry is streamed to the status page.
+</p>
+
+<ul>
+<li>Frame progress</li>
+<li>ETA calculation</li>
+<li>Billing counters</li>
+<li>Pause states explained</li>
+</ul>
+</div>
+
+<!-- STEP 5 -->
+<div class="doc-section">
+<h2>5. Payment, Delivery & Resume</h2>
+
+<p>
+Payment is required only before final download.
+If CAP is reached, the job pauses safely and can later be resumed
+by extending the limit.
+</p>
+
+<ul>
+<li>ZIP download bundles</li>
+<li>No billing for technical failures</li>
+<li>Resume supported</li>
+</ul>
+</div>
+
+<!-- RELATIONS -->
+<div class="doc-section">
+<h2>Related Guides</h2>
+
+<ul>
+<li><a href="/gpurenderstudio/pricing-explained.html">Pricing Explained →</a></li>
+<li><a href="/gpurenderstudio/cap-model.html">CAP Model →</a></li>
+<li><a href="/gpurenderstudio/eu-gpu-hosting.html">EU Hosting →</a></li>
+<li><a href="/gpurenderstudio/faq.html">FAQ →</a></li>
+</ul>
+</div>
+
+</div>
 </section>
 
-<section class="box">
-<h2>3. Slot Selection</h2>
-<p>Choose runtime package, overflow and CAP.</p>
-</section>
-
-<section class="box">
-<h2>4. Rendering</h2>
-<p>Your job runs on NVIDIA GPUs with live progress tracking.</p>
-</section>
-
-<section class="box">
-<h2>5. Payment & Download</h2>
-<p>Pay only when complete and download ZIP results.</p>
-</section>
-
-</main>
-
-<footer>
-<p>© GPU Render Studio</p>
-</footer>
 </body>
 </html>

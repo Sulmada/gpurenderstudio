@@ -1166,92 +1166,52 @@
 <!--  FAQ — SEO / LLM OPTIMIZED                                -->
 <!-- ========================================================= -->
 <section id="faq">
-  <div class="content-box">
+<div class="content-box">
 
-    <h2>Frequently Asked Questions</h2>
+<h2>Frequently Asked Questions</h2>
 
-    <h3>What is GPU Render Studio?</h3>
-    <p>
-      GPU Render Studio is an automated GPU rendering platform for Blender.
-      You upload a finished scene, run a real GPU timing precheck,
-      choose a pricing slot, and the system renders your project unattended.
-    </p>
+<div class="faq-item">
+<h3>How does pricing work?</h3>
+<p>
+Slot packages include guaranteed runtime. Overflow is optional.
+CAP limits extra spend.
+<a href="pricing-explained.html">Full pricing details →</a>
+</p>
+</div>
 
-    <h3>Which software is supported?</h3>
-    <p>
-      Currently Blender with Cycles GPU rendering on NVIDIA hardware.
-      Additional engines will be added over time.
-    </p>
+<div class="faq-item">
+<h3>What is CAP?</h3>
+<p>
+CAP limits overflow spending after the slot window.
+<a href="cap-model.html">CAP explained →</a>
+</p>
+</div>
 
-    <h3>How does pricing work?</h3>
-    <p>
-      Pricing is based on execution slots, overflow runtime,
-      and an optional spending CAP.
-      The slot price always covers the base runtime.
-      Overflow is billed hourly after the slot window.
-      CAP limits extra spending only.
-    </p>
+<div class="faq-item">
+<h3>Where are GPUs hosted?</h3>
+<p>
+All infrastructure is located in the EU.
+<a href="eu-gpu-hosting.html">Read more →</a>
+</p>
+</div>
 
-    <h3>What is a CAP?</h3>
-    <p>
-      CAP is a safety limit on extra cost above the slot price.
-      It never stops a job during the base slot window.
-      If reached after the slot is exhausted,
-      the job pauses automatically with status <strong>paused_cap</strong>.
-    </p>
+<div class="faq-item">
+<h3>How does the render pipeline work?</h3>
+<p>
+Upload, GPU precheck, slot selection, rendering and download.
+<a href="how-it-works.html">Full pipeline →</a>
+</p>
+</div>
 
-    <h3>What happens when a job is paused?</h3>
-    <p>
-      When paused due to CAP, all frames are preserved.
-      No further charges occur.
-      Resume support will be added in a later phase.
-    </p>
+<div class="faq-item">
+<h3>What happens if rendering fails?</h3>
+<p>
+Technical failures are not billed.
+<a href="faq.html">See all FAQs →</a>
+</p>
+</div>
 
-    <h3>What does “real GPU precheck” mean?</h3>
-    <p>
-      Before confirming a job, we render test frames on real GPUs.
-      This measures performance, estimates total runtime,
-      and recommends the correct execution profile.
-    </p>
-
-    <h3>Can I see progress while rendering?</h3>
-    <p>
-      Yes. The live status page shows frames completed,
-      percent done, ETA, and billing progress.
-    </p>
-
-    <h3>Do I pay before or after rendering?</h3>
-    <p>
-      Payment is required before downloading final results.
-      This keeps pricing predictable and protects compute resources.
-    </p>
-
-    <h3>Where are your GPUs located?</h3>
-    <p>
-      All systems are hosted in the European Union,
-      suitable for EU customers and GDPR-aware workflows.
-    </p>
-
-    <h3>What happens if rendering fails?</h3>
-    <p>
-      Failed jobs are not billed.
-      Partial jobs are charged only for completed runtime.
-      The status page always explains the reason.
-    </p>
-
-    <h3>How long are my files stored?</h3>
-    <p>
-      Uploaded projects and renders are kept temporarily
-      and cleaned up automatically after a retention period.
-    </p>
-
-    <h3>How can I contact you?</h3>
-    <p>
-      Email <strong>support@gpurenderstudio.com</strong>
-      or use the contact section below.
-    </p>
-
-  </div>
+</div>
 </section>
 
 <!-- ========================================================= -->

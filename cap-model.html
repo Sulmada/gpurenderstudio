@@ -1,81 +1,205 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<title>CAP Spending Model Explained | GPU Render Studio</title>
-<meta name="description" content="Learn how CAP works in GPU Render Studio: overflow limits, paused jobs, resume flow and predictable Blender GPU rendering costs."/>
-<link rel="canonical" href="https://sulmada.github.io/gpurenderstudio/cap-model.html"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<meta property="og:title" content="CAP Model Explained – GPU Render Studio"/>
-<meta property="og:description" content="How CAP limits overflow spend, pauses jobs safely and enables resume."/>
-<meta property="og:type" content="article"/>
+<title>CAP Spending Model Explained — GPU Render Studio</title>
+
+<meta name="description"
+content="Detailed explanation of GPU Render Studio’s CAP model: overflow billing, paused jobs, resume flow, predictable Blender GPU rendering costs and runtime examples."/>
+
+<link rel="canonical" href="https://sulmada.github.io/gpurenderstudio/cap-model.html">
+
+<meta property="og:title" content="CAP Spending Model Explained — GPU Render Studio">
+<meta property="og:description" content="How CAP limits overflow spend, pauses jobs safely and ensures predictable GPU rendering costs.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://sulmada.github.io/gpurenderstudio/cap-model.html">
+
+<meta name="twitter:card" content="summary_large_image">
+
+<!-- ARTICLE STRUCTURED DATA -->
+<script type="application/ld+json">
+{
+"@context":"https://schema.org",
+"@type":"TechArticle",
+"headline":"CAP Spending Model Explained — GPU Render Studio",
+"description":"Detailed explanation of overflow billing, CAP limits, paused jobs and predictable GPU rendering costs.",
+"publisher":{
+  "@type":"Organization",
+  "name":"GPU Render Studio",
+  "url":"https://sulmada.github.io/gpurenderstudio/"
+}
+}
+</script>
 
 <style>
-body{font-family:system-ui;background:#0b0f14;color:#eaeef3;margin:0}
-main,header,footer{max-width:1100px;margin:auto;padding:32px}
-.box{background:#131a24;border-radius:12px;padding:20px;margin:20px 0}
-a{color:#6ab7ff}
+body {
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#0b0b0b;
+  color:#e0e0e0;
+}
+
+section {
+  padding:120px 20px;
+}
+
+.content-box {
+  max-width:900px;
+  margin:auto;
+  background:rgba(20,20,20,0.65);
+  padding:40px 50px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,0.04);
+  box-shadow:0 0 50px rgba(0,255,255,0.05);
+}
+
+/* NAV */
+.topnav {
+  position:fixed;
+  top:0;
+  width:100%;
+  backdrop-filter:blur(10px);
+  background:rgba(15,15,15,0.45);
+  padding:12px 20px;
+  border-bottom:1px solid rgba(255,255,255,0.05);
+  z-index:99;
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+}
+
+.topnav a {
+  margin:0 16px;
+  text-decoration:none;
+  color:#cceeee;
+  font-size:14px;
+}
+
+.topnav a:hover {
+  color:#74ffff;
+}
+
+.doc-section {
+  margin-bottom:40px;
+}
+
+.doc-section h2 {
+  color:#7ffcff;
+  margin-bottom:10px;
+}
+
+ul {
+  line-height:1.7;
+}
 </style>
 </head>
 
 <body>
-<header>
+
+<!-- NAV -->
+<div class="topnav">
+  <a href="/gpurenderstudio/#start">Home</a>
+  <a href="/gpurenderstudio/how-it-works.html">How it Works</a>
+  <a href="/gpurenderstudio/pricing-explained.html">Pricing</a>
+  <a href="/gpurenderstudio/cap-model.html">CAP Model</a>
+  <a href="/gpurenderstudio/eu-gpu-hosting.html">EU Hosting</a>
+  <a href="/gpurenderstudio/faq.html">FAQ</a>
+  <a href="/gpurenderstudio/#upload">Upload</a>
+</div>
+
+<section>
+<div class="content-box">
+
 <h1>CAP Spending Model</h1>
-<p>CAP gives you predictable GPU rendering costs without cutting your guaranteed slot runtime.</p>
-<p><a href="./">← Back to main site</a></p>
-</header>
 
-<main>
+<p>
+CAP is GPU Render Studio’s safety mechanism for controlling
+<strong>overflow runtime spending</strong> while guaranteeing your base execution slot.
+It allows heavy Blender workloads to run longer when needed — without risk of runaway costs.
+</p>
 
-<section class="box">
+<!-- WHAT IS -->
+<div class="doc-section">
 <h2>What CAP Is</h2>
 <p>
-CAP defines the maximum <strong>extra</strong> spend allowed after your slot package is consumed.
-It never replaces the base slot price.
+CAP defines the maximum <strong>extra</strong> amount you are willing to spend
+beyond the base slot price.
+It never replaces the slot price and never stops a job during guaranteed base runtime.
 </p>
-</section>
+</div>
 
-<section class="box">
+<!-- HOW -->
+<div class="doc-section">
 <h2>How CAP Works</h2>
+
 <ul>
-<li>Slot runtime is always guaranteed.</li>
-<li>Overflow only begins after slot window.</li>
-<li>CAP limits overflow spend only.</li>
-<li>Jobs pause safely when CAP is reached.</li>
+<li>The execution slot always runs first and is fully prepaid.</li>
+<li>Overflow runtime begins only after the slot window ends.</li>
+<li>Overflow is billed hourly based on real GPU consumption.</li>
+<li>CAP applies only to overflow spending.</li>
+<li>When CAP is reached, the job pauses automatically.</li>
 </ul>
-</section>
+</div>
 
-<section class="box">
-<h2>Example</h2>
+<!-- EXAMPLE -->
+<div class="doc-section">
+<h2>Example Scenario</h2>
+
 <p>
-FLEXIBLE slot: 8h / $4<br/>
-CAP = $4.50<br/>
-→ Max total cost: $8.50<br/>
-→ Approx runtime: 12.5h
+<strong>Flexible Slot:</strong> 8h / $4.00<br>
+<strong>CAP Extra:</strong> $4.50<br>
 </p>
-</section>
 
-<section class="box">
-<h2>Paused Jobs</h2>
 <p>
-When CAP is reached the job transitions to <strong>paused_cap</strong>.
-Frames are preserved, billing is locked and you may resume later.
+→ Maximum total billed: <strong>$8.50</strong><br>
+→ Expected runtime: ~12.5h if capacity allows<br>
+→ If finished within 8h → billed $4.00 only
 </p>
-</section>
+</div>
 
-<section class="box">
-<h2>Related</h2>
+<!-- PAUSED -->
+<div class="doc-section">
+<h2>Paused Jobs & Resume</h2>
+
+<p>
+When CAP is reached after slot exhaustion, the job transitions to
+<strong>paused_cap</strong>.
+All rendered frames remain intact and billing is locked.
+</p>
+
+<p>
+Resume orchestration is planned for Phase 1.4, allowing users to extend CAP
+or restart execution without re-uploading assets.
+</p>
+</div>
+
+<!-- GUARANTEES -->
+<div class="doc-section">
+<h2>Guarantees & Safety Rules</h2>
+
 <ul>
-<li><a href="pricing-explained.html">Pricing Overview</a></li>
-<li><a href="faq.html">FAQ</a></li>
+<li>CAP can never interrupt base slot runtime.</li>
+<li>Overflow cannot exceed the configured CAP.</li>
+<li>Failed jobs are never billed.</li>
+<li>Partial jobs are charged only for completed GPU time.</li>
+<li>All terminations include transparent technical reason codes.</li>
 </ul>
+</div>
+
+<!-- RELATED -->
+<div class="doc-section">
+<h2>Related Documentation</h2>
+
+<ul>
+<li><a href="/gpurenderstudio/pricing-explained.html">Pricing Overview</a></li>
+<li><a href="/gpurenderstudio/faq.html">Frequently Asked Questions</a></li>
+</ul>
+</div>
+
+</div>
 </section>
 
-</main>
-
-<footer>
-<p>© GPU Render Studio</p>
-</footer>
 </body>
 </html>
