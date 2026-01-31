@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>CAP Spending Model Explained | GPU Render Studio</title>
+<meta name="description" content="Learn how CAP works in GPU Render Studio: overflow limits, paused jobs, resume flow and predictable Blender GPU rendering costs."/>
+<link rel="canonical" href="https://sulmada.github.io/gpurenderstudio/cap-model.html"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<meta property="og:title" content="CAP Model Explained – GPU Render Studio"/>
+<meta property="og:description" content="How CAP limits overflow spend, pauses jobs safely and enables resume."/>
+<meta property="og:type" content="article"/>
+
+<style>
+body{font-family:system-ui;background:#0b0f14;color:#eaeef3;margin:0}
+main,header,footer{max-width:1100px;margin:auto;padding:32px}
+.box{background:#131a24;border-radius:12px;padding:20px;margin:20px 0}
+a{color:#6ab7ff}
+</style>
+</head>
+
+<body>
+<header>
+<h1>CAP Spending Model</h1>
+<p>CAP gives you predictable GPU rendering costs without cutting your guaranteed slot runtime.</p>
+<p><a href="./">← Back to main site</a></p>
+</header>
+
+<main>
+
+<section class="box">
+<h2>What CAP Is</h2>
+<p>
+CAP defines the maximum <strong>extra</strong> spend allowed after your slot package is consumed.
+It never replaces the base slot price.
+</p>
+</section>
+
+<section class="box">
+<h2>How CAP Works</h2>
+<ul>
+<li>Slot runtime is always guaranteed.</li>
+<li>Overflow only begins after slot window.</li>
+<li>CAP limits overflow spend only.</li>
+<li>Jobs pause safely when CAP is reached.</li>
+</ul>
+</section>
+
+<section class="box">
+<h2>Example</h2>
+<p>
+FLEXIBLE slot: 8h / $4<br/>
+CAP = $4.50<br/>
+→ Max total cost: $8.50<br/>
+→ Approx runtime: 12.5h
+</p>
+</section>
+
+<section class="box">
+<h2>Paused Jobs</h2>
+<p>
+When CAP is reached the job transitions to <strong>paused_cap</strong>.
+Frames are preserved, billing is locked and you may resume later.
+</p>
+</section>
+
+<section class="box">
+<h2>Related</h2>
+<ul>
+<li><a href="pricing-explained.html">Pricing Overview</a></li>
+<li><a href="faq.html">FAQ</a></li>
+</ul>
+</section>
+
+</main>
+
+<footer>
+<p>© GPU Render Studio</p>
+</footer>
+</body>
+</html>

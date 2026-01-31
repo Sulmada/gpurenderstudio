@@ -12,6 +12,13 @@
 
     <link rel="canonical" href="https://sulmada.github.io/gpurenderstudio/">
 
+    
+<!-- Preload hero images -->
+    <link rel="preload" as="image" href="assets/images/hero_poster_desktop.jpg">
+    <link rel="preload" as="image" href="assets/images/hero_poster_mobile.jpg">
+    <link rel="preload" as="video" href="assets/images/hero_video_desktop.mp4">
+    <link rel="preload" as="video" href="assets/images/hero_video_mobile.mp4">
+
     <meta property="og:title" content="GPU Render Studio — Automated GPU Rendering">
     <meta property="og:description" content="Upload Blender scenes, get real GPU timing, fixed slot pricing, overflow control, and instant downloads.">
     <meta property="og:type" content="website">
@@ -638,15 +645,24 @@
 <!--  NAVIGATION BAR                                           -->
 <!-- ========================================================= -->
 <div class="topnav">
-    <a href="#start">Home</a>
-    <a href="#workflow">How it Works</a>
-    <a href="#prices">Pricing</a>
-    <a href="#express">Express</a>
-    <a href="#premium">Premium</a>
-    <a href="#trust">Trust</a>
-    <a href="#upload">Upload</a>
-    <a href="#faq">FAQ</a>
-    <a href="#contact">Contact</a>
+    <a href="/gpurenderstudio/#start">Home</a>
+
+    <a href="/gpurenderstudio/how-it-works.html">How it Works</a>
+
+    <a href="/gpurenderstudio/pricing-explained.html">Pricing</a>
+    <a href="/gpurenderstudio/cap-model.html">CAP Model</a>
+
+    <a href="/gpurenderstudio/#express">Express</a>
+    <a href="/gpurenderstudio/#premium">Premium</a>
+
+    <a href="/gpurenderstudio/eu-gpu-hosting.html">EU Hosting</a>
+
+    <a href="/gpurenderstudio/#trust">Trust</a>
+    <a href="/gpurenderstudio/#upload">Upload</a>
+
+    <a href="/gpurenderstudio/faq.html">FAQ</a>
+
+    <a href="/gpurenderstudio/#contact">Contact</a>
 </div>
 
 <!-- ========================================================= -->
@@ -660,12 +676,6 @@
          data-tooltip="Fully automated GPU rendering. Your project is executed exactly as uploaded.">
         Live · Automated Rendering
     </div>
-
-    <!-- Preload -->
-    <link rel="preload" as="image" href="assets/images/hero_poster_desktop.jpg">
-    <link rel="preload" as="image" href="assets/images/hero_poster_tablet.jpg">
-    <link rel="preload" as="image" href="assets/images/hero_poster_mobile_fixed.jpg">
-    <link rel="preload" as="video"  href="assets/video/loop_desktop_v9.webm" type="video/webm">
 
     <video id="heroVid" class="hero-video"
            autoplay muted playsinline loop preload="auto"
@@ -1407,6 +1417,13 @@ function renderSlotChooser(precheck) {
 <h3>Select execution profile</h3>
 
 <p>Estimated GPU hours: <strong>${estText}</strong></p>
+<p id="slotFitHint"
+   style="font-size:12px;opacity:0.7;margin-top:4px;">
+</p>
+
+<p id="totalRuntimeHint"
+   style="font-size:12px;opacity:0.7;">
+</p>
 
 <h4 style="margin-top:14px;">Execution profile</h4>
 ${slotHtml}
@@ -1423,8 +1440,13 @@ ${slotHtml}
            id="capSlider">
     <span id="capVal">$5</span>
   </label>
+
   <div style="font-size:11px;opacity:0.6;">
     Job will pause automatically when this limit is reached.
+  </div>
+
+  <div id="maxCostPreview"
+       style="margin-top:8px;font-weight:600;">
   </div>
 </div>
 
@@ -1441,6 +1463,12 @@ ${slotHtml}
   const capVal = document.getElementById("capVal");
   const overflowToggle = document.getElementById("overflowToggle");
   const capBlock = document.getElementById("capBlock");
+  const maxCostPreview =
+    document.getElementById("maxCostPreview");
+ const slotFitHint =
+    document.getElementById("slotFitHint");
+ const totalRuntimeHint =
+     document.getElementById("totalRuntimeHint");
 
   const slotAnalysis = slots;
 
@@ -1448,20 +1476,121 @@ ${slotHtml}
     return slotAnalysis.find(s => s.slot === slotName);
   }
 
+  /* ---------- Cost Preview ---------- */
+
+  function updateMaxCostPreview() {
+    const selected =
+      document.querySelector('input[name="slotRadio"]:checked')?.value;
+
+    const info = getSlotInfo(selected);
+
+    if (!info || !maxCostPreview) {
+      return;
+    }
+
+    const basePrice = safeNum(info.price_usd) || 0;
+
+    const capExtra =
+      overflowToggle.checked
+        ? Number(slider.value || 0)
+        : 0;
+
+    if (!overflowToggle.checked || !info.near_limit) {
+      maxCostPreview.textContent =
+        `Base price: $${basePrice.toFixed(2)}`;
+      return;
+    }
+
+    const total = basePrice + capExtra;
+
+    maxCostPreview.textContent =
+      `Max total cost: $${total.toFixed(2)} ` +
+      `(slot $${basePrice.toFixed(2)} + CAP $${capExtra.toFixed(2)})`;
+  }
+
+   /* ---------- CAP Visibility + Hints ---------- */
+
   function syncCapVisibility() {
     const selected =
       document.querySelector('input[name="slotRadio"]:checked')?.value;
 
     const info = getSlotInfo(selected);
 
-    if (!info || !info.near_limit) {
+    // CAP never shown unless overflow enabled
+    if (!overflowToggle.checked || !info || !info.near_limit) {
       capBlock.style.display = "none";
+    } else {
+      capBlock.style.display = "block";
+      capVal.textContent = "$" + slider.value;
+    }
+
+    updateMaxCostPreview();
+    updateSlotFitHint();
+    updateTotalRuntimeHint();
+  }
+
+  function updateSlotFitHint() {
+
+    if (!slotFitHint || est === null) {
+      slotFitHint.textContent = "";
       return;
     }
 
-    capBlock.style.display = "block";
-    capVal.textContent = "$" + slider.value;
+    const selected =
+      document.querySelector('input[name="slotRadio"]:checked')?.value;
+
+    const info = getSlotInfo(selected);
+
+    if (!info || !info.hours) {
+      slotFitHint.textContent = "";
+      return;
+    }
+
+    const delta = est - info.hours;
+
+    if (delta <= 0) {
+      slotFitHint.textContent =
+        `Fits inside slot (${info.hours}h). No overflow expected.`;
+    } else {
+      slotFitHint.textContent =
+        `Slot covers ${info.hours}h — likely overflow ~${delta.toFixed(1)}h.`;
+    }
   }
+
+  function updateTotalRuntimeHint() {
+
+    if (!totalRuntimeHint || est === null) {
+      totalRuntimeHint.textContent = "";
+      return;
+    }
+
+    const selected =
+      document.querySelector('input[name="slotRadio"]:checked')?.value;
+
+    const info = getSlotInfo(selected);
+
+    if (!info || !info.hours) {
+      totalRuntimeHint.textContent = "";
+      return;
+    }
+
+    if (!overflowToggle.checked) {
+      totalRuntimeHint.textContent =
+        `Max runtime without overflow: ${info.hours}h`;
+      return;
+    }
+
+    if (est <= info.hours) {
+      totalRuntimeHint.textContent =
+        `Estimated runtime: ${est.toFixed(1)}h`;
+      return;
+    }
+
+    totalRuntimeHint.textContent =
+      `Likely total runtime: ~${est.toFixed(1)}h`;
+  }
+
+  /* ---------- Listeners ---------- */
 
   document
     .querySelectorAll('input[name="slotRadio"]')
@@ -1469,10 +1598,26 @@ ${slotHtml}
       r.addEventListener("change", syncCapVisibility)
     );
 
-  slider.addEventListener("input", () => {
-    capVal.textContent = "$" + slider.value;
+  overflowToggle.addEventListener("change", () => {
+    if (!overflowToggle.checked) {
+      capBlock.style.display = "none";
+    }
+
+    syncCapVisibility();
   });
 
+  slider.addEventListener("input", () => {
+    capVal.textContent = "$" + slider.value;
+
+    // touching CAP auto-enables overflow
+    if (!overflowToggle.checked) {
+      overflowToggle.checked = true;
+    }
+
+    syncCapVisibility();
+  });
+
+  // Initial render
   syncCapVisibility();
 
   document
@@ -1514,38 +1659,50 @@ async function confirmContract() {
     return;
   }
 
-  const overflow =
-    !!document.getElementById("overflowToggle")?.checked;
+const overflowToggle =
+  document.getElementById("overflowToggle");
 
-  const capBlock =
-    document.getElementById("capBlock");
+let overflow =
+  !!overflowToggle?.checked;
 
-  const capVisible =
-    capBlock && capBlock.style.display !== "none";
+const capBlock =
+  document.getElementById("capBlock");
 
-  const capSlider =
-    document.getElementById("capSlider");
+const capSlider =
+  document.getElementById("capSlider");
 
-  const capUsd =
-    capVisible && capSlider
-      ? Number(capSlider.value)
-      : null;
+// CAP only allowed if overflow is enabled
+let capUsd = null;
 
-  let contract_type = "HOURLY_BUDGET";
-
-  if (capUsd && isFinite(capUsd)) {
-    contract_type = "HOURLY_OVERFLOW_CAP";
+if (overflow && capBlock && capBlock.style.display !== "none" && capSlider) {
+  const v = Number(capSlider.value);
+  if (isFinite(v) && v > 0) {
+    capUsd = v;
   }
-  else if (overflow) {
-    contract_type = "HOURLY_OVERFLOW";
-  }
+}
 
-  const body = {
-    job_id: CURRENT_JOB_ID,
-    slot,
-    contract_type,
-    cap_usd: capUsd
-  };
+// Touching CAP auto-enables overflow
+if (capUsd && !overflow) {
+  overflowToggle.checked = true;
+  overflow = true;
+}
+
+let contract_type = "HOURLY_BUDGET";
+
+if (overflow && capUsd) {
+  contract_type = "HOURLY_OVERFLOW_CAP";
+}
+else if (overflow) {
+  contract_type = "HOURLY_OVERFLOW";
+}
+
+const body = {
+  job_id: CURRENT_JOB_ID,
+  slot,
+  contract_type,
+  cap_usd: capUsd
+};
+
 
   try {
 
