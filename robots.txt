@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://sulmada.github.io/gpurenderstudio/sitemap.xml
+Sitemap: https://gpurenderstudio.com/sitemap.xml

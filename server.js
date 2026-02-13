@@ -184,7 +184,7 @@ setInterval(runPricingEvaluation, 30000);
 // -------------------------------------------------------------
 // CORS
 // -------------------------------------------------------------
-const PROD_ORIGIN = "https://sulmada.github.io";
+const PROD_ORIGIN = "https://gpurenderstudio.com";
 app.use((req, res, next) => {
   const origin = req.headers.origin;
   if (origin === PROD_ORIGIN || process.env.NODE_ENV === "development") {
