@@ -604,8 +604,8 @@ app.post("/api/pay/:job_id", statusLimiter, async (req, res) => {
         }
       ],
       metadata: { job_id: job.job_id, trace_id: job.trace_id },
-      success_url: `${PROD_ORIGIN}/gpurenderstudio/status/?job_id=${job.job_id}&paid=1`,
-      cancel_url: `${PROD_ORIGIN}/gpurenderstudio/status/?job_id=${job.job_id}&cancelled=1`
+      success_url: `${PROD_ORIGIN}/status/?job_id=${job.job_id}&paid=1`,
+      cancel_url: `${PROD_ORIGIN}/status/?job_id=${job.job_id}&cancelled=1`
     });
 
     job.payment.stripe_session_id = session.id;
