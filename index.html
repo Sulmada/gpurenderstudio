@@ -869,25 +869,31 @@
 <!-- ========================================================= -->
 <section id="prices">
   <div class="content-box phase-box phase-1">
-    <div class="phase-label"
-         data-tooltip="Fully automated GPU rendering with fixed pricing per job.">
+
+    <div
+      class="phase-label"
+      data-tooltip="Fully automated GPU rendering with fixed pricing per job."
+    >
       Live · Automated Rendering
     </div>
 
     <h2>Execution Profiles & Pricing</h2>
 
-    <p style="font-size:13px;opacity:0.75;margin-bottom:14px;">
+    <p style="font-size:13px; opacity:0.75; margin-bottom:14px;">
       Choose a profile that matches the expected complexity of your scene.
       Each profile reserves GPU capacity and includes a fixed base price per job.
     </p>
 
-    <p style="font-size:13px;opacity:0.75;margin-bottom:22px;">
+    <p style="font-size:13px; opacity:0.75; margin-bottom:22px;">
       Base price and runtime are locked at submission.
-      Jobs never exceed that price unless you explicitly enable overflow or set a higher spending cap.
+      Jobs never exceed that price unless you explicitly enable overflow
+      or set a higher spending cap.
       Failed jobs are never billed.
     </p>
 
     <div class="profile-table">
+
+      <!-- Header -->
       <div class="profile-row header">
         <div class="col-profile">Profile</div>
         <div class="col-runtime">Base runtime</div>
@@ -895,63 +901,112 @@
         <div class="col-risk">Complexity</div>
       </div>
 
+      <!-- STRICT -->
       <div class="profile-row">
         <div class="col-profile">
           <strong>Strict</strong>
           <span class="profile-note">Fast, predictable jobs</span>
         </div>
-        <div class="col-runtime">Up to 1.5 hours</div>
-        <div class="col-price">$0.50</div>
-        <div class="col-risk">Low</div>
+
+        <div class="col-runtime">
+          Up to 1.5 hours
+        </div>
+
+        <div class="col-price">
+          $0.50
+          <div style="margin-top:6px; font-size:12px; color:#baffff;">
+            Launch offer: Strict profile testable free with voucher (limited period)
+          </div>
+        </div>
+
+        <div class="col-risk">
+          Low
+        </div>
       </div>
 
+      <!-- EXTENDED -->
       <div class="profile-row">
         <div class="col-profile">
           <strong>Extended</strong>
           <span class="profile-note">Medium-complex scenes</span>
         </div>
-        <div class="col-runtime">Up to 4 hours</div>
-        <div class="col-price">$2.00</div>
-        <div class="col-risk">Medium</div>
+
+        <div class="col-runtime">
+          Up to 4 hours
+        </div>
+
+        <div class="col-price">
+          $2.00
+        </div>
+
+        <div class="col-risk">
+          Medium
+        </div>
       </div>
 
+      <!-- FLEXIBLE -->
       <div class="profile-row">
         <div class="col-profile">
           <strong>Flexible</strong>
           <span class="profile-note">Heavy workloads</span>
         </div>
-        <div class="col-runtime">Up to 8 hours</div>
-        <div class="col-price">$4.00</div>
-        <div class="col-risk">High</div>
+
+        <div class="col-runtime">
+          Up to 8 hours
+        </div>
+
+        <div class="col-price">
+          $4.00
+        </div>
+
+        <div class="col-risk">
+          High
+        </div>
       </div>
 
+      <!-- OPEN -->
       <div class="profile-row">
         <div class="col-profile">
           <strong>Open</strong>
           <span class="profile-note">Maximum flexibility</span>
         </div>
-        <div class="col-runtime">Up to 12 hours</div>
-        <div class="col-price">$5.00</div>
-        <div class="col-risk">Highest</div>
+
+        <div class="col-runtime">
+          Up to 12 hours
+        </div>
+
+        <div class="col-price">
+          $5.00
+        </div>
+
+        <div class="col-risk">
+          Highest
+        </div>
       </div>
+
     </div>
 
-    <h3 style="font-size:15px;margin-top:30px;">Dynamic Capacity Windows</h3>
+    <!-- Capacity Windows -->
+    <h3 style="font-size:15px; margin-top:30px;">
+      Dynamic Capacity Windows
+    </h3>
 
-    <p style="font-size:13px;opacity:0.7;">
+    <p style="font-size:13px; opacity:0.7;">
       During low system load, some jobs may be allowed to run beyond their base
       runtime window at no additional cost.
     </p>
 
-    <p style="font-size:13px;opacity:0.7;">
+    <p style="font-size:13px; opacity:0.7;">
       These extensions are automatic, depend on real-time capacity,
       and are never guaranteed — but they can occasionally save you a re-submission.
     </p>
 
-    <p style="font-size:12px;opacity:0.6;margin-top:12px;">
-      Prices apply per completed job. Failed jobs are not charged.
+    <p style="font-size:12px; opacity:0.6; margin-top:12px;">
+      Prices apply per completed job.
+      Failed jobs are not charged.
       Each submission represents one execution attempt.
     </p>
+
   </div>
 </section>
 
@@ -1244,6 +1299,9 @@ Technical failures are not billed.
       <button class="btn btn-primary" type="submit" style="width:100%;margin-top:18px;">
         Start Automated Render
       </button>
+      <div style="margin-top:10px;font-size:13px;opacity:0.85;color:#baffff;text-align:center;">
+                    Launch offer: Strict profile currently testable free with voucher.
+                </div>
     </form>
 
     <div id="uploadResult" style="margin-top:20px;"></div>
@@ -1363,15 +1421,26 @@ function renderSlotChooser(precheck) {
     precheck.slot_suggestion?.recommended_profile ||
     slots?.[0]?.slot;
 
-  const slotHtml = slots.map(s => `
+  const slotHtml = slots.map(s => {
+
+    const price =
+      typeof s.price_usd === "number" && isFinite(s.price_usd)
+        ? s.price_usd.toFixed(2)
+        : "0.00";
+
+    return `
 <label style="display:block;margin-top:6px;">
   <input type="radio"
          name="slotRadio"
          value="${s.slot}"
          ${s.slot === recommended ? "checked" : ""}>
-  ${s.slot}
+  <span style="font-weight:600;">${s.slot}</span>
+  <span style="opacity:0.7;font-size:12px;margin-left:8px;">
+    $${price}
+  </span>
 </label>
-`).join("");
+`;
+  }).join("");
 
   resultBox.innerHTML = `
 <h3>Select execution profile</h3>
@@ -1416,6 +1485,9 @@ ${slotHtml}
           type="button">
     Confirm & Start
   </button>
+  <div style="margin-top:8px;font-size:12px;opacity:0.75;">
+               You will only be charged after successful completion.
+     </div>
 </div>
 `;
 

@@ -472,6 +472,10 @@ async function pollStatusLoop() {
 // RENDER JOB → UI
 // =======================================
 function renderJob(job) {
+
+    // ---------------------------------------
+    // Reset UI
+    // ---------------------------------------
     statusEl.className = "status-value";
     failEl.style.display = "none";
     priceLine.style.display = "none";
@@ -485,6 +489,9 @@ function renderJob(job) {
     const status = (job.status || "").toLowerCase();
     statusEl.textContent = status ? status.toUpperCase() : "UNKNOWN";
 
+    // ---------------------------------------
+    // Common metadata
+    // ---------------------------------------
     const currentProfile = job.pricing_snapshot?.execution_profile || null;
     if (currentProfile) {
         addLine("Current profile", currentProfile);
@@ -492,10 +499,7 @@ function renderJob(job) {
 
     const stopReason = job.stop_reason || null;
     if (stopReason) {
-        addLine(
-            "Why it stopped",
-            STOP_REASON_COPY[stopReason] || stopReason
-        );
+        addLine("Why it stopped", STOP_REASON_COPY[stopReason] || stopReason);
     }
 
     const stopMechanism = job.stop_mechanism || null;
@@ -503,6 +507,9 @@ function renderJob(job) {
         addLine("Stop mechanism", stopMechanism);
     }
 
+    // =======================================
+    // FAILED
+    // =======================================
     if (status === "failed") {
         statusEl.classList.add("status-fail");
 
@@ -528,6 +535,9 @@ function renderJob(job) {
         return;
     }
 
+    // =======================================
+    // PAUSED CAP
+    // =======================================
     if (status === "paused_cap") {
         statusEl.classList.add("status-wait");
 
@@ -551,8 +561,12 @@ function renderJob(job) {
         return;
     }
 
+    // =======================================
+    // SUCCESS / PARTIAL_SUCCESS
+    // =======================================
     if (status === "success" || status === "partial_success") {
         statusEl.classList.add("status-success");
+        addLine("Result", "Your render completed successfully.");
 
         const billedUsd = job.billing?.billed_usd;
         priceEl.textContent =
@@ -563,60 +577,85 @@ function renderJob(job) {
 
         const paid = job.payment?.status === "PAID";
         const paidAt = job.payment?.paid_at;
+        const paymentMethod = job.payment?.method;
 
         if (paid && paidAt) {
             const ts = new Date(paidAt)
                 .toISOString()
                 .replace("T", " ")
                 .slice(0, 16);
-            paymentLine.textContent = "Payment confirmed at: " + ts;
+
+            if (paymentMethod === "VOUCHER_FREE") {
+                paymentLine.textContent =
+                    "Free render unlocked via launch voucher.";
+            } else {
+                paymentLine.textContent =
+                    "Payment confirmed at: " + ts;
+            }
+
             paymentLine.style.display = "block";
         }
 
         actionArea.style.display = "block";
-        actionArea.innerHTML = paid
-            ? `<button class="btn" onclick="download()">Download output</button>`
-            : `<button class="btn" onclick="pay()">Pay to download</button>`;
+
+        if (paid) {
+            actionArea.innerHTML =
+                `<button class="btn" onclick="download()">Download output</button>`;
+        } else {
+            actionArea.innerHTML = `
+                <button class="btn" onclick="pay()">Pay to download</button>
+                <div style="margin-top:10px;font-size:13px;opacity:0.8;">
+                    Secure Stripe checkout.
+                </div>
+            `;
+        }
 
         return;
     }
 
+    // =======================================
+    // QUEUED
+    // =======================================
     if (status === "queued") {
         statusEl.classList.add("status-wait");
         addLine("State", STATUS_COPY.queued);
         return;
     }
 
-    }
+    // =======================================
+    // RUNNING
+    // =======================================
+    if (status === "running") {
+        statusEl.classList.add("status-wait");
+        addLine("State", STATUS_COPY.running);
 
-if (status === "running") {
-    statusEl.classList.add("status-wait");
-    addLine("State", STATUS_COPY.running);
+        if (job.progress) {
+            progressPanel.style.display = "block";
 
-    if (job.progress) {
-        progressPanel.style.display = "block";
+            const p = job.progress;
 
-        const p = job.progress;
+            progressBar.style.width = (p.percent || 0) + "%";
 
-        progressBar.style.width = (p.percent || 0) + "%";
+            progressText.textContent =
+                `Frames ${p.frames_done}/${p.frames_total} (${p.percent || 0}%)`;
 
-        progressText.textContent =
-            `Frames ${p.frames_done}/${p.frames_total} (${p.percent || 0}%)`;
-
-        if (p.eta_seconds) {
-            const min = Math.round(p.eta_seconds / 60);
-            progressEta.textContent = "ETA: " + min + " min";
-        } else {
-            progressEta.textContent = "ETA: calculating…";
+            if (p.eta_seconds) {
+                const min = Math.round(p.eta_seconds / 60);
+                progressEta.textContent = "ETA: " + min + " min";
+            } else {
+                progressEta.textContent = "ETA: calculating…";
+            }
         }
+
+        return;
     }
 
-    return;
+    // =======================================
+    // FALLBACK
+    // =======================================
+    statusEl.classList.add("status-wait");
+    addLine("Note", "Waiting for job updates…");
 }
-
-// fallback
-statusEl.classList.add("status-wait");
-addLine("Note", "Waiting for job updates…");
 
 // ========================================
 // PAYMENT + DOWNLOAD ACTIONS
