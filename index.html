@@ -1417,15 +1417,20 @@ function renderSlotChooser(precheck) {
   const slots =
     precheck.slot_suggestion?.slot_analysis || [];
 
+  const pricing =
+    precheck.pricing_snapshot?.slot_prices_usd || {};
+
   const recommended =
     precheck.slot_suggestion?.recommended_profile ||
     slots?.[0]?.slot;
 
   const slotHtml = slots.map(s => {
 
+    const rawPrice = pricing[s.slot];
+
     const price =
-      typeof s.price_usd === "number" && isFinite(s.price_usd)
-        ? s.price_usd.toFixed(2)
+      typeof rawPrice === "number" && isFinite(rawPrice)
+        ? rawPrice.toFixed(2)
         : "0.00";
 
     return `
@@ -1444,7 +1449,6 @@ function renderSlotChooser(precheck) {
 
   resultBox.innerHTML = `
 <h3>Select execution profile</h3>
-
 <p>Estimated GPU hours: <strong>${estText}</strong></p>
 <p id="slotFitHint"
    style="font-size:12px;opacity:0.7;margin-top:4px;">
@@ -1511,16 +1515,22 @@ ${slotHtml}
   /* ---------- Cost Preview ---------- */
 
   function updateMaxCostPreview() {
+
     const selected =
       document.querySelector('input[name="slotRadio"]:checked')?.value;
 
     const info = getSlotInfo(selected);
 
-    if (!info || !maxCostPreview) {
+    if (!selected || !info || !maxCostPreview) {
       return;
     }
 
-    const basePrice = safeNum(info.price_usd) || 0;
+    const rawPrice = pricing[selected];
+
+    const basePrice =
+      typeof rawPrice === "number" && isFinite(rawPrice)
+        ? rawPrice
+        : 0;
 
     const capExtra =
       overflowToggle.checked
