@@ -3,139 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GPU Render Studio — Automated Blender GPU Rendering</title>
-
-    <!-- SEO + LLM STRUCTURED DATA -->
-    <meta name="description" content="Automated GPU rendering for Blender. Upload your scene, run real GPU prechecks, choose fixed pricing slots, control overflow with CAP, and download finished frames — fully unattended.">
-
-    <meta name="keywords" content="GPU rendering, Blender render farm, automated rendering, Cycles GPU, cloud rendering, NVIDIA GPU render, batch rendering">
-
-    <link rel="canonical" href="https://gpurenderstudio.com/">
-
-    
-<!-- Preload hero images -->
-    <link rel="preload" as="image" href="assets/images/hero_poster_desktop.jpg">
-    <link rel="preload" as="image" href="assets/images/hero_poster_mobile.jpg">
-    <link rel="preload" as="video" href="assets/images/hero_video_desktop.mp4">
-    <link rel="preload" as="video" href="assets/images/hero_video_mobile.mp4">
-
-    <meta property="og:title" content="GPU Render Studio — Automated GPU Rendering">
-    <meta property="og:description" content="Upload Blender scenes, get real GPU timing, fixed slot pricing, overflow control, and instant downloads.">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://gpurenderstudio.com/">
-    <meta property="og:image" content="https://gpurenderstudio.com/assets/images/hero_poster_desktop.jpg">
-
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="GPU Render Studio — Automated GPU Rendering">
-    <meta name="twitter:description" content="Real GPU prechecks, fixed pricing slots, overflow CAP, and automated Blender rendering.">
-    <meta name="twitter:image" content="https://gpurenderstudio.com/assets/images/hero_poster_desktop.jpg">
-
-    <!-- FAQ STRUCTURED DATA -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      "mainEntity": [
-        {
-          "@type": "Question",
-          "name": "How does GPU Render Studio pricing work?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Pricing uses fixed execution slots, optional overflow runtime, and CAP limits extra spend only. Slot price always covers base runtime."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "What is CAP in GPU Render Studio?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "CAP limits overflow spending above the base slot price and never stops a job during the base slot window."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Do you run real GPU timing prechecks?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Yes. We render test frames on real NVIDIA GPUs to estimate runtime and recommend the correct execution profile."
-          }
-        }
-      ]
-    }
-    </script>
-
-<!-- PRODUCT + PRICING STRUCTURED DATA -->
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "Product",
-  "name": "GPU Render Studio – Automated Blender Rendering",
-  "description": "Automated GPU rendering platform for Blender with real GPU prechecks, fixed execution slots, overflow control and spending CAP.",
-  "brand": {
-    "@type": "Brand",
-    "name": "GPU Render Studio"
-  },
-  "category": "Cloud Rendering Service",
-  "image": "https://gpurenderstudio.com/assets/images/hero_poster_desktop.jpg",
-  "url": "https://gpurenderstudio.com/",
-  "offers": [
-    {
-      "@type": "Offer",
-      "name": "Strict Slot",
-      "price": "0.50",
-      "priceCurrency": "USD",
-      "availability": "https://schema.org/InStock",
-      "description": "Up to 1.5 hours GPU runtime. Fixed price automated render."
-    },
-    {
-      "@type": "Offer",
-      "name": "Extended Slot",
-      "price": "2.00",
-      "priceCurrency": "USD",
-      "availability": "https://schema.org/InStock",
-      "description": "Up to 4 hours GPU runtime. Fixed price automated render."
-    },
-    {
-      "@type": "Offer",
-      "name": "Flexible Slot",
-      "price": "4.00",
-      "priceCurrency": "USD",
-      "availability": "https://schema.org/InStock",
-      "description": "Up to 8 hours GPU runtime. Heavy scenes supported."
-    },
-    {
-      "@type": "Offer",
-      "name": "Open Slot",
-      "price": "5.00",
-      "priceCurrency": "USD",
-      "availability": "https://schema.org/InStock",
-      "description": "Up to 12 hours GPU runtime. Maximum flexibility."
-    }
-  ]
-}
-</script>
-
-<!-- ORGANIZATION / BRAND STRUCTURED DATA -->
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  "name": "GPU Render Studio",
-  "url": "https://gpurenderstudio.com/",
-  "logo": "https://gpurenderstudio.com/assets/images/logo.png",
-  "description": "European automated GPU rendering service for Blender with fixed pricing, overflow control and transparent billing.",
-  "areaServed": {
-    "@type": "AdministrativeArea",
-    "name": "European Union"
-  },
-  "contactPoint": {
-    "@type": "ContactPoint",
-    "contactType": "Customer Support",
-    "availableLanguage": ["English"]
-  }
-}
-</script>
-
+    <title>GPU Render Studio</title>
 
     <style>
 
@@ -182,44 +50,30 @@
            NAVIGATION BAR
         ========================================================= */
         .topnav {
-                position: fixed;
-                top: 0;
-                width: 100%;
-                backdrop-filter: blur(10px);
-                background: rgba(15,15,15,0.45);
-
-                padding:
-                        12px max(20px, env(safe-area-inset-left))
-                        12px max(20px, env(safe-area-inset-right));
-
-                border-bottom: 1px solid rgba(255,255,255,0.05);
-                z-index: 99;
-
-                display: flex;
-                justify-content: center;
-                flex-wrap: wrap;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            backdrop-filter: blur(10px);
+            background: rgba(15,15,15,0.45);
+            padding: 12px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            z-index: 99;
+            display: flex;
+            justify-content: center;
         }
 
         .topnav a {
-                margin: 0 18px;
-                text-decoration: none;
-                color: #cceeee;
-                font-size: 14px;
-                letter-spacing: 1px;
-                transition: 0.2s;
-                white-space: nowrap;
+            margin: 0 18px;
+            text-decoration: none;
+            color: #cceeee;
+            font-size: 14px;
+            letter-spacing: 1px;
+            transition: 0.2s;
         }
 
         .topnav a:hover {
-                color: #74ffff;
-                text-shadow: 0 0 8px rgba(0,255,255,0.4);
-        }
-
-        @media (max-width: 600px) {
-                .topnav a {
-                        margin: 0 10px;
-                        font-size: 13px;
-                }
+            color: #74ffff;
+            text-shadow: 0 0 8px rgba(0,255,255,0.4);
         }
 
         /* =========================================================
@@ -547,68 +401,6 @@
         }
 
         /* =========================================================
-           TRUST & RELIABILITY
-        ========================================================= */
-        .trust-grid {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 18px;
-                margin-top: 18px;
-        }
-
-        .trust-card {
-                background: rgba(10,10,10,0.55);
-                border: 1px solid rgba(255,255,255,0.08);
-                border-radius: 12px;
-                padding: 18px 18px;
-                box-shadow: 0 0 22px rgba(0,255,255,0.06);
-        }
-
-        .trust-card h3 {
-                margin: 0 0 8px 0;
-                font-size: 15px;
-                color: #baffff;
-                text-shadow: 0 0 10px rgba(0,255,255,0.12);
-        }
-
-        .trust-card p {
-                margin: 0;
-                font-size: 13px;
-                opacity: 0.8;
-        }
-
-        .trust-list {
-                margin-top: 16px;
-                padding-left: 18px;
-                font-size: 13px;
-                opacity: 0.85;
-        }
-
-        .trust-inline-badge {
-                display: inline-block;
-                margin-top: 10px;
-                padding: 7px 10px;
-                border-radius: 8px;
-                border: 1px solid rgba(0,255,255,0.25);
-                background: rgba(0,40,40,0.45);
-                color: #baffff;
-                font-size: 12px;
-                letter-spacing: 0.02em;
-        }
-
-        .trust-footnote {
-                margin-top: 12px;
-                font-size: 12px;
-                opacity: 0.6;
-        }
-
-        @media (max-width: 760px) {
-                .trust-grid {
-                        grid-template-columns: 1fr;
-                }
-        }
-
-        /* =========================================================
            TOOLTIP (HOVER)
         ========================================================= */
         .phase-label::after {
@@ -645,24 +437,13 @@
 <!--  NAVIGATION BAR                                           -->
 <!-- ========================================================= -->
 <div class="topnav">
-    <a href="/#start">Home</a>
-
-    <a href="/how-it-works.html">How it Works</a>
-
-    <a href="/pricing-explained.html">Pricing</a>
-    <a href="/cap-model.html">CAP Model</a>
-
-    <a href="/#express">Express</a>
-    <a href="/#premium">Premium</a>
-
-    <a href="/eu-gpu-hosting.html">EU Hosting</a>
-
-    <a href="/#trust">Trust</a>
-    <a href="/#upload">Upload</a>
-
-    <a href="/faq.html">FAQ</a>
-
-    <a href="/#contact">Contact</a>
+    <a href="#start">Home</a>
+    <a href="#workflow">How it Works</a>
+    <a href="#prices">Pricing</a>
+    <a href="#express">Express</a>
+    <a href="#premium">Premium</a>
+    <a href="#upload">Upload</a>
+    <a href="#contact">Contact</a>
 </div>
 
 <!-- ========================================================= -->
@@ -676,6 +457,12 @@
          data-tooltip="Fully automated GPU rendering. Your project is executed exactly as uploaded.">
         Live · Automated Rendering
     </div>
+
+    <!-- Preload -->
+    <link rel="preload" as="image" href="assets/images/hero_poster_desktop.jpg">
+    <link rel="preload" as="image" href="assets/images/hero_poster_tablet.jpg">
+    <link rel="preload" as="image" href="assets/images/hero_poster_mobile_fixed.jpg">
+    <link rel="preload" as="video"  href="assets/video/loop_desktop_v9.webm" type="video/webm">
 
     <video id="heroVid" class="hero-video"
            autoplay muted playsinline loop preload="auto"
@@ -869,31 +656,25 @@
 <!-- ========================================================= -->
 <section id="prices">
   <div class="content-box phase-box phase-1">
-
-    <div
-      class="phase-label"
-      data-tooltip="Fully automated GPU rendering with fixed pricing per job."
-    >
+    <div class="phase-label"
+         data-tooltip="Fully automated GPU rendering with fixed pricing per job.">
       Live · Automated Rendering
     </div>
 
     <h2>Execution Profiles & Pricing</h2>
 
-    <p style="font-size:13px; opacity:0.75; margin-bottom:14px;">
+    <p style="font-size:13px;opacity:0.75;margin-bottom:14px;">
       Choose a profile that matches the expected complexity of your scene.
       Each profile reserves GPU capacity and includes a fixed base price per job.
     </p>
 
-    <p style="font-size:13px; opacity:0.75; margin-bottom:22px;">
+    <p style="font-size:13px;opacity:0.75;margin-bottom:22px;">
       Base price and runtime are locked at submission.
-      Jobs never exceed that price unless you explicitly enable overflow
-      or set a higher spending cap.
+      Jobs never exceed that price unless you explicitly enable overflow or set a higher spending cap.
       Failed jobs are never billed.
     </p>
 
     <div class="profile-table">
-
-      <!-- Header -->
       <div class="profile-row header">
         <div class="col-profile">Profile</div>
         <div class="col-runtime">Base runtime</div>
@@ -901,112 +682,63 @@
         <div class="col-risk">Complexity</div>
       </div>
 
-      <!-- STRICT -->
       <div class="profile-row">
         <div class="col-profile">
           <strong>Strict</strong>
           <span class="profile-note">Fast, predictable jobs</span>
         </div>
-
-        <div class="col-runtime">
-          Up to 1.5 hours
-        </div>
-
-        <div class="col-price">
-          $0.50
-          <div style="margin-top:6px; font-size:12px; color:#baffff;">
-            Launch offer: Strict profile testable free with voucher (limited period)
-          </div>
-        </div>
-
-        <div class="col-risk">
-          Low
-        </div>
+        <div class="col-runtime">Up to 1.5 hours</div>
+        <div class="col-price">$0.50</div>
+        <div class="col-risk">Low</div>
       </div>
 
-      <!-- EXTENDED -->
       <div class="profile-row">
         <div class="col-profile">
           <strong>Extended</strong>
           <span class="profile-note">Medium-complex scenes</span>
         </div>
-
-        <div class="col-runtime">
-          Up to 4 hours
-        </div>
-
-        <div class="col-price">
-          $2.00
-        </div>
-
-        <div class="col-risk">
-          Medium
-        </div>
+        <div class="col-runtime">Up to 4 hours</div>
+        <div class="col-price">$2.00</div>
+        <div class="col-risk">Medium</div>
       </div>
 
-      <!-- FLEXIBLE -->
       <div class="profile-row">
         <div class="col-profile">
           <strong>Flexible</strong>
           <span class="profile-note">Heavy workloads</span>
         </div>
-
-        <div class="col-runtime">
-          Up to 8 hours
-        </div>
-
-        <div class="col-price">
-          $4.00
-        </div>
-
-        <div class="col-risk">
-          High
-        </div>
+        <div class="col-runtime">Up to 8 hours</div>
+        <div class="col-price">$4.00</div>
+        <div class="col-risk">High</div>
       </div>
 
-      <!-- OPEN -->
       <div class="profile-row">
         <div class="col-profile">
           <strong>Open</strong>
           <span class="profile-note">Maximum flexibility</span>
         </div>
-
-        <div class="col-runtime">
-          Up to 12 hours
-        </div>
-
-        <div class="col-price">
-          $5.00
-        </div>
-
-        <div class="col-risk">
-          Highest
-        </div>
+        <div class="col-runtime">Up to 12 hours</div>
+        <div class="col-price">$5.00</div>
+        <div class="col-risk">Highest</div>
       </div>
-
     </div>
 
-    <!-- Capacity Windows -->
-    <h3 style="font-size:15px; margin-top:30px;">
-      Dynamic Capacity Windows
-    </h3>
+    <h3 style="font-size:15px;margin-top:30px;">Dynamic Capacity Windows</h3>
 
-    <p style="font-size:13px; opacity:0.7;">
+    <p style="font-size:13px;opacity:0.7;">
       During low system load, some jobs may be allowed to run beyond their base
       runtime window at no additional cost.
     </p>
 
-    <p style="font-size:13px; opacity:0.7;">
+    <p style="font-size:13px;opacity:0.7;">
       These extensions are automatic, depend on real-time capacity,
       and are never guaranteed — but they can occasionally save you a re-submission.
     </p>
 
-    <p style="font-size:12px; opacity:0.6; margin-top:12px;">
-      Prices apply per completed job.
-      Failed jobs are not charged.
+    <p style="font-size:12px;opacity:0.6;margin-top:12px;">
+      Prices apply per completed job. Failed jobs are not charged.
       Each submission represents one execution attempt.
     </p>
-
   </div>
 </section>
 
@@ -1152,124 +884,6 @@
 </script>
 
 <!-- ========================================================= -->
-<!--  TRUST & RELIABILITY                                     -->
-<!-- ========================================================= -->
-<section id="trust">
-  <div class="content-box">
-
-    <h2>Trust & Reliability</h2>
-
-    <div class="trust-grid">
-
-      <div class="trust-card">
-        <h3>Real GPU Execution</h3>
-        <p>
-          All renders run on dedicated NVIDIA GPUs.
-          No virtualization tricks. No simulated benchmarks.
-        </p>
-        <span class="trust-inline-badge">Physical GPUs · Measured Runtime</span>
-      </div>
-
-      <div class="trust-card">
-        <h3>Transparent Billing</h3>
-        <p>
-          Fixed base pricing per execution slot.
-          Overflow only applies beyond that window.
-          CAP limits extra spend automatically.
-        </p>
-        <span class="trust-inline-badge">No hidden fees · Predictable cost</span>
-      </div>
-
-      <div class="trust-card">
-        <h3>EU-Hosted Infrastructure</h3>
-        <p>
-          All systems operate inside the European Union,
-          supporting GDPR-aware production workflows.
-        </p>
-        <span class="trust-inline-badge">EU Datacenters · GDPR aware</span>
-      </div>
-
-      <div class="trust-card">
-        <h3>Failure-Safe Execution</h3>
-        <p>
-          Failed jobs are never billed.
-          Partial jobs are charged only for completed runtime.
-          Every termination includes a technical reason code.
-        </p>
-        <span class="trust-inline-badge">No charge on failure · Full audit trail</span>
-      </div>
-
-    </div>
-
-    <ul class="trust-list">
-      <li>Real GPU timing prechecks before confirmation</li>
-      <li>Live status dashboard with ETA and billing counters</li>
-      <li>Automatic cleanup and retention policies</li>
-      <li>Admin-verified job execution logs</li>
-    </ul>
-
-    <div class="trust-footnote">
-      GPU Render Studio is a fully automated system.
-      No creative changes are performed on uploaded projects.
-      All execution follows published contract rules.
-    </div>
-
-  </div>
-</section>
-
-<!-- ========================================================= -->
-<!--  FAQ — SEO / LLM OPTIMIZED                                -->
-<!-- ========================================================= -->
-<section id="faq">
-<div class="content-box">
-
-<h2>Frequently Asked Questions</h2>
-
-<div class="faq-item">
-<h3>How does pricing work?</h3>
-<p>
-Slot packages include guaranteed runtime. Overflow is optional.
-CAP limits extra spend.
-<a href="pricing-explained.html">Full pricing details →</a>
-</p>
-</div>
-
-<div class="faq-item">
-<h3>What is CAP?</h3>
-<p>
-CAP limits overflow spending after the slot window.
-<a href="cap-model.html">CAP explained →</a>
-</p>
-</div>
-
-<div class="faq-item">
-<h3>Where are GPUs hosted?</h3>
-<p>
-All infrastructure is located in the EU.
-<a href="eu-gpu-hosting.html">Read more →</a>
-</p>
-</div>
-
-<div class="faq-item">
-<h3>How does the render pipeline work?</h3>
-<p>
-Upload, GPU precheck, slot selection, rendering and download.
-<a href="how-it-works.html">Full pipeline →</a>
-</p>
-</div>
-
-<div class="faq-item">
-<h3>What happens if rendering fails?</h3>
-<p>
-Technical failures are not billed.
-<a href="faq.html">See all FAQs →</a>
-</p>
-</div>
-
-</div>
-</section>
-
-<!-- ========================================================= -->
 <!--  UPLOAD PROJECT                                           -->
 <!-- ========================================================= -->
 <section id="upload">
@@ -1299,9 +913,6 @@ Technical failures are not billed.
       <button class="btn btn-primary" type="submit" style="width:100%;margin-top:18px;">
         Start Automated Render
       </button>
-      <div style="margin-top:10px;font-size:13px;opacity:0.85;color:#baffff;text-align:center;">
-                    Launch offer: Strict profile currently testable free with voucher.
-                </div>
     </form>
 
     <div id="uploadResult" style="margin-top:20px;"></div>
@@ -1417,64 +1028,27 @@ function renderSlotChooser(precheck) {
   const slots =
     precheck.slot_suggestion?.slot_analysis || [];
 
-  const pricing =
-    precheck.pricing_snapshot?.slot_prices_usd || {};
-
   const recommended =
     precheck.slot_suggestion?.recommended_profile ||
     slots?.[0]?.slot;
 
-  const slotHtml = slots.map(s => {
-
-    const rawPrice = pricing[s.slot];
-
-    const price =
-      typeof rawPrice === "number" && isFinite(rawPrice)
-        ? rawPrice.toFixed(2)
-        : "0.00";
-
-    return `
+  const slotHtml = slots.map(s => `
 <label style="display:block;margin-top:6px;">
   <input type="radio"
          name="slotRadio"
          value="${s.slot}"
          ${s.slot === recommended ? "checked" : ""}>
-  <span style="font-weight:600;">${s.slot}</span>
-  <span style="opacity:0.7;font-size:12px;margin-left:8px;">
-    $${price}
-  </span>
+  ${s.slot}
 </label>
-`;
-  }).join("");
+`).join("");
 
   resultBox.innerHTML = `
 <h3>Select execution profile</h3>
-<p>Estimated GPU hours: <strong>${estText}</strong></p>
-<p id="slotFitHint"
-   style="font-size:12px;opacity:0.7;margin-top:4px;">
-</p>
 
-<p id="totalRuntimeHint"
-   style="font-size:12px;opacity:0.7;">
-</p>
+<p>Estimated GPU hours: <strong>${estText}</strong></p>
 
 <h4 style="margin-top:14px;">Execution profile</h4>
 ${slotHtml}
-
-<div style="margin-top:16px;">
-  <label style="display:block;font-weight:600;">
-    Got voucher?
-  </label>
-  <input
-    type="text"
-    id="voucherInput"
-    placeholder="Enter voucher code"
-    class="input-field"
-    style="margin-top:6px;">
-  <div style="font-size:12px;opacity:0.6;margin-top:4px;">
-    Strict profile may be testable free with valid voucher.
-  </div>
-</div>
 
 <label style="margin-top:10px;display:block;">
   <input type="checkbox" id="overflowToggle">
@@ -1488,13 +1062,8 @@ ${slotHtml}
            id="capSlider">
     <span id="capVal">$5</span>
   </label>
-
   <div style="font-size:11px;opacity:0.6;">
     Job will pause automatically when this limit is reached.
-  </div>
-
-  <div id="maxCostPreview"
-       style="margin-top:8px;font-weight:600;">
   </div>
 </div>
 
@@ -1504,9 +1073,6 @@ ${slotHtml}
           type="button">
     Confirm & Start
   </button>
-  <div style="margin-top:8px;font-size:12px;opacity:0.75;">
-               You will only be charged after successful completion.
-     </div>
 </div>
 `;
 
@@ -1514,12 +1080,6 @@ ${slotHtml}
   const capVal = document.getElementById("capVal");
   const overflowToggle = document.getElementById("overflowToggle");
   const capBlock = document.getElementById("capBlock");
-  const maxCostPreview =
-    document.getElementById("maxCostPreview");
- const slotFitHint =
-    document.getElementById("slotFitHint");
- const totalRuntimeHint =
-     document.getElementById("totalRuntimeHint");
 
   const slotAnalysis = slots;
 
@@ -1527,127 +1087,20 @@ ${slotHtml}
     return slotAnalysis.find(s => s.slot === slotName);
   }
 
-  /* ---------- Cost Preview ---------- */
-
-  function updateMaxCostPreview() {
-
-    const selected =
-      document.querySelector('input[name="slotRadio"]:checked')?.value;
-
-    const info = getSlotInfo(selected);
-
-    if (!selected || !info || !maxCostPreview) {
-      return;
-    }
-
-    const rawPrice = pricing[selected];
-
-    const basePrice =
-      typeof rawPrice === "number" && isFinite(rawPrice)
-        ? rawPrice
-        : 0;
-
-    const capExtra =
-      overflowToggle.checked
-        ? Number(slider.value || 0)
-        : 0;
-
-    if (!overflowToggle.checked || !info.near_limit) {
-      maxCostPreview.textContent =
-        `Base price: $${basePrice.toFixed(2)}`;
-      return;
-    }
-
-    const total = basePrice + capExtra;
-
-    maxCostPreview.textContent =
-      `Max total cost: $${total.toFixed(2)} ` +
-      `(slot $${basePrice.toFixed(2)} + CAP $${capExtra.toFixed(2)})`;
-  }
-
-   /* ---------- CAP Visibility + Hints ---------- */
-
   function syncCapVisibility() {
     const selected =
       document.querySelector('input[name="slotRadio"]:checked')?.value;
 
     const info = getSlotInfo(selected);
 
-    // CAP never shown unless overflow enabled
-    if (!overflowToggle.checked || !info || !info.near_limit) {
+    if (!info || !info.near_limit) {
       capBlock.style.display = "none";
-    } else {
-      capBlock.style.display = "block";
-      capVal.textContent = "$" + slider.value;
+      return;
     }
 
-    updateMaxCostPreview();
-    updateSlotFitHint();
-    updateTotalRuntimeHint();
+    capBlock.style.display = "block";
+    capVal.textContent = "$" + slider.value;
   }
-
-  function updateSlotFitHint() {
-
-    if (!slotFitHint || est === null) {
-      slotFitHint.textContent = "";
-      return;
-    }
-
-    const selected =
-      document.querySelector('input[name="slotRadio"]:checked')?.value;
-
-    const info = getSlotInfo(selected);
-
-    if (!info || !info.hours) {
-      slotFitHint.textContent = "";
-      return;
-    }
-
-    const delta = est - info.hours;
-
-    if (delta <= 0) {
-      slotFitHint.textContent =
-        `Fits inside slot (${info.hours}h). No overflow expected.`;
-    } else {
-      slotFitHint.textContent =
-        `Slot covers ${info.hours}h — likely overflow ~${delta.toFixed(1)}h.`;
-    }
-  }
-
-  function updateTotalRuntimeHint() {
-
-    if (!totalRuntimeHint || est === null) {
-      totalRuntimeHint.textContent = "";
-      return;
-    }
-
-    const selected =
-      document.querySelector('input[name="slotRadio"]:checked')?.value;
-
-    const info = getSlotInfo(selected);
-
-    if (!info || !info.hours) {
-      totalRuntimeHint.textContent = "";
-      return;
-    }
-
-    if (!overflowToggle.checked) {
-      totalRuntimeHint.textContent =
-        `Max runtime without overflow: ${info.hours}h`;
-      return;
-    }
-
-    if (est <= info.hours) {
-      totalRuntimeHint.textContent =
-        `Estimated runtime: ${est.toFixed(1)}h`;
-      return;
-    }
-
-    totalRuntimeHint.textContent =
-      `Likely total runtime: ~${est.toFixed(1)}h`;
-  }
-
-  /* ---------- Listeners ---------- */
 
   document
     .querySelectorAll('input[name="slotRadio"]')
@@ -1655,26 +1108,10 @@ ${slotHtml}
       r.addEventListener("change", syncCapVisibility)
     );
 
-  overflowToggle.addEventListener("change", () => {
-    if (!overflowToggle.checked) {
-      capBlock.style.display = "none";
-    }
-
-    syncCapVisibility();
-  });
-
   slider.addEventListener("input", () => {
     capVal.textContent = "$" + slider.value;
-
-    // touching CAP auto-enables overflow
-    if (!overflowToggle.checked) {
-      overflowToggle.checked = true;
-    }
-
-    syncCapVisibility();
   });
 
-  // Initial render
   syncCapVisibility();
 
   document
@@ -1716,53 +1153,38 @@ async function confirmContract() {
     return;
   }
 
-const overflowToggle =
-  document.getElementById("overflowToggle");
+  const overflow =
+    !!document.getElementById("overflowToggle")?.checked;
 
-let overflow =
-  !!overflowToggle?.checked;
+  const capBlock =
+    document.getElementById("capBlock");
 
-const capBlock =
-  document.getElementById("capBlock");
+  const capVisible =
+    capBlock && capBlock.style.display !== "none";
 
-const capSlider =
-  document.getElementById("capSlider");
+  const capSlider =
+    document.getElementById("capSlider");
 
-// CAP only allowed if overflow is enabled
-let capUsd = null;
+  const capUsd =
+    capVisible && capSlider
+      ? Number(capSlider.value)
+      : null;
 
-if (overflow && capBlock && capBlock.style.display !== "none" && capSlider) {
-  const v = Number(capSlider.value);
-  if (isFinite(v) && v > 0) {
-    capUsd = v;
+  let contract_type = "HOURLY_BUDGET";
+
+  if (capUsd && isFinite(capUsd)) {
+    contract_type = "HOURLY_OVERFLOW_CAP";
   }
-}
+  else if (overflow) {
+    contract_type = "HOURLY_OVERFLOW";
+  }
 
-// Touching CAP auto-enables overflow
-if (capUsd && !overflow) {
-  overflowToggle.checked = true;
-  overflow = true;
-}
-
-let contract_type = "HOURLY_BUDGET";
-
-if (overflow && capUsd) {
-  contract_type = "HOURLY_OVERFLOW_CAP";
-}
-else if (overflow) {
-  contract_type = "HOURLY_OVERFLOW";
-}
-
-const voucherCode =
-  document.getElementById("voucherInput")?.value?.trim() || null;
-
-const body = {
-  job_id: CURRENT_JOB_ID,
-  slot,
-  contract_type,
-  cap_usd: capUsd,
-  voucher: voucherCode
-};
+  const body = {
+    job_id: CURRENT_JOB_ID,
+    slot,
+    contract_type,
+    cap_usd: capUsd
+  };
 
   try {
 
@@ -1783,7 +1205,7 @@ const body = {
 
     window.location.href =
       window.location.origin +
-      "/status/?job_id=" +
+      "/gpurenderstudio/status/?job_id=" +
       encodeURIComponent(CURRENT_JOB_ID);
 
   } catch (err) {
