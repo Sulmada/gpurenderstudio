@@ -1461,6 +1461,21 @@ function renderSlotChooser(precheck) {
 <h4 style="margin-top:14px;">Execution profile</h4>
 ${slotHtml}
 
+<div style="margin-top:16px;">
+  <label style="display:block;font-weight:600;">
+    Got voucher?
+  </label>
+  <input
+    type="text"
+    id="voucherInput"
+    placeholder="Enter voucher code"
+    class="input-field"
+    style="margin-top:6px;">
+  <div style="font-size:12px;opacity:0.6;margin-top:4px;">
+    Strict profile may be testable free with valid voucher.
+  </div>
+</div>
+
 <label style="margin-top:10px;display:block;">
   <input type="checkbox" id="overflowToggle">
   Allow overflow if capacity is available
@@ -1738,13 +1753,16 @@ else if (overflow) {
   contract_type = "HOURLY_OVERFLOW";
 }
 
+const voucherCode =
+  document.getElementById("voucherInput")?.value?.trim() || null;
+
 const body = {
   job_id: CURRENT_JOB_ID,
   slot,
   contract_type,
-  cap_usd: capUsd
+  cap_usd: capUsd,
+  voucher: voucherCode
 };
-
 
   try {
 
