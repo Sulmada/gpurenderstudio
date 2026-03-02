@@ -226,6 +226,7 @@ section {
 
 const params = new URLSearchParams(window.location.search);
 const jobId = params.get("job_id");
+const paidHint = params.get("paid") === "1";
 
 const API_BASE = location.hostname === "localhost"
     ? "http://localhost:3001"
@@ -444,28 +445,33 @@ function getDelayForStatus(status) {
     return POLL_INTERVALS[status] || 10000;
 }
 
+async function fetchAndRenderOnce() {
+  const res = await fetch(API_BASE + "/api/status/" + jobId);
+  if (!res.ok) throw new Error("status-fetch-failed-" + res.status);
+
+  const job = await res.json();
+  renderJob(job);
+  return job;
+}
+
 async function pollStatusLoop() {
-    try {
-        const res = await fetch(API_BASE + "/api/status/" + jobId);
-        if (!res.ok) throw new Error("status-fetch-failed-" + res.status);
+  try {
+    const job = await fetchAndRenderOnce();
 
-        const job = await res.json();
-        renderJob(job);
-
-        const status = (job.status || "").toLowerCase();
-        if (TERMINAL_STATUSES.includes(status)) {
-            console.log("[STATUS] terminal state reached:", status);
-            return;
-        }
-
-        currentDelay = getDelayForStatus(status);
-
-    } catch (err) {
-        console.warn("[STATUS] fetch error:", err);
-        currentDelay = Math.min(currentDelay * 1.5, 30000);
+    const status = (job.status || "").toLowerCase();
+    if (TERMINAL_STATUSES.includes(status)) {
+      console.log("[STATUS] terminal state reached:", status);
+      return;
     }
 
-    pollTimer = setTimeout(pollStatusLoop, currentDelay);
+    currentDelay = getDelayForStatus(status);
+
+  } catch (err) {
+    console.warn("[STATUS] fetch error:", err);
+    currentDelay = Math.min(currentDelay * 1.5, 30000);
+  }
+
+  pollTimer = setTimeout(pollStatusLoop, currentDelay);
 }
 
 // =======================================
@@ -661,54 +667,86 @@ function renderJob(job) {
 // PAYMENT + DOWNLOAD ACTIONS
 // ========================================
 
-;
-
 window.pay = async function () {
-    actionArea.textContent = "Starting payment…";
+  actionArea.textContent = "Starting payment…";
 
-    try {
-        const res = await fetch(API_BASE + "/api/pay/" + jobId, { method: "POST" });
-        if (!res.ok) throw new Error("payment-init-failed");
+  try {
+    const res = await fetch(API_BASE + "/api/pay/" + jobId, {
+      method: "POST"
+    });
 
-        const data = await res.json();
-        location.href = data.checkout_url;
-
-    } catch (err) {
-        console.error("Payment failed:", err);
-        actionArea.textContent = "Unable to start payment.";
+    if (!res.ok) {
+      throw new Error("payment-init-failed");
     }
+
+    const data = await res.json();
+
+    // ---------------------------------------------------------
+    // FREE PATH (no Stripe needed)
+    // ---------------------------------------------------------
+    if (data && data.checkout_skipped) {
+      actionArea.textContent = "Payment completed.";
+
+      // Refresh page so status + download unlock correctly
+      const params = new URLSearchParams(window.location.search);
+      params.set("job_id", jobId);
+      params.set("paid", "1");
+      window.location.search = params.toString();
+      return;
+    }
+
+    // ---------------------------------------------------------
+    // Stripe redirect
+    // ---------------------------------------------------------
+    if (data && data.checkout_url) {
+      window.location.href = data.checkout_url;
+      return;
+    }
+
+    throw new Error("invalid-payment-response");
+
+  } catch (err) {
+    console.error("Payment failed:", err);
+    actionArea.textContent = "Unable to start payment.";
+  }
 };
 
 window.download = function () {
-    actionArea.innerHTML = "";
+  actionArea.innerHTML = "";
 
-    const msg = document.createElement("div");
-    msg.className = "status-line";
-    msg.textContent = "Download started. Your browser will save the render archive.";
-    actionArea.appendChild(msg);
+  const msg = document.createElement("div");
+  msg.className = "status-line";
+  msg.textContent = "Download started. Your browser will save the render archive.";
+  actionArea.appendChild(msg);
 
-    // start download
-    const iframe = document.createElement("iframe");
-    iframe.style.display = "none";
-    iframe.src = API_BASE + "/api/download/" + jobId;
-    document.body.appendChild(iframe);
+  // start download
+  const iframe = document.createElement("iframe");
+  iframe.style.display = "none";
+  iframe.src = API_BASE + "/api/download/" + jobId;
+  document.body.appendChild(iframe);
 
-    // Render another job button
-    const againBtn = document.createElement("button");
-    againBtn.className = "btn";
-    againBtn.style.marginTop = "16px";
-    againBtn.textContent = "Render another job";
-    againBtn.onclick = () => {
-        window.location.href = "https://gpurenderstudio.com/#upload";
-    };
+  // Render another job button
+  const againBtn = document.createElement("button");
+  againBtn.className = "btn";
+  againBtn.style.marginTop = "16px";
+  againBtn.textContent = "Render another job";
+  againBtn.onclick = () => {
+    window.location.href = "https://gpurenderstudio.com/#upload";
+  };
 
-    actionArea.appendChild(againBtn);
+  actionArea.appendChild(againBtn);
 };
 
 // ========================================
 // START
 // ========================================
-pollStatusLoop();
+if (paidHint) {
+  fetchAndRenderOnce()
+    .catch(() => {})
+    .finally(() => pollStatusLoop());
+} else {
+  pollStatusLoop();
+}
 
 })(); // end IIFE
 </script>
