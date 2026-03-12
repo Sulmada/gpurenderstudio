@@ -1415,11 +1415,9 @@ function renderSlotChooser(precheck) {
   const estHuman = rp.estimated_time_human;
   const worstHuman = rp.worst_time_human;
 
-  // numeric estimate used by other UI logic
   const est =
     safeNum(rp.estimated_hours_real ?? rp.estimated_hours_effective);
 
-  // fallback if human readable time is missing
   const estFallback = est;
 
   const estText =
@@ -1434,9 +1432,19 @@ function renderSlotChooser(precheck) {
   const pricing =
     precheck.pricing_snapshot?.slot_prices_usd || {};
 
+  const backendRecommended =
+    precheck.slot_suggestion?.recommended_profile || null;
+
+  const allTooShort =
+    slots.length > 0 && slots.every(s => s.exceeds === true);
+
+  const overflowRequired =
+    !backendRecommended && allTooShort;
+
   const recommended =
-    precheck.slot_suggestion?.recommended_profile ||
-    slots?.[0]?.slot;
+    overflowRequired
+      ? "OPEN_FIXED_MAX"
+      : (backendRecommended || slots?.[0]?.slot || null);
 
   const slotAnalysis = slots;
 
@@ -1444,16 +1452,20 @@ function renderSlotChooser(precheck) {
     return slotAnalysis.find(s => s.slot === slotName);
   }
 
+  function slotLimit(info) {
+    return safeNum(
+      info?.base_hours_limit ??
+      info?.runtime_limit_hours ??
+      info?.slot_limit_hours
+    );
+  }
+
   function slotStatus(slotName) {
 
     const info = getSlotInfo(slotName);
     if (!info) return "";
 
-    const limit =
-      safeNum(info.runtime_limit_hours ?? info.slot_limit_hours);
-
-    const est =
-      safeNum(rp.estimated_hours_real ?? rp.estimated_hours_effective);
+    const limit = slotLimit(info);
 
     if (limit === null || est === null) return "";
 
@@ -1473,12 +1485,17 @@ function renderSlotChooser(precheck) {
         ? rawPrice.toFixed(2)
         : "0.00";
 
+    const checked =
+      overflowRequired
+        ? s.slot === "OPEN_FIXED_MAX"
+        : s.slot === recommended;
+
     return `
 <label style="display:block;margin-top:6px;">
   <input type="radio"
          name="slotRadio"
          value="${s.slot}"
-         ${s.slot === recommended ? "checked" : ""}>
+         ${checked ? "checked" : ""}>
   <span style="font-weight:600;">${s.slot}</span>
   ${slotStatus(s.slot)}
   <span style="opacity:0.7;font-size:12px;margin-left:8px;">
@@ -1492,7 +1509,7 @@ function renderSlotChooser(precheck) {
 <h3>Select execution profile</h3>
 
 <p style="font-size:13px;opacity:0.8;">
-Recommended profile: <strong>${recommended}</strong>
+Recommended profile: <strong>${recommended}${overflowRequired ? " + OVERFLOW" : ""}</strong>
 </p>
 
 <p>
@@ -1503,6 +1520,16 @@ Estimated render time:
 ${worstText ? `
 <p style="font-size:12px;opacity:0.7;margin-top:-6px;">
 Worst case: ${worstText}
+</p>
+` : ""}
+
+${overflowRequired ? `
+<p style="color:#ffb36b;font-weight:600;margin-top:10px;">
+Standard slots are limited to 12h.
+</p>
+
+<p style="color:#ffb36b;font-weight:600;margin-top:-6px;">
+This job will require overflow runtime.
 </p>
 ` : ""}
 
@@ -1592,7 +1619,9 @@ ${slotHtml}
   const totalRuntimeHint =
     document.getElementById("totalRuntimeHint");
 
-  /* ---------- Cost Preview ---------- */
+  if (overflowRequired && overflowToggle) {
+    overflowToggle.checked = true;
+  }
 
   function updateMaxCostPreview() {
 
@@ -1612,12 +1641,17 @@ ${slotHtml}
         ? rawPrice
         : 0;
 
+    const limit = slotLimit(info);
+
+    const needsOverflow =
+      est !== null && limit !== null && est > limit;
+
     const capExtra =
       overflowToggle.checked
         ? Number(slider.value || 0)
         : 0;
 
-    if (!overflowToggle.checked || !info.near_limit) {
+    if (!overflowToggle.checked || (!info.near_limit && !needsOverflow)) {
       maxCostPreview.textContent =
         `Base price: $${basePrice.toFixed(2)}`;
       return;
@@ -1630,16 +1664,19 @@ ${slotHtml}
       `(slot $${basePrice.toFixed(2)} + CAP $${capExtra.toFixed(2)})`;
   }
 
-   /* ---------- CAP Visibility + Hints ---------- */
-
   function syncCapVisibility() {
+
     const selected =
       document.querySelector('input[name="slotRadio"]:checked')?.value;
 
     const info = getSlotInfo(selected);
 
-    // CAP never shown unless overflow enabled
-    if (!overflowToggle.checked || !info || !info.near_limit) {
+    const limit = slotLimit(info);
+
+    const needsOverflow =
+      est !== null && limit !== null && est > limit;
+
+    if (!overflowToggle.checked || !info || (!info.near_limit && !needsOverflow)) {
       capBlock.style.display = "none";
     } else {
       capBlock.style.display = "block";
@@ -1663,19 +1700,21 @@ ${slotHtml}
 
     const info = getSlotInfo(selected);
 
-    if (!info || !info.hours) {
+    const limit = slotLimit(info);
+
+    if (!info || limit === null) {
       slotFitHint.textContent = "";
       return;
     }
 
-    const delta = est - info.hours;
+    const delta = est - limit;
 
     if (delta <= 0) {
       slotFitHint.textContent =
-        `Fits inside slot (${info.hours}h). No overflow expected.`;
+        `Fits inside slot (${limit}h). No overflow expected.`;
     } else {
       slotFitHint.textContent =
-        `Slot covers ${info.hours}h — likely overflow ~${delta.toFixed(1)}h.`;
+        `Slot covers ${limit}h — overflow will likely be needed (~${delta.toFixed(1)}h extra).`;
     }
   }
 
@@ -1691,18 +1730,20 @@ ${slotHtml}
 
     const info = getSlotInfo(selected);
 
-    if (!info || !info.hours) {
+    const limit = slotLimit(info);
+
+    if (!info || limit === null) {
       totalRuntimeHint.textContent = "";
       return;
     }
 
     if (!overflowToggle.checked) {
       totalRuntimeHint.textContent =
-        `Max runtime without overflow: ${info.hours}h`;
+        `Max runtime without overflow: ${limit}h`;
       return;
     }
 
-    if (est <= info.hours) {
+    if (est <= limit) {
       totalRuntimeHint.textContent =
         `Estimated runtime: ${est.toFixed(1)}h`;
       return;
@@ -1712,8 +1753,6 @@ ${slotHtml}
       `Likely total runtime: ~${est.toFixed(1)}h`;
   }
 
-  /* ---------- Listeners ---------- */
-
   document
     .querySelectorAll('input[name="slotRadio"]')
     .forEach(r =>
@@ -1721,6 +1760,7 @@ ${slotHtml}
     );
 
   overflowToggle.addEventListener("change", () => {
+
     if (!overflowToggle.checked) {
       capBlock.style.display = "none";
     }
@@ -1729,9 +1769,9 @@ ${slotHtml}
   });
 
   slider.addEventListener("input", () => {
+
     capVal.textContent = "$" + slider.value;
 
-    // touching CAP auto-enables overflow
     if (!overflowToggle.checked) {
       overflowToggle.checked = true;
     }
@@ -1739,7 +1779,6 @@ ${slotHtml}
     syncCapVisibility();
   });
 
-  // Initial render
   syncCapVisibility();
 
   document
