@@ -1415,8 +1415,12 @@ function renderSlotChooser(precheck) {
   const estHuman = rp.estimated_time_human;
   const worstHuman = rp.worst_time_human;
 
-  const estFallback =
-    safeNum(rp.estimated_hours_effective ?? rp.estimated_hours_real);
+  // numeric estimate used by other UI logic
+  const est =
+    safeNum(rp.estimated_hours_real ?? rp.estimated_hours_effective);
+
+  // fallback if human readable time is missing
+  const estFallback = est;
 
   const estText =
     estHuman ||
