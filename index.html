@@ -1410,9 +1410,19 @@ form.addEventListener("submit", async (e) => {
 
 function renderSlotChooser(precheck) {
 
-  const rp = precheck.real_precheck || {};
-  const est = safeNum(rp.estimated_hours_effective);
-  const estText = est === null ? "—" : est.toFixed(2);
+  const rp = precheck.real_precheck || precheck.real || {};
+
+  const estHuman = rp.estimated_time_human;
+  const worstHuman = rp.worst_time_human;
+
+  const estFallback =
+    safeNum(rp.estimated_hours_effective ?? rp.estimated_hours_real);
+
+  const estText =
+    estHuman ||
+    (estFallback === null ? "—" : estFallback.toFixed(2) + "h");
+
+  const worstText = worstHuman || null;
 
   const slots =
     precheck.slot_suggestion?.slot_analysis || [];
@@ -1423,6 +1433,32 @@ function renderSlotChooser(precheck) {
   const recommended =
     precheck.slot_suggestion?.recommended_profile ||
     slots?.[0]?.slot;
+
+  const slotAnalysis = slots;
+
+  function getSlotInfo(slotName) {
+    return slotAnalysis.find(s => s.slot === slotName);
+  }
+
+  function slotStatus(slotName) {
+
+    const info = getSlotInfo(slotName);
+    if (!info) return "";
+
+    const limit =
+      safeNum(info.runtime_limit_hours ?? info.slot_limit_hours);
+
+    const est =
+      safeNum(rp.estimated_hours_real ?? rp.estimated_hours_effective);
+
+    if (limit === null || est === null) return "";
+
+    if (est > limit) {
+      return `<span style="color:#ff6b6b;margin-left:8px;">❌ too short</span>`;
+    }
+
+    return `<span style="color:#6bff9a;margin-left:8px;">✔ fits</span>`;
+  }
 
   const slotHtml = slots.map(s => {
 
@@ -1440,6 +1476,7 @@ function renderSlotChooser(precheck) {
          value="${s.slot}"
          ${s.slot === recommended ? "checked" : ""}>
   <span style="font-weight:600;">${s.slot}</span>
+  ${slotStatus(s.slot)}
   <span style="opacity:0.7;font-size:12px;margin-left:8px;">
     $${price}
   </span>
@@ -1449,7 +1486,22 @@ function renderSlotChooser(precheck) {
 
   resultBox.innerHTML = `
 <h3>Select execution profile</h3>
-<p>Estimated GPU hours: <strong>${estText}</strong></p>
+
+<p style="font-size:13px;opacity:0.8;">
+Recommended profile: <strong>${recommended}</strong>
+</p>
+
+<p>
+Estimated render time:
+<strong>${estText}</strong>
+</p>
+
+${worstText ? `
+<p style="font-size:12px;opacity:0.7;margin-top:-6px;">
+Worst case: ${worstText}
+</p>
+` : ""}
+
 <p id="slotFitHint"
    style="font-size:12px;opacity:0.7;margin-top:4px;">
 </p>
@@ -1516,9 +1568,10 @@ ${slotHtml}
           type="button">
     Confirm & Start
   </button>
+
   <div style="margin-top:8px;font-size:12px;opacity:0.75;">
-               You will only be charged after successful completion.
-     </div>
+    You will only be charged after successful completion.
+  </div>
 </div>
 `;
 
@@ -1528,17 +1581,13 @@ ${slotHtml}
   const capBlock = document.getElementById("capBlock");
   const maxCostPreview =
     document.getElementById("maxCostPreview");
- const slotFitHint =
+
+  const slotFitHint =
     document.getElementById("slotFitHint");
- const totalRuntimeHint =
-     document.getElementById("totalRuntimeHint");
 
-  const slotAnalysis = slots;
-
-  function getSlotInfo(slotName) {
-    return slotAnalysis.find(s => s.slot === slotName);
-  }
-
+  const totalRuntimeHint =
+    document.getElementById("totalRuntimeHint");
+}
   /* ---------- Cost Preview ---------- */
 
   function updateMaxCostPreview() {
