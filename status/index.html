@@ -13,6 +13,10 @@ body {
     color: #e0e0e0;
 }
 
+    #previewPlayer {
+        background: black;
+    }
+
 h1, h2 {
     margin: 0 0 20px 0;
     font-weight: 700;
@@ -219,6 +223,10 @@ section {
         <h3>Preview</h3>
 
         <video id="previewPlayer"
+               autoplay
+               muted
+               loop
+               playsinline
                controls
                style="width:100%; border-radius:8px;">
         </video>
@@ -599,6 +607,7 @@ function renderJob(job) {
     // load preview
     previewPlayer.src = API_BASE + "/api/preview/" + jobId;
     previewPlayer.load();
+    previewPlayer.play().catch(() => {});    
 
     // if preview missing
     previewPlayer.onerror = function () {
@@ -638,8 +647,15 @@ function renderJob(job) {
         actionArea.style.display = "block";
 
         if (paid) {
-            actionArea.innerHTML =
-                `<button class="btn" onclick="download()">Download output</button>`;
+            actionArea.innerHTML = `
+                <button class="btn" onclick="downloadVideo()">Download MP4 Video</button>
+
+                <button class="btn"
+                        style="margin-left:10px"
+                        onclick="downloadFrames()">
+                    Download Frames (ZIP)
+                </button>
+            `;
         } else {
             actionArea.innerHTML = `
                 <button class="btn" onclick="pay()">Pay to download</button>
@@ -768,6 +784,26 @@ window.download = function () {
   };
 
   actionArea.appendChild(againBtn);
+};
+
+window.downloadVideo = function () {
+
+  const iframe = document.createElement("iframe");
+  iframe.style.display = "none";
+  iframe.src = API_BASE + "/api/download/" + jobId + "/video";
+
+  document.body.appendChild(iframe);
+
+};
+
+window.downloadFrames = function () {
+
+  const iframe = document.createElement("iframe");
+  iframe.style.display = "none";
+  iframe.src = API_BASE + "/api/download/" + jobId;
+
+  document.body.appendChild(iframe);
+
 };
 
 // ========================================
