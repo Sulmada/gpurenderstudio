@@ -202,16 +202,28 @@ section {
 
     
 </div> <!-- status-left -->
-
 <div class="status-right" id="progressPanel" style="display:none;">
-    <h3>Progress</h3>
 
-    <div class="progress-bar-wrap">
-        <div id="progressBar"></div>
+    <div id="progressArea">
+        <h3>Progress</h3>
+
+        <div class="progress-bar-wrap">
+            <div id="progressBar"></div>
+        </div>
+
+        <div id="progressText"></div>
+        <div id="progressEta"></div>
     </div>
 
-    <div id="progressText"></div>
-    <div id="progressEta"></div>
+    <div id="previewArea" style="display:none;">
+        <h3>Preview</h3>
+
+        <video id="previewPlayer"
+               controls
+               style="width:100%; border-radius:8px;">
+        </video>
+    </div>
+
 </div>
 </div>
 </section>
@@ -244,6 +256,9 @@ const progressPanel = document.getElementById("progressPanel");
 const progressBar   = document.getElementById("progressBar");
 const progressText  = document.getElementById("progressText");
 const progressEta   = document.getElementById("progressEta");
+const progressArea  = document.getElementById("progressArea");
+const previewArea   = document.getElementById("previewArea");
+const previewPlayer = document.getElementById("previewPlayer");
 
 if (!jobId) {
     statusEl.textContent = "Missing job_id";
@@ -572,6 +587,24 @@ function renderJob(job) {
     // =======================================
     if (status === "success" || status === "partial_success") {
         statusEl.classList.add("status-success");
+        document.querySelector(".hero-content h1").textContent =
+            "Your Render Is Ready";
+    // ---------------------------------------
+    // SWITCH RIGHT PANEL: progress → preview
+    // ---------------------------------------
+    progressPanel.style.display = "block";
+    progressArea.style.display = "none";
+    previewArea.style.display = "block";
+
+    // load preview
+    previewPlayer.src = API_BASE + "/api/preview/" + jobId;
+    previewPlayer.load();
+
+    // if preview missing
+    previewPlayer.onerror = function () {
+        previewArea.innerHTML =
+            "<div style='opacity:0.8;'>Preview not available yet.</div>";
+    };
         addLine("Result", "Your render completed successfully.");
 
         const billedUsd = job.billing?.billed_usd;
