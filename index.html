@@ -1662,8 +1662,10 @@ async function renderMyJobs(email) {
     return;
   }
 
-  myJobsNotice.textContent = "Loading jobs...";
-  myJobsList.innerHTML = "";
+  if (!MY_JOBS_POLL_TIMER) {
+    myJobsNotice.textContent = "Loading jobs...";
+    myJobsList.innerHTML = "";
+  }
 
   const data = await fetchMyJobs(email);
   const jobs = Array.isArray(data.jobs) ? data.jobs : [];
