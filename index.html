@@ -405,6 +405,102 @@
         }
 
         /* =========================================================
+           MY JOBS PANEL
+        ========================================================= */
+        .jobs-list {
+            display: grid;
+            gap: 14px;
+            margin-top: 10px;
+        }
+
+        .job-card {
+            background: rgba(10,10,10,0.55);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 18px;
+            box-shadow: 0 0 22px rgba(0,255,255,0.05);
+        }
+
+        .job-card-top {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .job-card-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #baffff;
+        }
+
+        .job-card-status {
+            font-size: 12px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            border: 1px solid rgba(0,255,255,0.22);
+            background: rgba(0,40,40,0.35);
+            color: #cfffff;
+        }
+
+        .job-meta {
+            font-size: 13px;
+            opacity: 0.82;
+            margin-top: 6px;
+        }
+
+        .job-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 14px;
+        }
+
+        .job-link {
+            display: inline-block;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid rgba(0,255,255,0.28);
+            color: #cfffff;
+            text-decoration: none;
+            background: rgba(0,30,30,0.35);
+            font-size: 14px;
+        }
+
+        .job-link:hover {
+            background: rgba(0,60,60,0.45);
+        }
+
+        .job-progress-wrap {
+            height: 12px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .job-progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg,#00ffff,#6affff);
+            transition: width 0.5s ease;
+        }
+
+        .job-subtle {
+            font-size: 12px;
+            opacity: 0.65;
+            margin-top: 8px;
+        }
+
+        .job-empty {
+            padding: 18px;
+            border: 1px dashed rgba(255,255,255,0.12);
+            border-radius: 12px;
+            font-size: 14px;
+            opacity: 0.75;
+        }
+        /* =========================================================
            FOOTER
         ========================================================= */
         .footer {
@@ -1310,6 +1406,35 @@ Technical failures are not billed.
   </div>
 </section>
 
+<section id="my-jobs">
+  <div class="content-box">
+    <h2>Your Jobs</h2>
+
+    <p style="font-size:13px;opacity:0.75;margin-bottom:14px;">
+      View active renders, queue position, progress, and completed jobs.
+    </p>
+
+    <div id="myJobsIntro" style="font-size:13px;opacity:0.75;margin-bottom:18px;">
+      Enter the same email you used when uploading, and your jobs will appear here automatically next time.
+    </div>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:18px;">
+      <input
+        id="myJobsEmail"
+        class="input-field"
+        type="email"
+        placeholder="Email used for your jobs"
+        style="max-width:360px;margin-top:0;"
+      >
+      <button id="loadMyJobsBtn" class="btn" type="button">Load My Jobs</button>
+    </div>
+
+    <div id="myJobsNotice" style="font-size:13px;opacity:0.8;margin-bottom:16px;"></div>
+
+    <div id="myJobsList"></div>
+  </div>
+</section>
+
 <!-- ========================================================= -->
 <!--  FOOTER                                                   -->
 <!-- ========================================================= -->
@@ -1331,6 +1456,13 @@ const form = document.getElementById("uploadForm");
 const resultBox = document.getElementById("uploadResult");
 const confirmStatus = document.getElementById("confirmStatus");
 
+const myJobsEmailInput = document.getElementById("myJobsEmail");
+const loadMyJobsBtn = document.getElementById("loadMyJobsBtn");
+const myJobsNotice = document.getElementById("myJobsNotice");
+const myJobsList = document.getElementById("myJobsList");
+
+let MY_JOBS_POLL_TIMER = null;
+let MY_JOBS_LAST_EMAIL = null;
 let CURRENT_JOB_ID = null;
 let CURRENT_PRECHECK = null;
 
@@ -1343,6 +1475,285 @@ function safeNum(x) {
 /* =========================================================
    UPLOAD + PRECHECK
 ========================================================= */
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function formatDateTime(iso) {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "—";
+  return d.toLocaleString();
+}
+
+function formatEta(seconds) {
+  if (!Number.isFinite(seconds) || seconds <= 0) return "—";
+
+  const mins = Math.round(seconds / 60);
+  if (mins < 1) return "less than a minute";
+  if (mins === 1) return "1 minute";
+  if (mins < 60) return mins + " minutes";
+
+  const hrs = Math.floor(mins / 60);
+  const rem = mins % 60;
+
+  if (rem === 0) {
+    return hrs === 1 ? "1 hour" : hrs + " hours";
+  }
+
+  return hrs + "h " + rem + "m";
+}
+
+function getStatusLabel(status) {
+  const s = String(status || "").toLowerCase();
+
+  if (s === "confirmed" || s === "queued") return "Waiting in queue";
+  if (s === "running") return "Rendering";
+  if (s === "success") return "Completed";
+  if (s === "partial_success") return "Partial result";
+  if (s === "failed") return "Failed";
+  if (s === "cancelled") return "Cancelled";
+  if (s === "uploaded") return "Uploaded";
+  if (s === "paused_cap") return "Paused at cap";
+
+  return s || "Unknown";
+}
+
+async function fetchMyJobs(email) {
+  const res = await fetch(
+    API_BASE + "/api/my_jobs?email=" + encodeURIComponent(email)
+  );
+
+  if (!res.ok) {
+    throw new Error("my-jobs-fetch-failed-" + res.status);
+  }
+
+  return await res.json();
+}
+
+async function fetchJobEta(jobId) {
+  const res = await fetch(
+    API_BASE + "/api/queue/eta/" + encodeURIComponent(jobId)
+  );
+
+  if (!res.ok) {
+    return null;
+  }
+
+  return await res.json();
+}
+
+async function cancelJob(jobId) {
+  const res = await fetch(
+    API_BASE + "/api/job/" + encodeURIComponent(jobId) + "/cancel",
+    { method: "POST" }
+  );
+
+  const data = await res.json().catch(() => null);
+
+  if (!res.ok || !data?.ok) {
+    throw new Error(data?.error || data?.message || "cancel-failed");
+  }
+
+  return data;
+}
+
+function buildJobCard(job, etaInfo) {
+  const status = String(job.status || "").toLowerCase();
+  const progressPercent = Number.isFinite(job.progress?.percent)
+    ? job.progress.percent
+    : 0;
+
+  const framesDone = Number.isFinite(job.progress?.frames_done)
+    ? job.progress.frames_done
+    : null;
+
+  const framesTotal = Number.isFinite(job.progress?.frames_total)
+    ? job.progress.frames_total
+    : null;
+
+  const isQueued = status === "queued" || status === "confirmed";
+  const isRunning = status === "running";
+  const isTerminal =
+    status === "success" ||
+    status === "partial_success" ||
+    status === "failed" ||
+    status === "cancelled";
+
+  const jobsAhead = etaInfo?.state === "queued" ? etaInfo.jobs_ahead : 0;
+  const etaText = etaInfo ? formatEta(etaInfo.eta_seconds) : "—";
+
+  let queueLine = "";
+  if (isQueued && etaInfo) {
+    queueLine =
+      '<div class="job-meta">Queue position: ' +
+      escapeHtml(jobsAhead) +
+      ' ahead · Starts in about ' +
+      escapeHtml(etaText) +
+      "</div>";
+  }
+
+  let progressHtml = "";
+  if (isRunning) {
+    progressHtml =
+      '<div class="job-progress-wrap">' +
+        '<div class="job-progress-bar" style="width:' + Math.max(0, Math.min(100, progressPercent)) + '%;"></div>' +
+      "</div>" +
+      '<div class="job-meta">Progress: ' +
+      escapeHtml(progressPercent.toFixed(1)) +
+      "%</div>" +
+      '<div class="job-meta">Frames: ' +
+      escapeHtml(framesDone ?? "—") +
+      " / " +
+      escapeHtml(framesTotal ?? "—") +
+      "</div>" +
+      '<div class="job-meta">ETA remaining: ' +
+      escapeHtml(etaText) +
+      "</div>";
+  }
+
+  let completionLine = "";
+  if (status === "success" || status === "partial_success") {
+    const paid = String(job.payment?.status || "").toUpperCase() === "PAID";
+    completionLine =
+      '<div class="job-meta">Result: ' +
+      (paid ? "Paid and download-ready" : "Ready for payment/download flow") +
+      "</div>";
+  }
+
+  let actionHtml = "";
+  if (isQueued || isRunning) {
+    actionHtml +=
+      '<button class="btn cancel-job-btn" type="button" data-job-id="' +
+      escapeHtml(job.job_id) +
+      '">Cancel Job</button>';
+  }
+
+  actionHtml +=
+    '<a class="job-link" href="/status/?job_id=' +
+    encodeURIComponent(job.job_id) +
+    '">Open Status Page</a>';
+
+  return (
+    '<div class="job-card">' +
+      '<div class="job-card-top">' +
+        '<div class="job-card-title">Job ' + escapeHtml(job.job_id.slice(0, 8)) + "...</div>" +
+        '<div class="job-card-status">' + escapeHtml(getStatusLabel(status)) + "</div>" +
+      "</div>" +
+      '<div class="job-meta">Created: ' + escapeHtml(formatDateTime(job.timestamps?.created)) + "</div>" +
+      '<div class="job-meta">Job ID: ' + escapeHtml(job.job_id) + "</div>" +
+      queueLine +
+      progressHtml +
+      completionLine +
+      '<div class="job-subtle">Raw status: ' + escapeHtml(status) + "</div>" +
+      '<div class="job-actions">' + actionHtml + "</div>" +
+    "</div>"
+  );
+}
+
+async function renderMyJobs(email) {
+  if (!email) {
+    myJobsNotice.textContent = "Enter your email to load jobs.";
+    myJobsList.innerHTML = "";
+    return;
+  }
+
+  myJobsNotice.textContent = "Loading jobs...";
+  myJobsList.innerHTML = "";
+
+  const data = await fetchMyJobs(email);
+  const jobs = Array.isArray(data.jobs) ? data.jobs : [];
+
+  if (!jobs.length) {
+    myJobsNotice.textContent = "No jobs found for this email yet.";
+    myJobsList.innerHTML = '<div class="job-empty">No jobs found.</div>';
+    return;
+  }
+
+  const etaResults = await Promise.all(
+    jobs.map(async (job) => {
+      const status = String(job.status || "").toLowerCase();
+
+      if (status === "queued" || status === "confirmed" || status === "running") {
+        try {
+          return await fetchJobEta(job.job_id);
+        } catch {
+          return null;
+        }
+      }
+
+      return null;
+    })
+  );
+
+  const html = jobs
+    .map((job, i) => buildJobCard(job, etaResults[i]))
+    .join("");
+
+  myJobsNotice.textContent =
+    "Showing " + jobs.length + " job(s) for " + email;
+  myJobsList.innerHTML = '<div class="jobs-list">' + html + "</div>";
+}
+
+function stopMyJobsPolling() {
+  if (MY_JOBS_POLL_TIMER) {
+    clearInterval(MY_JOBS_POLL_TIMER);
+    MY_JOBS_POLL_TIMER = null;
+  }
+}
+
+function startMyJobsPolling(email) {
+  stopMyJobsPolling();
+
+  MY_JOBS_LAST_EMAIL = email;
+
+  MY_JOBS_POLL_TIMER = setInterval(async () => {
+    try {
+      await renderMyJobs(email);
+    } catch (err) {
+      console.warn("[MY_JOBS] polling failed", err);
+    }
+  }, 5000);
+}
+
+async function loadMyJobsFlow(email) {
+  const normalized = String(email || "").trim().toLowerCase();
+
+  if (!normalized) {
+    myJobsNotice.textContent = "Enter an email first.";
+    return;
+  }
+
+  localStorage.setItem("gpurenderstudio_email", normalized);
+  myJobsEmailInput.value = normalized;
+
+try {
+  await renderMyJobs(normalized);
+} catch (err) {
+  console.error(err);
+  myJobsNotice.textContent = "Could not load jobs right now.";
+  myJobsList.innerHTML = "";
+}
+
+// ALWAYS restart polling
+startMyJobsPolling(normalized);
+
+    console.error(err);
+    myJobsNotice.textContent = "Could not load jobs right now.";
+    myJobsList.innerHTML = "";
+  }
+}
+
+// Load My Jobs button (correct placement)
+if (loadMyJobsBtn) {
+  loadMyJobsBtn.addEventListener("click", async () => {
+    await loadMyJobsFlow(myJobsEmailInput.value);
+  });
+}
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -1371,6 +1782,38 @@ form.addEventListener("submit", async (e) => {
 
     CURRENT_JOB_ID = uploadData.job_id;
 
+    // Spara email → används av "My Jobs"
+    const submittedEmail = (fd.get("email") || "").toString().trim().toLowerCase();
+
+    if (submittedEmail) {
+      localStorage.setItem("gpurenderstudio_email", submittedEmail);
+  
+  if (submittedEmail) {
+        localStorage.setItem("gpurenderstudio_email", submittedEmail);
+
+    if (myJobsEmailInput) {
+      myJobsEmailInput.value = submittedEmail;
+    }
+
+  // ADD THIS
+  loadMyJobsFlow(submittedEmail);
+}
+      if (myJobsEmailInput) {
+        myJobsEmailInput.value = submittedEmail;
+      }
+    }
+
+    // Visa duplicate job warning från backend
+    if (uploadData.active_jobs_notice?.already_has_active_jobs) {
+      confirmStatus.textContent =
+        "You already have " +
+        uploadData.active_jobs_notice.count +
+        " active job(s) running or queued.";
+    } else {
+      confirmStatus.textContent = "";
+    }
+
+    // Fortsätt flödet
     resultBox.textContent = "Running GPU timing precheck...";
 
     const precheckRes = await fetch(API_BASE + "/api/contracts/precheck/real", {
@@ -1911,6 +2354,44 @@ function unlockConfirmUI() {
     btn.textContent = "Confirm & Start";
   }
 }
+if (myJobsList) {
+  myJobsList.addEventListener("click", async (e) => {
+    const btn = e.target.closest(".cancel-job-btn");
+    if (!btn) return;
+
+    const jobId = btn.getAttribute("data-job-id");
+    if (!jobId) return;
+
+    btn.disabled = true;
+    btn.textContent = "Cancelling...";
+
+    try {
+      await cancelJob(jobId);
+
+      myJobsNotice.textContent = "Cancel request sent.";
+
+      if (MY_JOBS_LAST_EMAIL) {
+        await renderMyJobs(MY_JOBS_LAST_EMAIL);
+      }
+
+    } catch (err) {
+      console.error(err);
+
+      myJobsNotice.textContent = "Could not cancel job.";
+
+      btn.disabled = false;
+      btn.textContent = "Cancel Job";
+    }
+  });
+}
+(function initMyJobsFromStorage() {
+  const savedEmail = localStorage.getItem("gpurenderstudio_email");
+
+  if (savedEmail && myJobsEmailInput) {
+    myJobsEmailInput.value = savedEmail;
+    loadMyJobsFlow(savedEmail);
+  }
+})();
 </script>
 
 </body>
