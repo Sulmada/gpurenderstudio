@@ -1731,21 +1731,16 @@ async function loadMyJobsFlow(email) {
   localStorage.setItem("gpurenderstudio_email", normalized);
   myJobsEmailInput.value = normalized;
 
-try {
-  await renderMyJobs(normalized);
-} catch (err) {
-  console.error(err);
-  myJobsNotice.textContent = "Could not load jobs right now.";
-  myJobsList.innerHTML = "";
-}
-
-// ALWAYS restart polling
-startMyJobsPolling(normalized);
-
+  try {
+    await renderMyJobs(normalized);
+  } catch (err) {
     console.error(err);
     myJobsNotice.textContent = "Could not load jobs right now.";
     myJobsList.innerHTML = "";
   }
+
+  // ALWAYS restart polling
+  startMyJobsPolling(normalized);
 }
 
 // Load My Jobs button (correct placement)
