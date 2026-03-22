@@ -1668,14 +1668,19 @@ async function renderMyJobs(email) {
   const data = await fetchMyJobs(email);
   const jobs = Array.isArray(data.jobs) ? data.jobs : [];
 
-  if (!jobs.length) {
+  const visibleJobs = jobs.filter(j =>
+    j.status === "running" ||
+    j.status === "queued" ||
+    j.status === "confirmed"
+  );
+  if (!visibleJobs.length) {
     myJobsNotice.textContent = "No jobs found for this email yet.";
     myJobsList.innerHTML = '<div class="job-empty">No jobs found.</div>';
     return;
   }
 
   const etaResults = await Promise.all(
-    jobs.map(async (job) => {
+    visibleJobs.map(async (job) => {
       const status = String(job.status || "").toLowerCase();
 
       if (status === "queued" || status === "confirmed" || status === "running") {
@@ -1690,12 +1695,12 @@ async function renderMyJobs(email) {
     })
   );
 
-  const html = jobs
+  const html = visibleJobs
     .map((job, i) => buildJobCard(job, etaResults[i]))
     .join("");
 
   myJobsNotice.textContent =
-    "Showing " + jobs.length + " job(s) for " + email;
+  "Showing " + visibleJobs.length + " active job(s) for " + email;
   myJobsList.innerHTML = '<div class="jobs-list">' + html + "</div>";
 }
 
