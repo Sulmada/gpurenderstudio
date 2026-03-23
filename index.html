@@ -1597,7 +1597,9 @@ async function cancelJob(jobId) {
 
 function buildJobCard(job, etaInfo) {
   const hasLocalToken = !!getJobToken(job.job_id);
+
   const status = String(job.status || "").toLowerCase();
+
   const progressPercent = Number.isFinite(job.progress?.percent)
     ? job.progress.percent
     : 0;
@@ -1612,6 +1614,7 @@ function buildJobCard(job, etaInfo) {
 
   const isQueued = status === "queued" || status === "confirmed";
   const isRunning = status === "running";
+
   const isTerminal =
     status === "success" ||
     status === "partial_success" ||
@@ -1631,60 +1634,63 @@ function buildJobCard(job, etaInfo) {
       "</div>";
   }
 
-  let progressHtml = "";
+  let progressLine = "";
   if (isRunning) {
-    progressHtml =
+    progressLine =
       '<div class="job-progress-wrap">' +
-        '<div class="job-progress-bar" style="width:' + Math.max(0, Math.min(100, progressPercent)) + '%;"></div>' +
+      '<div class="job-progress-bar" style="width:' +
+      escapeHtml(progressPercent) +
+      '%"></div>' +
       "</div>" +
-      '<div class="job-meta">Progress: ' +
-      escapeHtml(progressPercent.toFixed(1)) +
-      "%</div>" +
-      '<div class="job-meta">Frames: ' +
-      escapeHtml(framesDone ?? "—") +
-      " / " +
-      escapeHtml(framesTotal ?? "—") +
-      "</div>" +
-      '<div class="job-meta">ETA remaining: ' +
-      escapeHtml(etaText) +
+      '<div class="job-meta">' +
+      escapeHtml(progressPercent) +
+      "% · " +
+      (framesDone !== null && framesTotal !== null
+        ? escapeHtml(framesDone + " / " + framesTotal + " frames")
+        : "") +
       "</div>";
   }
 
-  let completionLine = "";
-  if (status === "success" || status === "partial_success") {
-    const paid = String(job.payment?.status || "").toUpperCase() === "PAID";
-    completionLine =
-      '<div class="job-meta">Result: ' +
-      (paid ? "Paid and download-ready" : "Ready for payment/download flow") +
-      "</div>";
-  }
-
+  // 🔑 ACTION LOGIK (NY OCH KORREKT)
   let actionHtml = "";
-  if ((isQueued || isRunning) && hasLocalToken) {
-    actionHtml +=
-      '<button class="btn cancel-job-btn" type="button" data-job-id="' +
-      escapeHtml(job.job_id) +
-      '">Cancel Job</button>';
+
+  if (isQueued || isRunning) {
+    if (hasLocalToken) {
+      actionHtml +=
+        '<button class="btn cancel-job-btn" type="button" data-job-id="' +
+        escapeHtml(job.job_id) +
+        '">Cancel Job</button>';
+    } else {
+      actionHtml +=
+        '<div class="job-subtle">' +
+        "Control unavailable in this browser. It may have been started elsewhere." +
+        "</div>";
+    }
   }
 
-  actionHtml +=
-    '<a class="job-link" href="/status/?job_id=' +
-    encodeURIComponent(job.job_id) +
-    '">Open Status Page</a>';
+  const statusLabel = getStatusLabel(status);
 
   return (
     '<div class="job-card">' +
-      '<div class="job-card-top">' +
-        '<div class="job-card-title">Job ' + escapeHtml(job.job_id.slice(0, 8)) + "...</div>" +
-        '<div class="job-card-status">' + escapeHtml(getStatusLabel(status)) + "</div>" +
-      "</div>" +
-      '<div class="job-meta">Created: ' + escapeHtml(formatDateTime(job.timestamps?.created)) + "</div>" +
-      '<div class="job-meta">Job ID: ' + escapeHtml(job.job_id) + "</div>" +
-      queueLine +
-      progressHtml +
-      completionLine +
-      '<div class="job-subtle">Raw status: ' + escapeHtml(status) + "</div>" +
-      '<div class="job-actions">' + actionHtml + "</div>" +
+    '<div class="job-card-top">' +
+    '<div class="job-card-title">Job ' +
+    escapeHtml(job.job_id.slice(0, 8)) +
+    "</div>" +
+    '<div class="job-card-status">' +
+    escapeHtml(statusLabel) +
+    "</div>" +
+    "</div>" +
+    '<div class="job-meta">Created: ' +
+    escapeHtml(new Date(job.created_at).toLocaleString()) +
+    "</div>" +
+    queueLine +
+    progressLine +
+    '<div class="job-actions">' +
+    actionHtml +
+    '<a class="job-link" href="/status/?job_id=' +
+    encodeURIComponent(job.job_id) +
+    '" target="_blank">Open status</a>' +
+    "</div>" +
     "</div>"
   );
 }
