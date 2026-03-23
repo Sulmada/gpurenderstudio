@@ -878,6 +878,18 @@
 <!--  DEVICE POSTER + VIDEO SWITCHING                         -->
 <!-- ========================================================= -->
 <script>
+console.log("SCRIPT LOADED");
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("DOM READY");
+
+  const btn = document.querySelector('button[type="submit"]');
+  if (btn) {
+    btn.addEventListener("click", () => {
+      console.log("BUTTON CLICKED");
+    });
+  }
+});
+
 (function() {
     const vid = document.getElementById("heroVid");
     const srcWebm = document.getElementById("vidWebm");
