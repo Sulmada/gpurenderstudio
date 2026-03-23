@@ -1508,6 +1508,15 @@ function formatEta(seconds) {
   return hrs + "h " + rem + "m";
 }
 
+function getJobToken(jobId) {
+  return localStorage.getItem("job_token_" + jobId);
+}
+
+function setJobToken(jobId, token) {
+  if (!jobId || !token) return;
+  localStorage.setItem("job_token_" + jobId, token);
+}
+
 function getStatusLabel(status) {
   const s = String(status || "").toLowerCase();
 
@@ -1548,9 +1557,21 @@ async function fetchJobEta(jobId) {
 }
 
 async function cancelJob(jobId) {
+  const token = getJobToken(jobId);
+
+  if (!token) {
+    throw new Error("missing-job-token");
+  }
+
   const res = await fetch(
     API_BASE + "/api/job/" + encodeURIComponent(jobId) + "/cancel",
-    { method: "POST" }
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        access_token: token
+      })
+    }
   );
 
   const data = await res.json().catch(() => null);
@@ -1563,6 +1584,7 @@ async function cancelJob(jobId) {
 }
 
 function buildJobCard(job, etaInfo) {
+  const hasLocalToken = !!getJobToken(job.job_id);
   const status = String(job.status || "").toLowerCase();
   const progressPercent = Number.isFinite(job.progress?.percent)
     ? job.progress.percent
@@ -1626,7 +1648,7 @@ function buildJobCard(job, etaInfo) {
   }
 
   let actionHtml = "";
-  if (isQueued || isRunning) {
+  if ((isQueued || isRunning) && hasLocalToken) {
     actionHtml +=
       '<button class="btn cancel-job-btn" type="button" data-job-id="' +
       escapeHtml(job.job_id) +
@@ -1782,24 +1804,32 @@ form.addEventListener("submit", async (e) => {
       return;
     }
 
-    CURRENT_JOB_ID = uploadData.job_id;
+  CURRENT_JOB_ID = uploadData.job_id;
 
-    // Spara email → används av "My Jobs"
-    const submittedEmail = (fd.get("email") || "").toString().trim().toLowerCase();
+  // Spara access token (NYTT)
+  if (uploadData.access_token) {
+    setJobToken(uploadData.job_id, uploadData.access_token);
+  }
 
-    if (submittedEmail) {
-      localStorage.setItem("gpurenderstudio_email", submittedEmail);
-  
+  // Hämta och normalisera email
+  const submittedEmail = (fd.get("email") || "")
+    .toString()
+    .trim()
+    .toLowerCase();
+
   if (submittedEmail) {
-        localStorage.setItem("gpurenderstudio_email", submittedEmail);
+    // Spara email för My Jobs
+    localStorage.setItem("gpurenderstudio_email", submittedEmail);
 
+    // Sync inputfält
     if (myJobsEmailInput) {
       myJobsEmailInput.value = submittedEmail;
     }
 
-  // ADD THIS
-  loadMyJobsFlow(submittedEmail);
-}
+    // Ladda jobb direkt (UX förbättring)
+    loadMyJobsFlow(submittedEmail);
+  }
+
       if (myJobsEmailInput) {
         myJobsEmailInput.value = submittedEmail;
       }
@@ -2376,14 +2406,23 @@ if (myJobsList) {
         await renderMyJobs(MY_JOBS_LAST_EMAIL);
       }
 
-    } catch (err) {
+    }
+ 
+    catch (err) {
       console.error(err);
 
-      myJobsNotice.textContent = "Could not cancel job.";
+      if (err.message === "missing-job-token") {
+        myJobsNotice.textContent =
+          "This job can't be controlled from this browser. " +
+          "It may have been started on another device or after clearing browser data.";
+      } else {
+        myJobsNotice.textContent = "Could not cancel job.";
+      }
 
       btn.disabled = false;
       btn.textContent = "Cancel Job";
     }
+
   });
 }
 (function initMyJobsFromStorage() {
