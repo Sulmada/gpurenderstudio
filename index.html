@@ -1806,7 +1806,7 @@ form.addEventListener("submit", async (e) => {
 
   CURRENT_JOB_ID = uploadData.job_id;
 
-  // Spara access token (NYTT)
+  // Spara access token
   if (uploadData.access_token) {
     setJobToken(uploadData.job_id, uploadData.access_token);
   }
@@ -1826,24 +1826,19 @@ form.addEventListener("submit", async (e) => {
       myJobsEmailInput.value = submittedEmail;
     }
 
-    // Ladda jobb direkt (UX förbättring)
+    // Ladda jobb direkt
     loadMyJobsFlow(submittedEmail);
   }
 
-      if (myJobsEmailInput) {
-        myJobsEmailInput.value = submittedEmail;
-      }
-    }
-
-    // Visa duplicate job warning från backend
-    if (uploadData.active_jobs_notice?.already_has_active_jobs) {
-      confirmStatus.textContent =
-        "You already have " +
-        uploadData.active_jobs_notice.count +
-        " active job(s) running or queued.";
-    } else {
-      confirmStatus.textContent = "";
-    }
+  // Visa duplicate job warning från backend
+  if (uploadData.active_jobs_notice?.already_has_active_jobs) {
+    confirmStatus.textContent =
+      "You already have " +
+      uploadData.active_jobs_notice.count +
+      " active job(s) running or queued.";
+  } else {
+    confirmStatus.textContent = "";
+  }
 
     // Fortsätt flödet
     resultBox.textContent = "Running GPU timing precheck...";
