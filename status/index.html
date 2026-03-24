@@ -246,6 +246,7 @@ section {
 
 const params = new URLSearchParams(window.location.search);
 const jobId = params.get("job_id");
+const accessTokenFromUrl = params.get("access_token");
 const paidHint = params.get("paid") === "1";
 
 const API_BASE = location.hostname === "localhost"
@@ -268,9 +269,33 @@ const progressArea  = document.getElementById("progressArea");
 const previewArea   = document.getElementById("previewArea");
 const previewPlayer = document.getElementById("previewPlayer");
 
+function getStoredJobToken(jobId) {
+  if (!jobId) return null;
+  return localStorage.getItem("job_token_" + jobId);
+}
+
+function storeJobToken(jobId, token) {
+  if (!jobId || !token) return;
+  localStorage.setItem("job_token_" + jobId, token);
+}
+
+if (jobId && accessTokenFromUrl) {
+  storeJobToken(jobId, accessTokenFromUrl);
+}
+
+const jobToken = accessTokenFromUrl || getStoredJobToken(jobId);
+
 if (!jobId) {
     statusEl.textContent = "Missing job_id";
     statusEl.className = "status-value status-fail";
+    return;
+}
+
+if (!jobToken) {
+    statusEl.textContent = "Missing access token";
+    statusEl.className = "status-value status-fail";
+    failEl.style.display = "block";
+    failEl.textContent = "This job requires its original access link. Open the link from upload confirmation or completion email.";
     return;
 }
 
@@ -469,12 +494,20 @@ function getDelayForStatus(status) {
 }
 
 async function fetchAndRenderOnce() {
-  const res = await fetch(API_BASE + "/api/status/" + jobId);
+  const res = await fetch(
+    withAccessToken(API_BASE + "/api/status/" + encodeURIComponent(jobId))
+  );
+
   if (!res.ok) throw new Error("status-fetch-failed-" + res.status);
 
   const job = await res.json();
   renderJob(job);
   return job;
+}
+
+function withAccessToken(url) {
+  const sep = url.includes("?") ? "&" : "?";
+  return url + sep + "access_token=" + encodeURIComponent(jobToken);
 }
 
 async function pollStatusLoop() {
@@ -605,7 +638,10 @@ function renderJob(job) {
     previewArea.style.display = "block";
 
     // load preview
-    previewPlayer.src = API_BASE + "/api/preview/" + jobId;
+    previewPlayer.src = withAccessToken(
+      API_BASE + "/api/preview/" + encodeURIComponent(jobId)
+    );
+
     previewPlayer.load();
     previewPlayer.play().catch(() => {});    
 
@@ -720,9 +756,12 @@ window.pay = async function () {
   actionArea.textContent = "Starting payment…";
 
   try {
-    const res = await fetch(API_BASE + "/api/pay/" + jobId, {
-      method: "POST"
-    });
+    const res = await fetch(
+      withAccessToken(API_BASE + "/api/pay/" + encodeURIComponent(jobId)),
+      {
+        method: "POST"
+      }
+    );
 
     if (!res.ok) {
       throw new Error("payment-init-failed");
@@ -740,6 +779,7 @@ window.pay = async function () {
       const params = new URLSearchParams(window.location.search);
       params.set("job_id", jobId);
       params.set("paid", "1");
+      params.set("access_token", jobToken);
       window.location.search = params.toString();
       return;
     }
@@ -760,6 +800,22 @@ window.pay = async function () {
   }
 };
 
+// helper: build download URL with token
+function buildDownloadUrl(suffix = "") {
+  return withAccessToken(
+    API_BASE + "/api/download/" + encodeURIComponent(jobId) + suffix
+  );
+}
+
+// helper: trigger hidden iframe download
+function triggerDownload(url) {
+  const iframe = document.createElement("iframe");
+  iframe.style.display = "none";
+  iframe.src = url;
+  document.body.appendChild(iframe);
+}
+
+// FULL ARCHIVE (ZIP)
 window.download = function () {
   actionArea.innerHTML = "";
 
@@ -768,13 +824,10 @@ window.download = function () {
   msg.textContent = "Download started. Your browser will save the render archive.";
   actionArea.appendChild(msg);
 
-  // start download
-  const iframe = document.createElement("iframe");
-  iframe.style.display = "none";
-  iframe.src = API_BASE + "/api/download/" + jobId;
-  document.body.appendChild(iframe);
+  triggerDownload(
+    buildDownloadUrl("/api/download/")
+  );
 
-  // Render another job button
   const againBtn = document.createElement("button");
   againBtn.className = "btn";
   againBtn.style.marginTop = "16px";
@@ -786,26 +839,21 @@ window.download = function () {
   actionArea.appendChild(againBtn);
 };
 
+// VIDEO (MP4)
 window.downloadVideo = function () {
-
-  const iframe = document.createElement("iframe");
-  iframe.style.display = "none";
-  iframe.src = API_BASE + "/api/download/" + jobId + "/video";
-
-  document.body.appendChild(iframe);
-
+  triggerDownload(
+    withAccessToken(
+      API_BASE + "/api/download/" + encodeURIComponent(jobId) + "/video"
+    )
+  );
 };
 
+// FRAMES (ZIP fallback)
 window.downloadFrames = function () {
-
-  const iframe = document.createElement("iframe");
-  iframe.style.display = "none";
-  iframe.src = API_BASE + "/api/download/" + jobId;
-
-  document.body.appendChild(iframe);
-
+  triggerDownload(
+    buildDownloadUrl("/api/download/")
+  );
 };
-
 // ========================================
 // START
 // ========================================
