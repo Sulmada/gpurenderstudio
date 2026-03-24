@@ -1557,13 +1557,17 @@ async function fetchMyJobs(email) {
 }
 
 async function fetchJobEta(jobId) {
+  const token = getJobToken(jobId);
+  if (!token) return null;
+
   const res = await fetch(
-    API_BASE + "/api/queue/eta/" + encodeURIComponent(jobId)
+    API_BASE + "/api/queue/eta/" +
+    encodeURIComponent(jobId) +
+    "?access_token=" +
+    encodeURIComponent(token)
   );
 
-  if (!res.ok) {
-    return null;
-  }
+  if (!res.ok) return null;
 
   return await res.json();
 }
@@ -1668,31 +1672,45 @@ function buildJobCard(job, etaInfo) {
     }
   }
 
-  const statusLabel = getStatusLabel(status);
+const statusLabel = getStatusLabel(status);
 
-  return (
-    '<div class="job-card">' +
-    '<div class="job-card-top">' +
-    '<div class="job-card-title">Job ' +
-    escapeHtml(job.job_id.slice(0, 8)) +
-    "</div>" +
-    '<div class="job-card-status">' +
-    escapeHtml(statusLabel) +
-    "</div>" +
-    "</div>" +
-    '<div class="job-meta">Created: ' +
-    escapeHtml(new Date(job.created_at).toLocaleString()) +
-    "</div>" +
-    queueLine +
-    progressLine +
-    '<div class="job-actions">' +
-    actionHtml +
-    '<a class="job-link" href="/status/?job_id=' +
+//  bygg säker status-länk med token
+const token = getJobToken(job.job_id);
+
+const statusHref = token
+  ? '/status/?job_id=' +
     encodeURIComponent(job.job_id) +
-    '" target="_blank">Open status</a>' +
-    "</div>" +
-    "</div>"
-  );
+    '&access_token=' +
+    encodeURIComponent(token)
+  : '/status/?job_id=' + encodeURIComponent(job.job_id);
+
+return (
+  '<div class="job-card">' +
+  '<div class="job-card-top">' +
+  '<div class="job-card-title">Job ' +
+  escapeHtml(job.job_id.slice(0, 8)) +
+  "</div>" +
+  '<div class="job-card-status">' +
+  escapeHtml(statusLabel) +
+  "</div>" +
+  "</div>" +
+  '<div class="job-meta">Created: ' +
+  escapeHtml(new Date(job.created_at).toLocaleString()) +
+  "</div>" +
+  queueLine +
+  progressLine +
+  '<div class="job-actions">' +
+  actionHtml +
+  (
+    token
+      ? '<a class="job-link" href="' +
+        statusHref +
+        '" target="_blank">Open status</a>'
+      : '<div class="job-subtle">Open this job from its original link to access full details.</div>'
+  ) +
+  "</div>" +
+  "</div>"
+);
 }
 
 async function renderMyJobs(email) {
@@ -1715,6 +1733,7 @@ async function renderMyJobs(email) {
     j.status === "queued" ||
     j.status === "confirmed"
   );
+
   if (!visibleJobs.length) {
     myJobsNotice.textContent = "No jobs found for this email yet.";
     myJobsList.innerHTML = '<div class="job-empty">No jobs found.</div>';
@@ -2375,10 +2394,13 @@ const body = {
       return;
     }
 
+    const token = getJobToken(CURRENT_JOB_ID);
+
     window.location.href =
-      window.location.origin +
-      "/status/?job_id=" +
-      encodeURIComponent(CURRENT_JOB_ID);
+              window.location.origin +
+              "/status/?job_id=" +
+              encodeURIComponent(CURRENT_JOB_ID) +
+              (token ? "&access_token=" + encodeURIComponent(token) : "");
 
   } catch (err) {
 
