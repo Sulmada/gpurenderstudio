@@ -197,6 +197,14 @@ section {
 
     <div id="actionArea"></div>
 
+    <div style="margin-top:20px;">
+      <button id="copyLinkBtn" class="btn">Copy access link</button>
+
+      <div style="font-size:13px; opacity:0.7; margin-top:6px;">
+        This link is your access to this render. Save or bookmark it.
+      </div>
+    </div>
+
     <a id="newUploadBtn"
        class="btn"
        href="../"
@@ -268,6 +276,7 @@ const progressEta   = document.getElementById("progressEta");
 const progressArea  = document.getElementById("progressArea");
 const previewArea   = document.getElementById("previewArea");
 const previewPlayer = document.getElementById("previewPlayer");
+const copyLinkBtn = document.getElementById("copyLinkBtn");
 
 function getStoredJobToken(jobId) {
   if (!jobId) return null;
@@ -283,7 +292,12 @@ if (jobId && accessTokenFromUrl) {
   storeJobToken(jobId, accessTokenFromUrl);
 }
 
-const jobToken = accessTokenFromUrl || getStoredJobToken(jobId);
+let jobToken = accessTokenFromUrl || getStoredJobToken(jobId);
+
+// extra safety
+if (jobId && jobToken) {
+  storeJobToken(jobId, jobToken);
+}
 
 if (!jobId) {
     statusEl.textContent = "Missing job_id";
@@ -863,6 +877,26 @@ if (paidHint) {
     .finally(() => pollStatusLoop());
 } else {
   pollStatusLoop();
+}
+
+// ========================================
+// COPY LINK
+// ========================================
+
+if (copyLinkBtn) {
+  copyLinkBtn.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+
+      copyLinkBtn.textContent = "Copied!";
+      setTimeout(() => {
+        copyLinkBtn.textContent = "Copy access link";
+      }, 2000);
+
+    } catch (err) {
+      console.error("Copy failed:", err);
+    }
+  });
 }
 
 })(); // end IIFE
