@@ -1427,18 +1427,13 @@ Technical failures are not billed.
     </p>
 
     <div id="myJobsIntro" style="font-size:13px;opacity:0.75;margin-bottom:18px;">
-      Enter the same email you used when uploading, and your jobs will appear here automatically next time.
+      Your jobs are linked to this browser session. Keep this device or save your access link to return later.
     </div>
 
     <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:18px;">
-      <input
-        id="myJobsEmail"
-        class="input-field"
-        type="email"
-        placeholder="Email used for your jobs"
-        style="max-width:360px;margin-top:0;"
-      >
-      <button id="loadMyJobsBtn" class="btn" type="button">Load My Jobs</button>
+      <button id="loadMyJobsBtn" class="btn" type="button">
+        Load My Jobs
+      </button>
     </div>
 
     <div id="myJobsNotice" style="font-size:13px;opacity:0.8;margin-bottom:16px;"></div>
@@ -1529,6 +1524,20 @@ function setJobToken(jobId, token) {
   localStorage.setItem("job_token_" + jobId, token);
 }
 
+function apiFetch(url, jobId, options = {}) {
+  const token = getJobToken(jobId);
+
+  if (!token) {
+    throw new Error("missing-job-token");
+  }
+
+  const sep = url.includes("?") ? "&" : "?";
+  const finalUrl =
+    url + sep + "access_token=" + encodeURIComponent(token);
+
+  return fetch(finalUrl, options);
+}
+
 function getStatusLabel(status) {
   const s = String(status || "").toLowerCase();
 
@@ -1544,9 +1553,15 @@ function getStatusLabel(status) {
   return s || "Unknown";
 }
 
-async function fetchMyJobs(email) {
+async function fetchMyJobs() {
+  const token = localStorage.getItem("account_token");
+
+  if (!token) {
+    throw new Error("missing-account-token");
+  }
+
   const res = await fetch(
-    API_BASE + "/api/my_jobs?email=" + encodeURIComponent(email)
+    API_BASE + "/api/my_jobs?account_token=" + encodeURIComponent(token)
   );
 
   if (!res.ok) {
@@ -1557,36 +1572,28 @@ async function fetchMyJobs(email) {
 }
 
 async function fetchJobEta(jobId) {
-  const token = getJobToken(jobId);
-  if (!token) return null;
+  try {
+    const res = await apiFetch(
+      API_BASE + "/api/queue/eta/" + encodeURIComponent(jobId),
+      jobId
+    );
 
-  const res = await fetch(
-    API_BASE + "/api/queue/eta/" +
-    encodeURIComponent(jobId) +
-    "?access_token=" +
-    encodeURIComponent(token)
-  );
+    if (!res.ok) return null;
 
-  if (!res.ok) return null;
-
-  return await res.json();
+    return await res.json();
+  } catch (_) {
+    return null;
+  }
 }
 
 async function cancelJob(jobId) {
-  const token = getJobToken(jobId);
-
-  if (!token) {
-    throw new Error("missing-job-token");
-  }
-
-  const res = await fetch(
+  const res = await apiFetch(
     API_BASE + "/api/job/" + encodeURIComponent(jobId) + "/cancel",
+    jobId,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        access_token: token
-      })
+      body: JSON.stringify({})
     }
   );
 
@@ -1713,20 +1720,13 @@ return (
 );
 }
 
-async function renderMyJobs(email) {
-  if (!email) {
-    myJobsNotice.textContent = "Enter your email to load jobs.";
-    myJobsList.innerHTML = "";
-    return;
-  }
+async function renderMyJobs(jobs) {
+  jobs = Array.isArray(jobs) ? jobs : [];
 
   if (!MY_JOBS_POLL_TIMER) {
     myJobsNotice.textContent = "Loading jobs...";
     myJobsList.innerHTML = "";
   }
-
-  const data = await fetchMyJobs(email);
-  const jobs = Array.isArray(data.jobs) ? data.jobs : [];
 
   const visibleJobs = jobs.filter(j =>
     j.status === "running" ||
@@ -1735,7 +1735,7 @@ async function renderMyJobs(email) {
   );
 
   if (!visibleJobs.length) {
-    myJobsNotice.textContent = "No jobs found for this email yet.";
+    myJobsNotice.textContent = "No active jobs found.";
     myJobsList.innerHTML = '<div class="job-empty">No jobs found.</div>';
     return;
   }
@@ -1761,7 +1761,8 @@ async function renderMyJobs(email) {
     .join("");
 
   myJobsNotice.textContent =
-  "Showing " + visibleJobs.length + " active job(s) for " + email;
+    "Showing " + visibleJobs.length + " active job(s)";
+
   myJobsList.innerHTML = '<div class="jobs-list">' + html + "</div>";
 }
 
@@ -1772,47 +1773,55 @@ function stopMyJobsPolling() {
   }
 }
 
-function startMyJobsPolling(email) {
+function startMyJobsPolling() {
   stopMyJobsPolling();
-
-  MY_JOBS_LAST_EMAIL = email;
 
   MY_JOBS_POLL_TIMER = setInterval(async () => {
     try {
-      await renderMyJobs(email);
+      const data = await fetchMyJobs();
+
+      // 🔥 HYDRERA tokens (kritisk)
+      data.jobs.forEach(job => {
+        if (job.access_token) {
+          setJobToken(job.job_id, job.access_token);
+        }
+      });
+
+      await renderMyJobs(data.jobs);
+
     } catch (err) {
       console.warn("[MY_JOBS] polling failed", err);
     }
   }, 5000);
 }
 
-async function loadMyJobsFlow(email) {
-  const normalized = String(email || "").trim().toLowerCase();
-
-  if (!normalized) {
-    myJobsNotice.textContent = "Enter an email first.";
-    return;
-  }
-
-  localStorage.setItem("gpurenderstudio_email", normalized);
-  myJobsEmailInput.value = normalized;
-
-  try {
-    await renderMyJobs(normalized);
-  } catch (err) {
-    console.error(err);
-    myJobsNotice.textContent = "Could not load jobs right now.";
-    myJobsList.innerHTML = "";
-  }
-
-  // ALWAYS restart polling
-  startMyJobsPolling(normalized);
-}
-
-// Load My Jobs button (correct placement)
+// --------------------------------------------------
+// Load My Jobs button
+// --------------------------------------------------
 if (loadMyJobsBtn) {
   loadMyJobsBtn.addEventListener("click", async () => {
-    await loadMyJobsFlow(myJobsEmailInput.value);
+    try {
+      const data = await fetchMyJobs();
+
+      // 🔥 HYDRERA tokens
+      data.jobs.forEach(job => {
+        if (job.access_token) {
+          setJobToken(job.job_id, job.access_token);
+        }
+      });
+
+      await renderMyJobs(data.jobs);
+
+      startMyJobsPolling();
+
+      myJobsNotice.textContent = "";
+
+    } catch (err) {
+      console.warn("Load My Jobs failed:", err);
+
+      myJobsNotice.textContent =
+        "No jobs found or session missing. Try uploading a project first.";
+    }
   });
 }
 
@@ -1820,10 +1829,22 @@ form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   resultBox.textContent = "Uploading project...";
+  confirmStatus.textContent = "";
 
+  // --------------------------------------------------
+  // 1. FormData
+  // --------------------------------------------------
   const fd = new FormData(form);
 
+  const existingAccountToken = localStorage.getItem("account_token");
+  if (existingAccountToken) {
+    fd.append("account_token", existingAccountToken);
+  }
+
   try {
+    // --------------------------------------------------
+    // 2. UPLOAD
+    // --------------------------------------------------
     const uploadRes = await fetch(API_BASE + "/api/upload", {
       method: "POST",
       body: fd
@@ -1841,43 +1862,59 @@ form.addEventListener("submit", async (e) => {
       return;
     }
 
-  CURRENT_JOB_ID = uploadData.job_id;
+    CURRENT_JOB_ID = uploadData.job_id;
 
-  // Spara access token
-  if (uploadData.access_token) {
-    setJobToken(uploadData.job_id, uploadData.access_token);
-  }
-
-  // Hämta och normalisera email
-  const submittedEmail = (fd.get("email") || "")
-    .toString()
-    .trim()
-    .toLowerCase();
-
-  if (submittedEmail) {
-    // Spara email för My Jobs
-    localStorage.setItem("gpurenderstudio_email", submittedEmail);
-
-    // Sync inputfält
-    if (myJobsEmailInput) {
-      myJobsEmailInput.value = submittedEmail;
+    // --------------------------------------------------
+    // 3. Spara tokens
+    // --------------------------------------------------
+    if (uploadData.access_token) {
+      setJobToken(uploadData.job_id, uploadData.access_token);
     }
 
-    // Ladda jobb direkt
-    loadMyJobsFlow(submittedEmail);
-  }
+    if (uploadData.account_token) {
+      localStorage.setItem("account_token", uploadData.account_token);
+    }
 
-  // Visa duplicate job warning från backend
-  if (uploadData.active_jobs_notice?.already_has_active_jobs) {
-    confirmStatus.textContent =
-      "You already have " +
-      uploadData.active_jobs_notice.count +
-      " active job(s) running or queued.";
-  } else {
-    confirmStatus.textContent = "";
-  }
+    // --------------------------------------------------
+    // 4. Duplicate info
+    // --------------------------------------------------
+    if (uploadData.active_jobs_notice?.already_has_active_jobs) {
+      myJobsNotice.textContent =
+        "You already have active jobs running (" +
+        uploadData.active_jobs_notice.count +
+        ").";
 
-    // Fortsätt flödet
+      confirmStatus.textContent =
+        "You already have " +
+        uploadData.active_jobs_notice.count +
+        " active job(s) running or queued.";
+    } else {
+      confirmStatus.textContent = "";
+    }
+
+    resultBox.textContent = "Upload successful. Preparing job...";
+
+    // --------------------------------------------------
+    // 5. AUTO LOAD JOBS
+    // --------------------------------------------------
+    try {
+      const data = await fetchMyJobs();
+
+      data.jobs.forEach(job => {
+        if (job.access_token) {
+          setJobToken(job.job_id, job.access_token);
+        }
+      });
+
+      renderMyJobs(data.jobs);
+
+    } catch (err) {
+      console.warn("Auto-load jobs failed:", err);
+    }
+
+    // --------------------------------------------------
+    // 6. PRECHECK (NU KORREKT PLACERAD)
+    // --------------------------------------------------
     resultBox.textContent = "Running GPU timing precheck...";
 
     const precheckRes = await fetch(API_BASE + "/api/contracts/precheck/real", {
@@ -1903,14 +1940,16 @@ form.addEventListener("submit", async (e) => {
 
     CURRENT_PRECHECK = precheck;
 
+    // --------------------------------------------------
+    // 7. SLOT UI
+    // --------------------------------------------------
     renderSlotChooser(precheck);
 
   } catch (err) {
-    console.error(err);
+    console.error("Upload error:", err);
     resultBox.textContent = "Network error.";
   }
 });
-
 /* =========================================================
    SLOT + CAP UI
 ========================================================= */
@@ -2468,6 +2507,48 @@ if (myJobsList) {
     loadMyJobsFlow(savedEmail);
   }
 })();
+
+document.addEventListener("DOMContentLoaded", async () => {
+  const accountToken = localStorage.getItem("account_token");
+
+  if (!accountToken) return;
+
+  if (myJobsNotice) {
+    myJobsNotice.textContent = "Loading your jobs...";
+  }
+
+  try {
+    const data = await fetchMyJobs();
+
+    if (!data?.jobs || data.jobs.length === 0) {
+      if (myJobsNotice) {
+        myJobsNotice.textContent = "No saved jobs found in this browser.";
+      }
+      return;
+    }
+
+    // 🔥 Hydrera tokens
+    data.jobs.forEach(job => {
+      if (job.access_token) {
+        setJobToken(job.job_id, job.access_token);
+      }
+    });
+
+    renderMyJobs(data.jobs);
+
+    if (myJobsNotice) {
+      myJobsNotice.textContent = "Your jobs were loaded automatically.";
+    }
+
+  } catch (err) {
+    console.warn("Auto-load jobs failed:", err);
+
+    if (myJobsNotice) {
+      myJobsNotice.textContent = "Could not load saved jobs.";
+    }
+  }
+});
+
 </script>
 
 </body>
