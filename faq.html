@@ -1,55 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8"/>
+<title>FAQ – GPU Render Studio</title>
 
-<title>FAQ — GPU Render Studio</title>
+<meta name="description" content="Frequently asked questions about GPU Render Studio: pricing, delivery speed, GPU render estimates, live tracking, payments and Blender project rendering."/>
 
-<meta name="description"
-content="FAQ about deterministic GPU rendering, slot-based pricing, CAP cost limits, RTX 5090 hardware, EU GPU hosting, billing rules and automated Blender rendering.">
+<link rel="canonical" href="https://sulmada.github.io/gpurenderstudio/faq.html"/>
 
-<link rel="canonical" href="https://gpurenderstudio.com/faq.html">
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
 
-<meta property="og:title" content="FAQ — GPU Render Studio">
-<meta property="og:description" content="Answers about deterministic execution, slot pricing, CAP cost control, EU GPU hosting and automated Blender rendering.">
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://gpurenderstudio.com/faq.html">
-
-<meta name="twitter:card" content="summary_large_image">
-
-<!-- FAQ STRUCTURED DATA -->
 <script type="application/ld+json">
 {
 "@context":"https://schema.org",
 "@type":"FAQPage",
 "mainEntity":[
 
-{"@type":"Question","name":"What is GPU Render Studio?","acceptedAnswer":{"@type":"Answer","text":"GPU Render Studio is an automated Blender rendering platform built around deterministic execution and controlled cost. Projects are rendered exactly as uploaded, with predictable runtime behavior and no creative modifications."}},
+{
+"@type":"Question",
+"name":"How does pricing work?",
+"acceptedAnswer":{
+"@type":"Answer",
+"text":"Choose between Budget, Standard, Fast or Express delivery. Lower cost options allow more flexible scheduling, while faster options receive higher priority."
+}
+},
 
-{"@type":"Question","name":"How does slot-based pricing work?","acceptedAnswer":{"@type":"Answer","text":"Each job runs inside a fixed execution slot that guarantees base runtime. If rendering continues after the slot window, overflow runtime is billed hourly. This gives predictable pricing and prevents uncontrolled spending."}},
+{
+"@type":"Question",
+"name":"How accurate are delivery estimates?",
+"acceptedAnswer":{
+"@type":"Answer",
+"text":"Estimated delivery times are based on real GPU precheck testing of your Blender project before rendering begins."
+}
+},
 
-{"@type":"Question","name":"What is CAP?","acceptedAnswer":{"@type":"Answer","text":"CAP is a cost ceiling that applies only to overflow runtime after the base slot is completed. CAP never pauses jobs during base runtime."}},
+{
+"@type":"Question",
+"name":"What file types do you accept?",
+"acceptedAnswer":{
+"@type":"Answer",
+"text":"GPU Render Studio currently accepts finished Blender project files for automated rendering."
+}
+},
 
-{"@type":"Question","name":"What happens when CAP is reached?","acceptedAnswer":{"@type":"Answer","text":"When overflow spending reaches the configured CAP, the job pauses automatically with status paused_cap. Completed frames are preserved and billing stops immediately."}},
+{
+"@type":"Question",
+"name":"Can I track progress live?",
+"acceptedAnswer":{
+"@type":"Answer",
+"text":"Yes. Every render job includes a live status page with progress updates, estimated completion time and delivery status."
+}
+},
 
-{"@type":"Question","name":"Do you run real GPU timing prechecks?","acceptedAnswer":{"@type":"Answer","text":"Yes. Test frames are rendered on real NVIDIA GPUs before confirmation to estimate runtime and recommend the correct execution profile."}},
+{
+"@type":"Question",
+"name":"What happens if rendering fails?",
+"acceptedAnswer":{
+"@type":"Answer",
+"text":"Technical rendering failures are not billed. If a job cannot be completed due to platform-side issues, no charge is applied."
+}
+},
 
-{"@type":"Question","name":"What GPUs do you use?","acceptedAnswer":{"@type":"Answer","text":"Jobs run on dedicated NVIDIA RTX 5090 GPU nodes. Capacity expansion maintains the same performance tier or higher."}},
+{
+"@type":"Question",
+"name":"Where are GPUs hosted?",
+"acceptedAnswer":{
+"@type":"Answer",
+"text":"Infrastructure is operated in the European Union with privacy-aware workflows."
+}
+},
 
-{"@type":"Question","name":"Where are your GPUs located?","acceptedAnswer":{"@type":"Answer","text":"All GPU infrastructure is hosted inside the European Union. Customers worldwide are supported, including GDPR-conscious workflows."}},
-
-{"@type":"Question","name":"Can I monitor progress while rendering?","acceptedAnswer":{"@type":"Answer","text":"Yes. The live status dashboard shows frame progress, ETA, runtime and billing counters in real time."}},
-
-{"@type":"Question","name":"When do I pay?","acceptedAnswer":{"@type":"Answer","text":"Payment is required before downloading completed results. This ensures consistent billing and protects compute resources."}},
-
-{"@type":"Question","name":"What happens if rendering fails?","acceptedAnswer":{"@type":"Answer","text":"Failed jobs are never billed. Partial jobs are charged only for completed runtime and include transparent technical reason codes."}},
-
-{"@type":"Question","name":"How long are files stored?","acceptedAnswer":{"@type":"Answer","text":"Uploads and render outputs are stored temporarily and removed automatically after a retention period for security and cost control."}},
-
-{"@type":"Question","name":"Which software is supported?","acceptedAnswer":{"@type":"Answer","text":"Blender using Cycles GPU rendering on NVIDIA hardware is currently supported. Additional engines may be introduced in later phases."}},
-
-{"@type":"Question","name":"How can I contact support?","acceptedAnswer":{"@type":"Answer","text":"Contact support via support@gpurenderstudio.com."}}
+{
+"@type":"Question",
+"name":"When do I pay?",
+"acceptedAnswer":{
+"@type":"Answer",
+"text":"Payment is requested when your completed render is ready for delivery, depending on job type and workflow."
+}
+}
 
 ]
 }
@@ -57,133 +85,134 @@ content="FAQ about deterministic GPU rendering, slot-based pricing, CAP cost lim
 
 <style>
 body{
-  margin:0;
-  font-family:Arial,sans-serif;
-  background:#0b0b0b;
-  color:#e0e0e0;
+    font-family:system-ui;
+    background:#0b0f14;
+    color:#eaeef3;
+    margin:0;
 }
-section{padding:120px 20px;}
-.content-box{
-  max-width:900px;
-  margin:auto;
-  background:rgba(20,20,20,0.65);
-  padding:40px 50px;
-  border-radius:14px;
-  border:1px solid rgba(255,255,255,0.04);
-  box-shadow:0 0 50px rgba(0,255,255,0.05);
+
+main,header,footer{
+    max-width:1000px;
+    margin:auto;
+    padding:32px;
 }
-.topnav{
-  position:fixed;
-  top:0;
-  width:100%;
-  backdrop-filter:blur(10px);
-  background:rgba(15,15,15,0.45);
-  padding:12px 20px;
-  border-bottom:1px solid rgba(255,255,255,0.05);
-  z-index:99;
-  display:flex;
-  justify-content:center;
-  flex-wrap:wrap;
+
+h1,h2{
+    margin-top:0;
 }
-.topnav a{
-  margin:0 16px;
-  text-decoration:none;
-  color:#cceeee;
-  font-size:14px;
+
+a{
+    color:#6ab7ff;
+    text-decoration:none;
 }
-.topnav a:hover{color:#74ffff;}
-.faq-item{margin-bottom:28px;}
-.faq-item h3{
-  margin-bottom:6px;
-  color:#7ffcff;
+
+a:hover{
+    text-decoration:underline;
+}
+
+.box{
+    background:#131a24;
+    border-radius:12px;
+    padding:22px;
+    margin:20px 0;
+    border:1px solid rgba(255,255,255,0.04);
+}
+
+.box h2{
+    color:#baffff;
+    font-size:22px;
+    margin-bottom:10px;
+}
+
+.box p{
+    line-height:1.65;
+    opacity:0.92;
+}
+
+.intro{
+    opacity:0.78;
+    margin-top:10px;
+}
+
+footer{
+    opacity:0.7;
+    font-size:14px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="topnav">
-  <a href="/#start">Home</a>
-  <a href="/how-it-works.html">How it Works</a>
-  <a href="/pricing-explained.html">Pricing</a>
-  <a href="/cap-model.html">CAP Model</a>
-  <a href="/eu-gpu-hosting.html">EU Hosting</a>
-  <a href="/faq.html">FAQ</a>
-  <a href="/#upload">Upload</a>
-</div>
-
-<section>
-<div class="content-box">
-
+<header>
 <h1>Frequently Asked Questions</h1>
 
-<div class="faq-item" id="what-is">
-<h3>What is GPU Render Studio?</h3>
-<p>GPU Render Studio is an automated Blender rendering platform designed for deterministic execution and predictable cost control. Projects run exactly as uploaded with no creative changes.</p>
+<p class="intro">
+Answers about pricing, speed options, delivery estimates and automated Blender rendering.
+</p>
+
+<p>
+<a href="./">← Back to main site</a>
+</p>
+</header>
+
+<main>
+
+<div class="box">
+<h2>How does pricing work?</h2>
+<p>
+Choose between <strong>Budget</strong>, <strong>Standard</strong>,
+<strong>Fast</strong> or <strong>Express</strong>.
+Lower cost modes allow more flexible scheduling, while faster modes receive higher priority.
+</p>
 </div>
 
-<div class="faq-item" id="pricing">
-<h3>How does slot-based pricing work?</h3>
-<p>Each job runs inside a fixed execution slot with guaranteed base runtime. Overflow runtime may continue afterwards and is billed hourly. This structure keeps pricing controlled and predictable.</p>
+<div class="box">
+<h2>How accurate are delivery estimates?</h2>
+<p>
+Estimated times are based on real GPU precheck analysis of your project before the full render starts.
+</p>
 </div>
 
-<div class="faq-item" id="cap">
-<h3>What is CAP?</h3>
-<p>CAP is a safety limit for additional spending beyond the slot price. It applies only to overflow runtime and never affects base execution.</p>
+<div class="box">
+<h2>What file types do you accept?</h2>
+<p>
+GPU Render Studio currently accepts finished Blender project files prepared for rendering.
+</p>
 </div>
 
-<div class="faq-item" id="cap-reached">
-<h3>What happens when CAP is reached?</h3>
-<p>The job pauses safely when overflow reaches the configured CAP. Completed frames are preserved and billing stops immediately.</p>
+<div class="box">
+<h2>Can I track progress live?</h2>
+<p>
+Yes. Every job includes a live status page with progress updates, estimated completion and delivery status.
+</p>
 </div>
 
-<div class="faq-item" id="precheck">
-<h3>Do you run real GPU timing prechecks?</h3>
-<p>Yes. Test frames are rendered on physical NVIDIA GPUs before confirmation to estimate runtime and recommend the correct execution profile.</p>
+<div class="box">
+<h2>What happens if rendering fails?</h2>
+<p>
+Technical platform-side failures are not billed.
+</p>
 </div>
 
-<div class="faq-item" id="hardware">
-<h3>What GPUs do you use?</h3>
-<p>All jobs currently run on dedicated NVIDIA RTX 5090 GPU nodes.</p>
+<div class="box">
+<h2>Where are GPUs hosted?</h2>
+<p>
+Infrastructure is operated in the European Union with privacy-aware workflows.
+</p>
 </div>
 
-<div class="faq-item" id="location">
-<h3>Where are your GPUs located?</h3>
-<p>All GPU infrastructure is hosted inside the European Union. Customers worldwide are supported.</p>
+<div class="box">
+<h2>When do I pay?</h2>
+<p>
+Payment is requested when completed output is ready for delivery, depending on workflow and job type.
+</p>
 </div>
 
-<div class="faq-item" id="progress">
-<h3>Can I monitor progress while rendering?</h3>
-<p>The live status dashboard shows frame progress, ETA, runtime and billing counters in real time.</p>
-</div>
+</main>
 
-<div class="faq-item" id="payment">
-<h3>When do I pay?</h3>
-<p>Payment is required before downloading completed results.</p>
-</div>
-
-<div class="faq-item" id="failures">
-<h3>What happens if rendering fails?</h3>
-<p>Failed jobs are never billed. Partial jobs are billed only for completed runtime with transparent reason codes.</p>
-</div>
-
-<div class="faq-item" id="retention">
-<h3>How long are files stored?</h3>
-<p>Uploads and outputs are stored temporarily and removed automatically after a retention period.</p>
-</div>
-
-<div class="faq-item" id="software">
-<h3>Which software is supported?</h3>
-<p>Blender using Cycles GPU rendering on NVIDIA hardware is currently supported.</p>
-</div>
-
-<div class="faq-item" id="contact">
-<h3>How can I contact support?</h3>
-<p>Email <strong>support@gpurenderstudio.com</strong>.</p>
-</div>
-
-</div>
-</section>
+<footer>
+<p>© GPU Render Studio</p>
+</footer>
 
 </body>
 </html>
