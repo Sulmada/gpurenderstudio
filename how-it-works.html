@@ -1,221 +1,204 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8"/>
+<title>How GPU Render Studio Works – Automated Blender GPU Rendering</title>
 
-<title>How GPU Render Studio Works — Automated Blender GPU Rendering</title>
+<meta name="description" content="Learn how GPU Render Studio works: upload your Blender file, choose price and speed, receive a real GPU estimate, track progress live and download the final render."/>
 
-<meta name="description"
-content="Learn how GPU Render Studio works: upload your Blender scene, run real GPU prechecks, choose slot pricing with overflow and CAP, track progress live, and download finished frames."/>
+<link rel="canonical" href="https://sulmada.github.io/gpurenderstudio/how-it-works.html"/>
 
-<link rel="canonical" href="https://gpurenderstudio.com/how-it-works.html">
-
-<meta property="og:title" content="How GPU Render Studio Works — Automated Blender GPU Rendering">
-<meta property="og:description" content="From upload to download: real GPU prechecks, slot pricing, overflow control, CAP enforcement and live rendering status.">
-<meta property="og:type" content="article">
-<meta property="og:url" content="https://gpurenderstudio.com/how-it-works.html">
-
-<meta name="twitter:card" content="summary_large_image">
-
-<!-- ORGANIZATION SCHEMA -->
-<script type="application/ld+json">
-{
-"@context":"https://schema.org",
-"@type":"Organization",
-"name":"GPU Render Studio",
-"url":"https://gpurenderstudio.com/",
-"description":"European automated GPU rendering service for Blender with transparent pricing and real GPU execution."
-}
-</script>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
 
 <style>
-body {
-  margin:0;
-  font-family:Arial,sans-serif;
-  background:#0b0b0b;
-  color:#e0e0e0;
+body{
+    font-family:system-ui;
+    background:#0b0f14;
+    color:#eaeef3;
+    margin:0;
 }
 
-section {
-  padding:120px 20px;
+main,header,footer{
+    max-width:1100px;
+    margin:auto;
+    padding:32px;
 }
 
-.content-box {
-  max-width:900px;
-  margin:auto;
-  background:rgba(20,20,20,0.65);
-  padding:40px 50px;
-  border-radius:14px;
-  border:1px solid rgba(255,255,255,0.04);
-  box-shadow:0 0 50px rgba(0,255,255,0.05);
+h1,h2,h3{
+    margin-top:0;
 }
 
-/* NAV */
-.topnav {
-  position:fixed;
-  top:0;
-  width:100%;
-  backdrop-filter:blur(10px);
-  background:rgba(15,15,15,0.45);
-  padding:12px 20px;
-  border-bottom:1px solid rgba(255,255,255,0.05);
-  z-index:99;
-  display:flex;
-  justify-content:center;
-  flex-wrap:wrap;
+a{
+    color:#6ab7ff;
+    text-decoration:none;
 }
 
-.topnav a {
-  margin:0 16px;
-  text-decoration:none;
-  color:#cceeee;
-  font-size:14px;
+a:hover{
+    text-decoration:underline;
 }
 
-.topnav a:hover {
-  color:#74ffff;
+.box{
+    background:#131a24;
+    border-radius:12px;
+    padding:22px;
+    margin:20px 0;
+    border:1px solid rgba(255,255,255,0.04);
 }
 
-.doc-section {
-  margin-bottom:46px;
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+    gap:18px;
 }
 
-.doc-section h2 {
-  color:#7ffcff;
+.step{
+    background:#131a24;
+    border-radius:12px;
+    padding:22px;
+    border:1px solid rgba(255,255,255,0.04);
 }
 
-ul,ol {
-  padding-left:22px;
+.step-number{
+    color:#baffff;
+    font-size:13px;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    margin-bottom:10px;
+}
+
+.step h3{
+    font-size:22px;
+    margin-bottom:10px;
+}
+
+.step p{
+    line-height:1.65;
+    opacity:0.92;
+}
+
+.intro{
+    opacity:0.78;
+    margin-top:10px;
+}
+
+.small{
+    font-size:14px;
+    opacity:0.72;
+}
+
+footer{
+    opacity:0.7;
+    font-size:14px;
 }
 </style>
 </head>
 
 <body>
 
-<!-- NAV -->
-<div class="topnav">
-  <a href="/#start">Home</a>
-  <a href="/how-it-works.html">How it Works</a>
-  <a href="/pricing-explained.html">Pricing</a>
-  <a href="/cap-model.html">CAP Model</a>
-  <a href="/eu-gpu-hosting.html">EU Hosting</a>
-  <a href="/faq.html">FAQ</a>
-  <a href="/#upload">Upload</a>
-</div>
+<header>
+<h1>How It Works</h1>
 
-<section>
-<div class="content-box">
-
-<h1>How GPU Render Studio Works</h1>
-
-<p>
-GPU Render Studio is a fully automated Blender GPU rendering pipeline.
-Every job follows the same deterministic flow — from upload,
-to real GPU prechecks, to controlled billing and final delivery.
+<p class="intro">
+From upload to delivery through a fast and automated GPU rendering workflow.
 </p>
 
-<!-- STEP 1 -->
-<div class="doc-section">
-<h2>1. Upload Your Scene</h2>
+<p>
+<a href="./">← Back to main site</a>
+</p>
+</header>
+
+<main>
+
+<section class="box">
+<h2>Simple Process</h2>
 
 <p>
-Upload your Blender project through the web interface.
-Files are encrypted in transit and staged inside isolated
-execution environments.
+GPU Render Studio is built to make Blender rendering simple:
+upload your project, choose your preferred speed, receive an estimate,
+and let the system handle the rest.
 </p>
-
-<ul>
-<li>Secure upload</li>
-<li>Temporary storage</li>
-<li>Automatic cleanup after retention period</li>
-</ul>
-</div>
-
-<!-- STEP 2 -->
-<div class="doc-section">
-<h2>2. Real GPU Precheck</h2>
-
-<p>
-Before committing to a full render, the system runs test frames on
-physical NVIDIA GPUs.
-This produces accurate runtime estimates and recommends the correct
-slot profile.
-</p>
-
-<ul>
-<li>Frame sampling on real hardware</li>
-<li>Cycles GPU execution</li>
-<li>Performance-based slot recommendation</li>
-</ul>
-</div>
-
-<!-- STEP 3 -->
-<div class="doc-section">
-<h2>3. Slot Selection & Cost Controls</h2>
-
-<p>
-You select a fixed slot package that guarantees base runtime.
-Overflow may optionally continue at the hourly rate.
-A CAP lets you limit extra spend after the slot window ends.
-</p>
-
-<ul>
-<li>Slot price always billed first</li>
-<li>Overflow opt-in only</li>
-<li>CAP limits overflow spend</li>
-<li>No CAP enforcement during slot window</li>
-</ul>
-</div>
-
-<!-- STEP 4 -->
-<div class="doc-section">
-<h2>4. Automated Rendering</h2>
-
-<p>
-Jobs run unattended on NVIDIA GPUs inside sandboxed workers.
-Live telemetry is streamed to the status page.
-</p>
-
-<ul>
-<li>Frame progress</li>
-<li>ETA calculation</li>
-<li>Billing counters</li>
-<li>Pause states explained</li>
-</ul>
-</div>
-
-<!-- STEP 5 -->
-<div class="doc-section">
-<h2>5. Payment, Delivery & Resume</h2>
-
-<p>
-Payment is required only before final download.
-If CAP is reached, the job pauses safely and can later be resumed
-by extending the limit.
-</p>
-
-<ul>
-<li>ZIP download bundles</li>
-<li>No billing for technical failures</li>
-<li>Resume supported</li>
-</ul>
-</div>
-
-<!-- RELATIONS -->
-<div class="doc-section">
-<h2>Related Guides</h2>
-
-<ul>
-<li><a href="/pricing-explained.html">Pricing Explained →</a></li>
-<li><a href="/cap-model.html">CAP Model →</a></li>
-<li><a href="/eu-gpu-hosting.html">EU Hosting →</a></li>
-<li><a href="/faq.html">FAQ →</a></li>
-</ul>
-</div>
-
-</div>
 </section>
+
+<section class="grid">
+
+<div class="step">
+<div class="step-number">Step 1</div>
+<h3>Upload Your File</h3>
+<p>
+Upload your finished Blender project securely through the website.
+</p>
+</div>
+
+<div class="step">
+<div class="step-number">Step 2</div>
+<h3>Choose Price & Speed</h3>
+<p>
+Select <strong>Budget</strong>, <strong>Standard</strong>,
+<strong>Fast</strong> or <strong>Express</strong>
+depending on cost and delivery priority.
+</p>
+</div>
+
+<div class="step">
+<div class="step-number">Step 3</div>
+<h3>Real GPU Precheck</h3>
+<p>
+Your project is analyzed using real rendering tests to estimate runtime
+and expected delivery time.
+</p>
+</div>
+
+<div class="step">
+<div class="step-number">Step 4</div>
+<h3>Rendering Begins</h3>
+<p>
+Your job runs on high-performance GPUs with automated scheduling
+and live progress updates.
+</p>
+</div>
+
+<div class="step">
+<div class="step-number">Step 5</div>
+<h3>Delivery</h3>
+<p>
+When complete, your output is ready for download.
+Depending on workflow, payment is requested before final delivery.
+</p>
+</div>
+
+</section>
+
+<section class="box">
+<h2>What Happens Behind the Scenes</h2>
+
+<p>
+The platform automatically manages GPU allocation, queue priority,
+progress monitoring and delivery handling so you can focus on your project.
+</p>
+
+<p class="small">
+You choose the result. The system handles the complexity.
+</p>
+</section>
+
+<section class="box">
+<h2>Why Creators Use GPU Render Studio</h2>
+
+<ul style="line-height:1.8; padding-left:18px;">
+<li>Faster rendering without buying expensive hardware</li>
+<li>Real estimates before long jobs begin</li>
+<li>Live status tracking</li>
+<li>Simple pricing options</li>
+<li>Designed for Blender workflows</li>
+</ul>
+
+</section>
+
+</main>
+
+<footer>
+<p>© GPU Render Studio</p>
+</footer>
 
 </body>
 </html>
