@@ -165,7 +165,7 @@ section {
     </video>
 
     <div class="hero-content">
-        <h1>Your Render Is Running</h1>
+        <h1>Your Render Status</h1>
         <p>Track progress, cost and delivery in real time.</p>
     </div>
 </div>
@@ -245,7 +245,8 @@ section {
 </section>
 
 <div class="footer">
-    GPU Render Studio – Automated rendering platform<br>
+    GPU Render Studio
+    Fast cloud rendering for Blender creators
     Sweden
 </div>
 
@@ -316,71 +317,76 @@ if (!jobToken) {
 jobIdEl.textContent = jobId;
 
 // ===============================
-// Phase 1 execution profiles (human metadata)
+// Public plan labels (customer facing)
 // ===============================
-const PHASE1_PROFILES = {
+const PLAN_LABELS = {
     STRICT: {
-        label: "Strict",
-        runtime: "1.5 hours",
-        price: "$0.50",
-        purpose: "For small or well-bounded scenes."
+        label: "Budget",
+        speed: "Flexible delivery",
+        purpose: "For non-urgent renders."
     },
     EXTENDED: {
-        label: "Extended",
-        runtime: "4 hours",
-        price: "$2.00",
-        purpose: "For larger or more complex scenes."
+        label: "Standard",
+        speed: "Balanced delivery",
+        purpose: "Best for most projects."
     },
     FLEXIBLE: {
-        label: "Flexible",
-        runtime: "8 hours",
-        price: "$4.00",
-        purpose: "For very long or unpredictable scenes."
+        label: "Fast",
+        speed: "Priority delivery",
+        purpose: "For tighter deadlines."
     },
     OPEN: {
-        label: "Open",
-        runtime: "12 hours",
-        price: "$5.00",
-        purpose: "For heavy or experimental workloads."
+        label: "Express",
+        speed: "Maximum priority",
+        purpose: "For urgent client work."
+    },
+    OPEN_FIXED_MAX: {
+        label: "Express",
+        speed: "Maximum priority",
+        purpose: "For urgent client work."
     }
 };
 
+function getPlanLabel(profile) {
+    return PLAN_LABELS[profile]?.label || profile || "Selected plan";
+}
+
 // ===============================
-// Status Copy (human friendly)
+// Status Copy (customer facing)
 // ===============================
 const STATUS_COPY = {
-    queued: "Waiting for an available GPU. Rendering will start automatically.",
-    running: "Rendering on GPU. Live progress updates below.",
-    success: "Rendering complete. Your files are ready.",
-    partial_success: "Time limit reached. Partial output is ready.",
-    paused_cap: "Paused because your spending limit was reached.",
+    queued: "Your job is waiting for available GPU capacity.",
+    running: "Your render is now running. Live progress updates are shown below.",
+    success: "Your render is complete and ready.",
+    partial_success: "Rendering stopped at the selected limit. Partial output is available.",
+    paused_cap: "Rendering paused at your selected spending limit.",
     failed: "The job could not be completed. No charge was applied."
 };
 
 const STOP_REASON_COPY = {
-    BUDGET: "Reached the selected profile limit.",
-    CAP: "Reached your spending limit.",
+    BUDGET: "Reached your selected plan limit.",
+    CAP: "Reached your selected spending limit.",
     FAILED: "Render failed.",
     USER_CANCEL: "Cancelled by user."
 };
 
 // ===============================
-// Phase 1 Reason Humanizer
+// Human readable failure reasons
 // ===============================
 const REASON_LABELS = {
-    PHASE1_PRESET_VIOLATION: "Phase 1 preset limits exceeded",
-    MEMORY_BUDGET_EXCEEDED: "Memory budget exceeded",
+    PHASE1_PRESET_VIOLATION: "Selected plan limits exceeded",
+    MEMORY_BUDGET_EXCEEDED: "Memory limit exceeded",
     UNSUPPORTED_VERSION: "Unsupported Blender version",
-    MISSING_ASSETS: "Missing assets",
+    MISSING_ASSETS: "Missing project assets",
     RENDER_FAILURE: "Render failed",
     UNKNOWN_FAILURE: "Unknown error"
 };
 
 const HUMAN_DETAILS = {
-    PHASE1_PRESET_VIOLATION: "The project exceeded the limits of the selected profile.",
-    MEMORY_BUDGET_EXCEEDED: "The project requires more memory than this profile allows.",
-    UNSUPPORTED_VERSION: "This Blender version is not supported in Phase 1.",
-    MISSING_ASSETS: "Some external files are missing (such as textures or linked resources).",
+    PHASE1_PRESET_VIOLATION: "The project exceeded the limits of the selected plan.",
+    MEMORY_BUDGET_EXCEEDED: "The project requires more memory than this plan allows.",
+    UNSUPPORTED_VERSION: "This Blender version is not currently supported.",
+    MISSING_ASSETS: "Some external files are missing, such as textures or linked resources.",
     RENDER_FAILURE: "The rendering process could not start or crashed.",
     UNKNOWN_FAILURE: "Something went wrong but could not be classified."
 };
@@ -408,7 +414,7 @@ function toHumanReason(job) {
 }
 
 // ===============================
-// Phase 1 Action Resolver (profile-aware)
+// Suggested upgrade path
 // ===============================
 function resolveSuggestedAction(job, humanReason) {
     const current = job.pricing_snapshot?.execution_profile;
@@ -433,8 +439,8 @@ function resolveSuggestedAction(job, humanReason) {
         type: "profile_upgrade",
         from: current,
         to: target,
-        reason: "The project exceeded the limits of the selected profile.",
-        meta: PHASE1_PROFILES[target] || null
+        reason: "This project would benefit from a higher priority plan.",
+        meta: PLAN_LABELS[target] || null
     };
 }
 
@@ -467,33 +473,40 @@ function renderSuggestionUpgrade(suggestion) {
 
     const desc = document.createElement("div");
     desc.style.marginTop = "6px";
-    desc.textContent = `Switch from ${suggestion.from} to ${suggestion.to} for higher limits.`;
+    desc.textContent =
+        "Choose a faster delivery option for higher priority and more suitable limits.";
     actionArea.appendChild(desc);
 
     const meta = suggestion.meta;
+
     if (meta) {
         const metaLine = document.createElement("div");
         metaLine.style.fontSize = "14px";
         metaLine.style.opacity = "0.85";
         metaLine.style.marginTop = "4px";
-        metaLine.textContent = `${meta.label}: ${meta.runtime}, ${meta.price}. ${meta.purpose}`;
+        metaLine.textContent =
+            `${meta.label}: ${meta.speed}. ${meta.purpose}`;
         actionArea.appendChild(metaLine);
     }
 
     const btn = document.createElement("button");
-    btn.textContent = `Select ${suggestion.to}`;
+    btn.textContent = "Start a new render with faster delivery";
     btn.className = "btn";
     btn.style.marginTop = "10px";
+
     btn.onclick = () => {
-        window.location.href = "https://gpurenderstudio.com/#upload?profile=" + suggestion.to;
+        window.location.href =
+            "https://gpurenderstudio.com/#upload?profile=" + suggestion.to;
     };
+
     actionArea.appendChild(btn);
 }
 
 // =======================================
-// POLLING WITH BACKOFF (Phase 1.3 safe)
+// Polling with backoff
 // =======================================
 const TERMINAL_STATUSES = ["success", "partial_success", "failed"];
+
 const POLL_INTERVALS = {
     queued: 8000,
     running: 3000,
@@ -508,44 +521,49 @@ function getDelayForStatus(status) {
 }
 
 async function fetchAndRenderOnce() {
-  const res = await fetch(
-    withAccessToken(API_BASE + "/api/status/" + encodeURIComponent(jobId))
-  );
+    const res = await fetch(
+        withAccessToken(
+            API_BASE + "/api/status/" + encodeURIComponent(jobId)
+        )
+    );
 
-  if (!res.ok) throw new Error("status-fetch-failed-" + res.status);
+    if (!res.ok) {
+        throw new Error("status-fetch-failed-" + res.status);
+    }
 
-  const job = await res.json();
-  renderJob(job);
-  return job;
+    const job = await res.json();
+    renderJob(job);
+    return job;
 }
 
 function withAccessToken(url) {
-  const sep = url.includes("?") ? "&" : "?";
-  return url + sep + "access_token=" + encodeURIComponent(jobToken);
+    const sep = url.includes("?") ? "&" : "?";
+    return url + sep + "access_token=" + encodeURIComponent(jobToken);
 }
 
 async function pollStatusLoop() {
-  try {
-    const job = await fetchAndRenderOnce();
+    try {
+        const job = await fetchAndRenderOnce();
 
-    const status = (job.status || "").toLowerCase();
-    if (TERMINAL_STATUSES.includes(status)) {
-      console.log("[STATUS] terminal state reached:", status);
-      return;
+        const status = (job.status || "").toLowerCase();
+
+        if (TERMINAL_STATUSES.includes(status)) {
+            console.log("[STATUS] terminal state reached:", status);
+            return;
+        }
+
+        currentDelay = getDelayForStatus(status);
+
+    } catch (err) {
+        console.warn("[STATUS] fetch error:", err);
+        currentDelay = Math.min(currentDelay * 1.5, 30000);
     }
 
-    currentDelay = getDelayForStatus(status);
-
-  } catch (err) {
-    console.warn("[STATUS] fetch error:", err);
-    currentDelay = Math.min(currentDelay * 1.5, 30000);
-  }
-
-  pollTimer = setTimeout(pollStatusLoop, currentDelay);
+    pollTimer = setTimeout(pollStatusLoop, currentDelay);
 }
 
 // =======================================
-// RENDER JOB → UI
+// Render Job -> UI
 // =======================================
 function renderJob(job) {
 
@@ -563,14 +581,57 @@ function renderJob(job) {
     progressPanel.style.display = "none";
 
     const status = (job.status || "").toLowerCase();
-    statusEl.textContent = status ? status.toUpperCase() : "UNKNOWN";
+
+    const STATUS_LABELS = {
+        queued: "Waiting for GPU Capacity",
+        running: "Rendering Now",
+        success: "Ready for Download",
+        partial_success: "Completed to Selected Limit",
+        paused_cap: "Reached Your Selected Limit",
+        failed: "Render Not Completed",
+        cancelled: "Cancelled"
+    };
+
+    statusEl.textContent =
+        STATUS_LABELS[status] || "Waiting for Update";
+
+    const currentProfile =
+        job.pricing_snapshot?.execution_profile || null;
+
+    const publicPlan = getPlanLabel(currentProfile);
+
+    const heroTitle = document.querySelector(".hero-content h1");
+    const heroText = document.querySelector(".hero-content p");
+
+    if (heroTitle) {
+        if (status === "running") {
+            heroTitle.textContent =
+                "Your " + publicPlan + " Render Is In Progress";
+        } else if (status === "queued") {
+            heroTitle.textContent =
+                "Your Render Is Waiting for GPU Capacity";
+        } else if (
+            status === "success" ||
+            status === "partial_success"
+        ) {
+            heroTitle.textContent = "Your Render Is Ready";
+        } else if (status === "failed") {
+            heroTitle.textContent = "Render Not Completed";
+        }
+    }
+
+    if (heroText) {
+        heroText.textContent =
+            STATUS_COPY[status] ||
+            "Track progress, cost and delivery in real time.";
+    }
 
     // ---------------------------------------
     // Common metadata
     // ---------------------------------------
-    const currentProfile = job.pricing_snapshot?.execution_profile || null;
+
     if (currentProfile) {
-        addLine("Current profile", currentProfile);
+        addLine("Selected plan", publicPlan);
     }
 
     const stopReason = job.stop_reason || null;
@@ -642,8 +703,7 @@ function renderJob(job) {
     // =======================================
     if (status === "success" || status === "partial_success") {
         statusEl.classList.add("status-success");
-        document.querySelector(".hero-content h1").textContent =
-            "Your Render Is Ready";
+
     // ---------------------------------------
     // SWITCH RIGHT PANEL: progress → preview
     // ---------------------------------------
@@ -839,7 +899,7 @@ window.download = function () {
   actionArea.appendChild(msg);
 
   triggerDownload(
-    buildDownloadUrl("/api/download/")
+    buildDownloadUrl("")
   );
 
   const againBtn = document.createElement("button");
@@ -865,9 +925,11 @@ window.downloadVideo = function () {
 // FRAMES (ZIP fallback)
 window.downloadFrames = function () {
   triggerDownload(
-    buildDownloadUrl("/api/download/")
+    buildDownloadUrl("")
   );
+
 };
+
 // ========================================
 // START
 // ========================================
