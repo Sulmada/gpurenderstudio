@@ -1,269 +1,259 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8" />
+  <title>GPU Render Pricing Explained | GPU Render Studio</title>
 
-<title>GPU Render Pricing Explained — Slots, Overflow & CAP</title>
+  <meta name="description" content="Understand GPU Render Studio pricing: choose between Budget, Standard, Fast or Express delivery, get real GPU-based estimates and track render jobs live." />
 
-<meta name="description"
-content="Detailed explanation of GPU Render Studio pricing: fixed execution slots, hourly overflow, CAP limits, paused jobs, resume flow and transparent Blender GPU rendering costs."/>
+  <link rel="canonical" href="https://sulmada.github.io/gpurenderstudio/pricing-explained.html" />
 
-<link rel="canonical" href="https://gpurenderstudio.com/pricing-explained.html">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-<meta property="og:title" content="GPU Render Pricing Explained — Slots, Overflow & CAP">
-<meta property="og:description" content="How GPU Render Studio pricing works: slot packages, overflow billing, CAP limits and paused jobs.">
-<meta property="og:type" content="article">
-<meta property="og:url" content="https://gpurenderstudio.com/pricing-explained.html">
+  <meta property="og:title" content="GPU Render Pricing Explained | GPU Render Studio" />
+  <meta property="og:description" content="Simple GPU render pricing with clear speed options, real estimates and transparent delivery." />
+  <meta property="og:url" content="https://sulmada.github.io/gpurenderstudio/pricing-explained.html" />
+  <meta property="og:type" content="article" />
 
-<meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:card" content="summary_large_image" />
 
-<!-- PRODUCT / OFFER SCHEMA -->
-<script type="application/ld+json">
-{
-"@context":"https://schema.org",
-"@type":"Product",
-"name":"GPU Render Studio",
-"description":"Slot-based GPU rendering service with overflow billing and CAP spending limits.",
-"brand":{
-  "@type":"Organization",
-  "name":"GPU Render Studio"
-},
-"offers":{
-  "@type":"AggregateOffer",
-  "priceCurrency":"USD",
-  "lowPrice":"0.50",
-  "highPrice":"5.00",
-  "offerCount":"4",
-  "availability":"https://schema.org/InStock"
-}
-}
-</script>
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"Product",
+    "name":"GPU Render Studio",
+    "description":"Automated Blender GPU rendering with clear price and speed options.",
+    "brand":{
+      "@type":"Organization",
+      "name":"GPU Render Studio"
+    },
+    "offers":{
+      "@type":"AggregateOffer",
+      "priceCurrency":"USD",
+      "lowPrice":"0.50",
+      "highPrice":"18.00",
+      "offerCount":"4",
+      "availability":"https://schema.org/InStock"
+    }
+  }
+  </script>
 
-<style>
-body {
-  margin:0;
-  font-family:Arial,sans-serif;
-  background:#0b0b0b;
-  color:#e0e0e0;
-}
+  <style>
+    body{
+      font-family:system-ui,Arial,sans-serif;
+      margin:0;
+      background:#0b0f14;
+      color:#eaeef3;
+    }
 
-section {
-  padding:120px 20px;
-}
+    header,main,footer{
+      max-width:1100px;
+      margin:auto;
+      padding:32px;
+    }
 
-.content-box {
-  max-width:900px;
-  margin:auto;
-  background:rgba(20,20,20,0.65);
-  padding:40px 50px;
-  border-radius:14px;
-  border:1px solid rgba(255,255,255,0.04);
-  box-shadow:0 0 50px rgba(0,255,255,0.05);
-}
+    h1,h2,h3{
+      color:#ffffff;
+      margin-top:0;
+    }
 
-/* NAV */
-.topnav {
-  position:fixed;
-  top:0;
-  width:100%;
-  backdrop-filter:blur(10px);
-  background:rgba(15,15,15,0.45);
-  padding:12px 20px;
-  border-bottom:1px solid rgba(255,255,255,0.05);
-  z-index:99;
-  display:flex;
-  justify-content:center;
-  flex-wrap:wrap;
-}
+    a{
+      color:#6ab7ff;
+      text-decoration:none;
+    }
 
-.topnav a {
-  margin:0 16px;
-  text-decoration:none;
-  color:#cceeee;
-  font-size:14px;
-}
+    a:hover{
+      text-decoration:underline;
+    }
 
-.topnav a:hover {
-  color:#74ffff;
-}
+    .box{
+      background:#131a24;
+      border-radius:12px;
+      padding:22px;
+      margin:20px 0;
+      border:1px solid rgba(255,255,255,0.04);
+    }
 
-.doc-section {
-  margin-bottom:40px;
-}
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+      gap:20px;
+    }
 
-.doc-section h2 {
-  color:#7ffcff;
-}
+    .tier{
+      background:#131a24;
+      border-radius:12px;
+      padding:22px;
+      border:1px solid rgba(255,255,255,0.04);
+    }
 
-.grid {
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-  gap:20px;
-}
+    .tier h3{
+      color:#baffff;
+      margin-bottom:8px;
+    }
 
-table {
-  width:100%;
-  border-collapse:collapse;
-}
+    .tier p{
+      line-height:1.65;
+      opacity:0.92;
+    }
 
-th, td {
-  padding:10px;
-  border-bottom:1px solid rgba(255,255,255,0.1);
-}
-</style>
+    .small{
+      font-size:14px;
+      opacity:0.72;
+    }
+
+    footer{
+      opacity:0.7;
+      font-size:14px;
+    }
+  </style>
 </head>
 
 <body>
 
-<!-- NAV -->
-<div class="topnav">
-  <a href="/#start">Home</a>
-  <a href="/how-it-works.html">How it Works</a>
-  <a href="/pricing-explained.html">Pricing</a>
-  <a href="/cap-model.html">CAP Model</a>
-  <a href="/eu-gpu-hosting.html">EU Hosting</a>
-  <a href="/faq.html">FAQ</a>
-  <a href="/#upload">Upload</a>
-</div>
+<header>
+  <h1>GPU Render Pricing Explained</h1>
+  <p>
+    Simple pricing built around delivery speed, real GPU estimates and transparent rendering workflows.
+  </p>
+  <p><a href="./">← Back to main site</a></p>
+</header>
 
-<section>
-<div class="content-box">
+<main>
 
-<h1>GPU Render Pricing Explained</h1>
+<section class="box">
+  <h2>How Pricing Works</h2>
+  <p>
+    GPU Render Studio uses a simple <strong>Price & Speed</strong> model.
+    You choose how quickly you want your project delivered, and the system adjusts
+    scheduling priority and resource allocation behind the scenes.
+  </p>
 
-<p>
-GPU Render Studio uses a deterministic pricing model for Blender GPU rendering:
-<strong>fixed execution slots</strong>, optional overflow runtime,
-and configurable CAP limits for predictable total cost.
-</p>
+  <ol>
+    <li>Upload your Blender project.</li>
+    <li>Choose Budget, Standard, Fast or Express.</li>
+    <li>Run a real GPU precheck to estimate delivery time.</li>
+    <li>Confirm your job before full rendering begins.</li>
+  </ol>
 
-<!-- HOW -->
-<div class="doc-section">
-<h2>How Pricing Works</h2>
-
-<ol>
-<li>Select a fixed execution slot.</li>
-<li>Optionally allow overflow runtime.</li>
-<li>Set a CAP limit for extra spending.</li>
-<li>Track runtime, billing and ETA in real time.</li>
-</ol>
-</div>
-
-<!-- SLOT TABLE -->
-<div class="doc-section">
-<h2>Slot Packages</h2>
-
-<table>
-<thead>
-<tr>
-<th>Slot</th>
-<th>Base Runtime</th>
-<th>Price</th>
-</tr>
-</thead>
-<tbody>
-<tr><td>Strict</td><td>Up to 1.5 hours</td><td>$0.50</td></tr>
-<tr><td>Extended</td><td>Up to 4 hours</td><td>$2.00</td></tr>
-<tr><td>Flexible</td><td>Up to 8 hours</td><td>$4.00</td></tr>
-<tr><td>Open</td><td>Up to 12 hours</td><td>$5.00</td></tr>
-</tbody>
-</table>
-
-<p>
-The base slot price is always billed first and guarantees execution
-for the selected runtime window.
-</p>
-</div>
-
-<!-- OVERFLOW -->
-<div class="doc-section">
-<h2>Overflow Billing</h2>
-
-<ul>
-<li>No overflow unless explicitly enabled.</li>
-<li>Billed only after slot runtime is consumed.</li>
-<li>Visible live in the status UI.</li>
-</ul>
-</div>
-
-<!-- CAP -->
-<div class="doc-section">
-<h2>CAP Spending Limits</h2>
-
-<p>
-CAP defines how much extra you allow to spend <strong>after</strong>
-the base slot price.
-It never replaces the slot and only applies to overflow runtime.
-</p>
-
-<p>
-<strong>Example:</strong><br>
-Flexible Slot: 8h / $4.00<br>
-CAP Extra: $4.50<br>
-→ Maximum total: $8.50<br>
-→ Runtime ≈ 12.5h
-</p>
-
-<ul>
-<li>CAP applies only to overflow.</li>
-<li>CAP never triggers inside the slot window.</li>
-<li>Jobs pause safely when CAP is reached.</li>
-</ul>
-</div>
-
-<!-- PAUSED -->
-<div class="doc-section">
-<h2>Paused Jobs & Resume</h2>
-
-<p>
-When CAP is reached, the job transitions to
-<strong>paused_cap</strong>.
-Rendered frames are preserved and billing is locked.
-</p>
-
-<p>
-Resume orchestration is planned for Phase 1.4.
-</p>
-</div>
-
-<!-- WHAT YOU PAY -->
-<div class="doc-section">
-<h2>What You Pay For</h2>
-
-<div class="grid">
-
-<div class="content-box">
-<h3>Real GPU Time</h3>
-<p>All billing reflects physical NVIDIA GPUs executing Blender scenes.</p>
-</div>
-
-<div class="content-box">
-<h3>Successful Frames</h3>
-<p>Technical failures are never billed.</p>
-</div>
-
-<div class="content-box">
-<h3>Audit Trail</h3>
-<p>Every job includes logs, timing data and billing breakdown.</p>
-</div>
-
-</div>
-</div>
-
-<!-- RELATED -->
-<div class="doc-section">
-<h2>Related Guides</h2>
-
-<ul>
-<li><a href="/cap-model.html">How CAP Works →</a></li>
-<li><a href="/faq.html">FAQ →</a></li>
-<li><a href="/how-it-works.html">How the Render Pipeline Works →</a></li>
-</ul>
-</div>
-
-</div>
+  <p class="small">
+    Final price and estimated delivery are confirmed after project analysis, not guessed in advance.
+  </p>
 </section>
+
+<section class="box">
+  <h2>Delivery Modes</h2>
+
+  <div class="grid">
+
+    <div class="tier">
+      <h3>Budget</h3>
+      <p>
+        Lowest price with more flexible delivery timing.
+        Best for non-urgent jobs where saving cost matters more than speed.
+      </p>
+    </div>
+
+    <div class="tier">
+      <h3>Standard</h3>
+      <p>
+        The balanced option for most Blender projects.
+        Combines predictable delivery with reasonable cost.
+      </p>
+    </div>
+
+    <div class="tier">
+      <h3>Fast</h3>
+      <p>
+        Higher priority for shorter delivery times.
+        A good fit when deadlines matter and you want quicker turnaround.
+      </p>
+    </div>
+
+    <div class="tier">
+      <h3>Express</h3>
+      <p>
+        Fastest available delivery for urgent deadlines.
+        Designed for projects that need top priority in the render queue.
+      </p>
+    </div>
+
+  </div>
+</section>
+
+<section class="box">
+  <h2>How Delivery Estimates Are Calculated</h2>
+  <p>
+    Delivery estimates are based on real GPU precheck analysis of your project.
+    This means timing is grounded in actual render behavior rather than rough assumptions.
+  </p>
+
+  <p>
+    Factors that affect timing include scene complexity, render settings, frame count
+    and the selected delivery mode.
+  </p>
+</section>
+
+<section class="box">
+  <h2>What You Pay For</h2>
+
+  <div class="grid">
+    <div class="tier">
+      <h3>Real GPU Rendering</h3>
+      <p>
+        Your Blender project runs on physical GPU hardware built for rendering workloads.
+      </p>
+    </div>
+
+    <div class="tier">
+      <h3>Live Tracking</h3>
+      <p>
+        Every job includes status tracking with progress visibility and estimated completion.
+      </p>
+    </div>
+
+    <div class="tier">
+      <h3>Transparent Workflow</h3>
+      <p>
+        You see the delivery mode, project estimate and result flow before committing.
+      </p>
+    </div>
+
+    <div class="tier">
+      <h3>Failure Protection</h3>
+      <p>
+        Technical rendering failures are not billed.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="box">
+  <h2>Before You Confirm</h2>
+  <p>
+    After upload, the system analyzes your project and presents the expected delivery setup.
+    This is where final confirmation happens before the full render job starts.
+  </p>
+
+  <p class="small">
+    In other words: upload first, analyze second, confirm with clearer information third.
+  </p>
+</section>
+
+<section class="box">
+  <h2>Related Guides</h2>
+  <ul>
+    <li><a href="faq.html">Full FAQ →</a></li>
+    <li><a href="how-it-works.html">How the Render Workflow Works →</a></li>
+    <li><a href="eu-gpu-hosting.html">EU GPU Hosting & Compliance →</a></li>
+  </ul>
+</section>
+
+</main>
+
+<footer>
+  <p>© GPU Render Studio</p>
+</footer>
 
 </body>
 </html>
