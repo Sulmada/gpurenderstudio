@@ -268,7 +268,10 @@
         }
 
         .hero-content h1 {
-            font-size: 50px;
+            font-size: 54px;
+            line-height: 1.08;
+            max-width: 920px;
+            margin: auto;
         }
 
         .hero-content p {
@@ -376,6 +379,25 @@
 
         .profile-row strong {
             color: #7ffcff;
+        }
+
+        /* PLAN SELECTION */
+        .plan-card {
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .plan-card > div {
+            transition: 0.2s ease;
+        }
+
+        .plan-card:hover > div {
+            background: rgba(0,255,255,0.04);
+        }
+
+        .plan-card.selected > div {
+            background: rgba(0,255,255,0.08);
+            box-shadow: inset 0 0 0 1px rgba(0,255,255,0.25);
         }
 
         @media (max-width: 760px) {
@@ -586,8 +608,9 @@
         ========================================================= */
         @media (max-width: 600px) {
             .hero-content h1 {
-                font-size: 32px;
-            }
+                font-size: 34px;
+                line-height: 1.12;
+            }     
             .hero-content p  {
                 font-size: 16px;
             }
@@ -789,22 +812,32 @@
 
     <!-- Content -->
     <div class="hero-content">
-        <h1 class="shimmer">Automated GPU Rendering — Fast, Predictable, Transparent</h1>
-        <p class="shimmer">
-            Upload a finished Blender project.
-            The system renders automatically — or explains exactly what needs fixing.
+
+        <h1 class="shimmer">
+            Render Blender Faster — Without Owning a GPU
+        </h1>
+
+        <p class="shimmer" style="max-width:760px;margin:auto;">
+            Upload your Blender scene, choose your price vs speed,
+            and let our RTX-powered system handle the rendering.
         </p>
-        <p style="font-size:14px;opacity:0.7;margin-top:10px;">
-            Fully unattended · No creative changes · Clear technical feedback
+
+        <p style="font-size:14px;opacity:0.72;margin-top:14px;">
+        Real GPU timing · Live progress tracking · Transparent pricing
         </p>
 
         <a href="#upload">
-            <button class="btn btn-primary">Upload Project</button>
+            <button class="btn btn-primary" id="heroMainBtn">
+                Start Render
+            </button>
         </a>
 
         <a href="#prices">
-            <button class="btn">View Pricing</button>
+            <button class="btn">
+                Compare Speed Options
+            </button>
         </a>
+
     </div>
 
 </div>
@@ -973,147 +1006,151 @@ document.addEventListener("DOMContentLoaded", () => {
 </div>
 
 <!-- ========================================================= -->
-<!--  PRICING – AUTOMATED RENDERING (LIVE)                    -->
+<!--  PRICING – INTERACTIVE PRICE VS SPEED MODEL              -->
 <!-- ========================================================= -->
 <section id="prices">
   <div class="content-box phase-box phase-1">
 
     <div
       class="phase-label"
-      data-tooltip="Fully automated GPU rendering with fixed pricing per job."
+      data-tooltip="Choose lower cost or faster delivery. Your final quote is confirmed before rendering starts."
     >
-      Live · Automated Rendering
+      Live · Price vs Speed
     </div>
 
-    <h2>Execution Profiles & Pricing</h2>
+    <h2>Choose Your Price vs Speed</h2>
 
-    <p style="font-size:13px; opacity:0.75; margin-bottom:14px;">
-      Choose a profile that matches the expected complexity of your scene.
-      Each profile reserves GPU capacity and includes a fixed base price per job.
+    <p style="font-size:14px; opacity:0.78; margin-bottom:14px;">
+      Select the option that best matches your budget and deadline.
+      Every plan uses the same professional RTX-powered render infrastructure.
     </p>
 
-    <p style="font-size:13px; opacity:0.75; margin-bottom:22px;">
-      Base price and runtime are locked at submission.
-      Jobs never exceed that price unless you explicitly enable overflow
-      or set a higher spending cap.
-      Failed jobs are never billed.
+    <p style="font-size:13px; opacity:0.72; margin-bottom:24px;">
+      You are choosing queue priority, scheduling speed and delivery target —
+      not weaker hardware.
     </p>
 
     <div class="profile-table">
 
-      <!-- Header -->
+      <!-- HEADER -->
       <div class="profile-row header">
-        <div class="col-profile">Profile</div>
-        <div class="col-runtime">Base runtime</div>
-        <div class="col-price">Price</div>
-        <div class="col-risk">Complexity</div>
+        <div>Option</div>
+        <div>Delivery Speed</div>
+        <div>Price Level</div>
+        <div>Best For</div>
       </div>
 
-      <!-- STRICT -->
-      <div class="profile-row">
-        <div class="col-profile">
-          <strong>Strict</strong>
-          <span class="profile-note">Fast, predictable jobs</span>
+      <!-- BUDGET -->
+      <div class="profile-row plan-card"
+           data-plan="budget"
+           onclick="setSelectedPlan('budget')">
+
+        <div>
+          <strong>Budget</strong><br>
+          <span style="font-size:12px;opacity:0.7;">Lowest cost</span>
         </div>
 
-        <div class="col-runtime">
-          Up to 1.5 hours
+        <div>
+          Flexible delivery window
         </div>
 
-        <div class="col-price">
-          $0.50
-          <div style="margin-top:6px; font-size:12px; color:#baffff;">
-            Launch offer: Strict profile testable free with voucher (limited period)
-          </div>
+        <div>
+          Lowest available price
         </div>
 
-        <div class="col-risk">
-          Low
-        </div>
-      </div>
-
-      <!-- EXTENDED -->
-      <div class="profile-row">
-        <div class="col-profile">
-          <strong>Extended</strong>
-          <span class="profile-note">Medium-complex scenes</span>
-        </div>
-
-        <div class="col-runtime">
-          Up to 4 hours
-        </div>
-
-        <div class="col-price">
-          $2.00
-        </div>
-
-        <div class="col-risk">
-          Medium
+        <div>
+          Non-urgent renders
         </div>
       </div>
 
-      <!-- FLEXIBLE -->
-      <div class="profile-row">
-        <div class="col-profile">
-          <strong>Flexible</strong>
-          <span class="profile-note">Heavy workloads</span>
+      <!-- STANDARD -->
+      <div class="profile-row plan-card selected"
+           data-plan="standard"
+           onclick="setSelectedPlan('standard')">
+
+        <div>
+          <strong>Standard</strong><br>
+          <span style="font-size:12px;opacity:0.7;">Most popular</span>
         </div>
 
-        <div class="col-runtime">
-          Up to 8 hours
+        <div>
+          Balanced turnaround
         </div>
 
-        <div class="col-price">
-          $4.00
+        <div>
+          Best value
         </div>
 
-        <div class="col-risk">
-          High
+        <div>
+          Most projects
         </div>
       </div>
 
-      <!-- OPEN -->
-      <div class="profile-row">
-        <div class="col-profile">
-          <strong>Open</strong>
-          <span class="profile-note">Maximum flexibility</span>
+      <!-- FAST -->
+      <div class="profile-row plan-card"
+           data-plan="fast"
+           onclick="setSelectedPlan('fast')">
+
+        <div>
+          <strong>Fast</strong><br>
+          <span style="font-size:12px;opacity:0.7;">Priority queue</span>
         </div>
 
-        <div class="col-runtime">
-          Up to 12 hours
+        <div>
+          Shorter ETA
         </div>
 
-        <div class="col-price">
-          $5.00
+        <div>
+          Premium
         </div>
 
-        <div class="col-risk">
-          Highest
+        <div>
+          Tight deadlines
+        </div>
+      </div>
+
+      <!-- EXPRESS -->
+      <div class="profile-row plan-card"
+           data-plan="express"
+           onclick="setSelectedPlan('express')">
+
+        <div>
+          <strong>Express</strong><br>
+          <span style="font-size:12px;opacity:0.7;">Maximum priority</span>
+        </div>
+
+        <div>
+          Fastest available delivery
+        </div>
+
+        <div>
+          Highest priority rate
+        </div>
+
+        <div>
+          Urgent client work
         </div>
       </div>
 
     </div>
 
-    <!-- Capacity Windows -->
-    <h3 style="font-size:15px; margin-top:30px;">
-      Dynamic Capacity Windows
-    </h3>
+    <!-- Bottom message -->
+    <div style="margin-top:26px; text-align:center;">
 
-    <p style="font-size:13px; opacity:0.7;">
-      During low system load, some jobs may be allowed to run beyond their base
-      runtime window at no additional cost.
-    </p>
+      <h3 style="font-size:15px; margin-bottom:12px;">
+        How It Works
+      </h3>
 
-    <p style="font-size:13px; opacity:0.7;">
-      These extensions are automatic, depend on real-time capacity,
-      and are never guaranteed — but they can occasionally save you a re-submission.
-    </p>
+      <p style="font-size:13px; opacity:0.72; max-width:760px; margin:auto;">
+        Faster plans receive earlier access to available GPU capacity.
+        Budget plans trade delivery speed for lower cost.
+      </p>
 
-    <p style="font-size:12px; opacity:0.6; margin-top:12px;">
-      Prices apply per completed job.
-      Failed jobs are not charged.
-      Each submission represents one execution attempt.
-    </p>
+      <p style="font-size:12px; opacity:0.58; margin-top:12px;">
+        Final timing and pricing are confirmed during GPU precheck before you commit.
+      </p>
+
+    </div>
 
   </div>
 </section>
@@ -1265,44 +1302,42 @@ document.addEventListener("DOMContentLoaded", () => {
 <section id="trust">
   <div class="content-box">
 
-    <h2>Trust & Reliability</h2>
+    <h2>Why GPU Render Studio</h2>
 
     <div class="trust-grid">
 
       <div class="trust-card">
-        <h3>Real GPU Execution</h3>
+        <h3>Real RTX Hardware</h3>
         <p>
-          All renders run on dedicated NVIDIA GPUs.
-          No virtualization tricks. No simulated benchmarks.
+          Your renders run on dedicated high-end NVIDIA GPUs.
+          No fake benchmarks or simulated capacity.
+          
         </p>
         <span class="trust-inline-badge">Physical GPUs · Measured Runtime</span>
       </div>
 
       <div class="trust-card">
-        <h3>Transparent Billing</h3>
+        <h3>Clear Pricing</h3>
         <p>
-          Fixed base pricing per execution slot.
-          Overflow only applies beyond that window.
-          CAP limits extra spend automatically.
+          You see price and estimated timing before rendering begins.
+          No hidden surprises.
         </p>
         <span class="trust-inline-badge">No hidden fees · Predictable cost</span>
       </div>
 
       <div class="trust-card">
-        <h3>EU-Hosted Infrastructure</h3>
+        <h3>EU-Based Infrastructure</h3>
         <p>
-          All systems operate inside the European Union,
-          supporting GDPR-aware production workflows.
+          All systems operate in Europe for fast delivery and privacy-aware workflows.
         </p>
         <span class="trust-inline-badge">EU Datacenters · GDPR aware</span>
       </div>
 
       <div class="trust-card">
-        <h3>Failure-Safe Execution</h3>
+        <h3>No Charge on Failure</h3>
         <p>
-          Failed jobs are never billed.
-          Partial jobs are charged only for completed runtime.
-          Every termination includes a technical reason code.
+          If technical rendering fails, you are not billed.
+          Simple and fair.
         </p>
         <span class="trust-inline-badge">No charge on failure · Full audit trail</span>
       </div>
@@ -1310,16 +1345,14 @@ document.addEventListener("DOMContentLoaded", () => {
     </div>
 
     <ul class="trust-list">
-      <li>Real GPU timing prechecks before confirmation</li>
-      <li>Live status dashboard with ETA and billing counters</li>
-      <li>Automatic cleanup and retention policies</li>
-      <li>Admin-verified job execution logs</li>
-    </ul>
+          <li>Real GPU timing checks before confirmation</li>
+          <li>Live status page with progress and ETA</li>
+          <li>Secure file handling and automatic cleanup</li>
+          <li>Designed for finished Blender projects</li>
+          </ul>
 
     <div class="trust-footnote">
-      GPU Render Studio is a fully automated system.
-      No creative changes are performed on uploaded projects.
-      All execution follows published contract rules.
+      Built for creators who need rendering power without owning expensive hardware.
     </div>
 
   </div>
@@ -1385,11 +1418,12 @@ Technical failures are not billed.
     <h2>Upload Project</h2>
 
     <form id="uploadForm" enctype="multipart/form-data">
-      <input type="hidden" name="project_type" value="blender">
+                <input type="hidden" name="project_type" value="blender">
+                <input type="hidden" id="selected_plan" name="selected_plan" value="standard">
 
-      <input class="input-field" name="name" placeholder="Your name" required>
-      <input class="input-field" name="email" placeholder="Email address" required>
-      <input class="input-field" name="description" placeholder="Project description" required>
+                <input class="input-field" name="name" placeholder="Your name" required>
+                <input class="input-field" name="email" placeholder="Email address" required>
+                <input class="input-field" name="description" placeholder="Project description" required>
 
       <input class="input-field" name="fileUrl" placeholder="URL to project files (optional)">
 
@@ -1474,9 +1508,35 @@ let CURRENT_JOB_ID = null;
 let CURRENT_PRECHECK = null;
 
 let CONFIRM_IN_FLIGHT = false;
+let SELECTED_PLAN = "standard";
 
 function safeNum(x) {
   return typeof x === "number" && isFinite(x) ? x : null;
+}
+
+function setSelectedPlan(plan) {
+  SELECTED_PLAN = plan;
+
+  const hidden = document.getElementById("selected_plan");
+  if (hidden) hidden.value = plan;
+
+  const btn = document.getElementById("heroMainBtn");
+  if (btn) {
+    const names = {
+      budget: "Start Budget Render",
+      standard: "Start Standard Render",
+      fast: "Start Fast Render",
+      express: "Start Express Render"
+    };
+    btn.textContent = names[plan] || "Start Render";
+  }
+
+  document.querySelectorAll(".plan-card").forEach(card => {
+    card.classList.remove("selected");
+  });
+
+  const active = document.querySelector(`[data-plan="${plan}"]`);
+  if (active) active.classList.add("selected");
 }
 
 /* =========================================================
@@ -2509,6 +2569,9 @@ if (myJobsList) {
 })();
 
 document.addEventListener("DOMContentLoaded", async () => {
+  
+  setSelectedPlan("standard");
+
   const accountToken = localStorage.getItem("account_token");
 
   if (!accountToken) return;
@@ -2549,8 +2612,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 });
 
+
 </script>
 
 </body>
 </html>
-
