@@ -6,71 +6,73 @@
     <title>GPU Render Studio — Automated Blender GPU Rendering</title>
 
     <!-- SEO + LLM STRUCTURED DATA -->
-    <meta name="description" content="Automated GPU rendering for Blender. Upload your scene, run real GPU prechecks, choose fixed pricing slots, control overflow with CAP, and download finished frames — fully unattended.">
-
+    <meta name="description"
+    content="Professional Blender GPU rendering. Upload your scene, choose price vs speed, get fast delivery on RTX GPUs.">  
     <meta name="keywords" content="GPU rendering, Blender render farm, automated rendering, Cycles GPU, cloud rendering, NVIDIA GPU render, batch rendering">
 
     <link rel="canonical" href="https://gpurenderstudio.com/">
 
     
-<!-- Preload hero images -->
-    <link rel="preload" as="image" href="assets/images/hero_poster_desktop.jpg">
-    <link rel="preload" as="image" href="assets/images/hero_poster_mobile.jpg">
-    <link rel="preload" as="video" href="assets/images/hero_video_desktop.mp4">
-    <link rel="preload" as="video" href="assets/images/hero_video_mobile.mp4">
+<!-- Preload hero assets -->
+<link rel="preload" as="image" href="assets/images/hero_poster_desktop.jpg">
+<link rel="preload" as="image" href="assets/images/hero_poster_mobile.jpg">
+<link rel="preload" as="video" href="assets/video/loop_desktop_v9.webm">
+<link rel="preload" as="video" href="assets/video/loop_mobile_v9.webm">
 
-    <meta property="og:title" content="GPU Render Studio — Automated GPU Rendering">
-    <meta property="og:description" content="Upload Blender scenes, get real GPU timing, fixed slot pricing, overflow control, and instant downloads.">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://gpurenderstudio.com/">
-    <meta property="og:image" content="https://gpurenderstudio.com/assets/images/hero_poster_desktop.jpg">
+<!-- Open Graph -->
+<meta property="og:title" content="GPU Render Studio — Blender GPU Rendering">
+<meta property="og:description" content="Upload your Blender project, choose price vs speed, and get fast rendering on RTX GPUs.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://gpurenderstudio.com/">
+<meta property="og:image" content="https://gpurenderstudio.com/assets/images/hero_poster_desktop.jpg">
 
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="GPU Render Studio — Automated GPU Rendering">
-    <meta name="twitter:description" content="Real GPU prechecks, fixed pricing slots, overflow CAP, and automated Blender rendering.">
-    <meta name="twitter:image" content="https://gpurenderstudio.com/assets/images/hero_poster_desktop.jpg">
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="GPU Render Studio — Blender GPU Rendering">
+<meta name="twitter:description" content="Professional Blender GPU rendering with clear pricing and fast delivery.">
+<meta name="twitter:image" content="https://gpurenderstudio.com/assets/images/hero_poster_desktop.jpg">
 
-    <!-- FAQ STRUCTURED DATA -->
-    <script type="application/ld+json">
+<!-- FAQ STRUCTURED DATA -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
     {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      "mainEntity": [
-        {
-          "@type": "Question",
-          "name": "How does GPU Render Studio pricing work?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Pricing uses fixed execution slots, optional overflow runtime, and CAP limits extra spend only. Slot price always covers base runtime."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "What is CAP in GPU Render Studio?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "CAP limits overflow spending above the base slot price and never stops a job during the base slot window."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Do you run real GPU timing prechecks?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Yes. We render test frames on real NVIDIA GPUs to estimate runtime and recommend the correct execution profile."
-          }
-        }
-      ]
+      "@type": "Question",
+      "name": "How does pricing work?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Choose between Budget, Standard, Fast or Express depending on your preferred price and delivery speed. Final pricing is confirmed before rendering begins."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do you run real GPU prechecks?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. We run real GPU timing checks to estimate render duration and recommend the best plan before you commit."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What happens if rendering fails?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Technical rendering failures are not billed."
+      }
     }
-    </script>
+  ]
+}
+</script>
 
 <!-- PRODUCT + PRICING STRUCTURED DATA -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "Product",
-  "name": "GPU Render Studio – Automated Blender Rendering",
-  "description": "Automated GPU rendering platform for Blender with real GPU prechecks, fixed execution slots, overflow control and spending CAP.",
+  "name": "GPU Render Studio - Blender GPU Rendering",
+  "description": "Professional Blender GPU rendering with RTX hardware, clear pricing and fast delivery.",
   "brand": {
     "@type": "Brand",
     "name": "GPU Render Studio"
@@ -81,41 +83,41 @@
   "offers": [
     {
       "@type": "Offer",
-      "name": "Strict Slot",
+      "name": "Budget",
       "price": "0.50",
       "priceCurrency": "USD",
       "availability": "https://schema.org/InStock",
-      "description": "Up to 1.5 hours GPU runtime. Fixed price automated render."
+      "description": "Lowest price with flexible delivery timing."
     },
     {
       "@type": "Offer",
-      "name": "Extended Slot",
+      "name": "Standard",
       "price": "2.00",
       "priceCurrency": "USD",
       "availability": "https://schema.org/InStock",
-      "description": "Up to 4 hours GPU runtime. Fixed price automated render."
+      "description": "Balanced speed and value for most Blender projects."
     },
     {
       "@type": "Offer",
-      "name": "Flexible Slot",
+      "name": "Fast",
       "price": "4.00",
       "priceCurrency": "USD",
       "availability": "https://schema.org/InStock",
-      "description": "Up to 8 hours GPU runtime. Heavy scenes supported."
+      "description": "Priority queue handling for tighter deadlines."
     },
     {
       "@type": "Offer",
-      "name": "Open Slot",
+      "name": "Express",
       "price": "5.00",
       "priceCurrency": "USD",
       "availability": "https://schema.org/InStock",
-      "description": "Up to 12 hours GPU runtime. Maximum flexibility."
+      "description": "Highest priority and fastest available turnaround."
     }
   ]
 }
 </script>
 
-<!-- ORGANIZATION / BRAND STRUCTURED DATA -->
+<!-- ORGANIZATION STRUCTURED DATA -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -123,7 +125,7 @@
   "name": "GPU Render Studio",
   "url": "https://gpurenderstudio.com/",
   "logo": "https://gpurenderstudio.com/assets/images/logo.png",
-  "description": "European automated GPU rendering service for Blender with fixed pricing, overflow control and transparent billing.",
+  "description": "European Blender GPU rendering service with RTX hardware, transparent pricing and automated delivery.",
   "areaServed": {
     "@type": "AdministrativeArea",
     "name": "European Union"
@@ -135,7 +137,6 @@
   }
 }
 </script>
-
 
     <style>
 
@@ -764,24 +765,21 @@
 <!--  NAVIGATION BAR                                           -->
 <!-- ========================================================= -->
 <div class="topnav">
+
     <a href="/#start">Home</a>
 
     <a href="/how-it-works.html">How it Works</a>
 
     <a href="/pricing-explained.html">Pricing</a>
-    <a href="/cap-model.html">CAP Model</a>
-
-    <a href="/#express">Express</a>
-    <a href="/#premium">Premium</a>
-
-    <a href="/eu-gpu-hosting.html">EU Hosting</a>
 
     <a href="/#trust">Trust</a>
+
     <a href="/#upload">Upload</a>
 
     <a href="/faq.html">FAQ</a>
 
     <a href="/#contact">Contact</a>
+
 </div>
 
 <!-- ========================================================= -->
@@ -828,13 +826,13 @@
 
         <a href="#upload">
             <button class="btn btn-primary" id="heroMainBtn">
-                Start Render
+                Upload Project
             </button>
         </a>
 
         <a href="#prices">
             <button class="btn">
-                Compare Speed Options
+                Compare Plans
             </button>
         </a>
 
@@ -992,7 +990,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <ul>
             <li>Upload a finished Blender project ready for final rendering</li>
             <li>Automatic validation, GPU allocation, and execution</li>
-            <li>Download your completed frames — or receive precise technical feedback</li>
+            <li>Download your completed frames — or receive clear error report if adjustments are needed</li>
             <li>
                 The system runs fully unattended.
                 If a project exceeds limits, you get clear instructions on what to adjust.
@@ -1156,147 +1154,6 @@ document.addEventListener("DOMContentLoaded", () => {
 </section>
 
 <!-- ========================================================= -->
-<!--  Assisted Studio — Express Rendering                           -->
-<!-- ========================================================= -->
-<section id="express">
-    <div class="content-box phase-box phase-disabled">
-        <div class="phase-label"
-             data-tooltip="Adds manual validation, priority queues and delivery guarantees.">
-            Assisted Studio · Coming Soon
-        </div>
-
-        <h2>Express Rendering</h2>
-
-        <p><strong>Not part of the automated tier</strong></p>
-        <p>
-            Express Rendering introduces priority queues, human validation
-            and delivery guarantees through our Assisted Studio workflow.
-        </p>
-        <p style="font-size:13px;opacity:0.7;">
-            Ideal for deadline-critical projects and commercial delivery.
-        </p>
-    </div>
-</section>
-
-<div class="image-section"
-     style="background-image:url('assets/images/speedburst.jpg');">
-</div>
-
-<!-- ========================================================= -->
-<!--  PREMIUM STUDIO – PLANNED                                -->
-<!-- ========================================================= -->
-<section id="premium">
-    <div class="content-box phase-box phase-disabled phase-3">
-        <div class="phase-label"
-             data-tooltip="Full studio services with creative input and delivery guarantees.">
-            Premium Studio · Planned
-        </div>
-
-        <h2>Premium Studio</h2>
-        <p>
-            A future studio-grade service with creative collaboration,
-            scene optimization and deadline-based delivery.
-        </p>
-        <p style="font-size:13px;opacity:0.6;">
-            Currently in planning.
-        </p>
-    </div>
-</section>
-
-
-<!-- ========================================================= -->
-<!--  SYSTEM CAPACITY WINDOW (TIME-BASED, NOT PRICE-BASED)     -->
-<!-- ========================================================= -->
-<div class="pricing-window">
-  <div class="pricing-status-bar"></div>
-  <div class="pricing-icon">⇄</div>
-  <h3 id="pricing-title"></h3>
-  <p id="pricing-capacity"></p>
-</div>
-
-<script>
-(function capacityStatusPoll() {
-
-  var API_BASE = location.hostname === "localhost"
-    ? "http://localhost:3001"
-    : "https://api.gpurenderstudio.com";
-
-  var titleEl = document.getElementById("pricing-title");
-  var capacityEl = document.getElementById("pricing-capacity");
-  var barEl = document.querySelector(".pricing-status-bar");
-
-  window.__CURRENT_TIME_MULTIPLIER = 1;
-
-  var STATE_LABELS = {
-    IDLE: "Plenty of capacity",
-    LIGHT: "Low system load",
-    NORMAL: "Normal availability",
-    BUSY: "High demand",
-    SATURATED: "Fully booked"
-  };
-
-  async function updateCapacity() {
-    try {
-      var res = await fetch(API_BASE + "/api/pricing/status");
-      if (!res.ok) return;
-
-      var data = await res.json();
-      var state = data.state;
-      var multiplier = data.time_multiplier;
-
-      if (typeof multiplier !== "number" || !isFinite(multiplier)) {
-        multiplier = 1;
-      }
-      if (multiplier < 0.5) multiplier = 0.5;
-      if (multiplier > 2.0) multiplier = 2.0;
-
-      var rounded = Math.round(multiplier * 1000) / 1000;
-      window.__CURRENT_TIME_MULTIPLIER = rounded;
-
-      if (titleEl) {
-        if (state === "SATURATED") {
-          titleEl.textContent = "System Capacity: Temporarily unavailable";
-        } else {
-          titleEl.textContent = "System Capacity: " + (STATE_LABELS[state] || "Unknown");
-        }
-      }
-
-      if (capacityEl) {
-        if (state === "SATURATED") {
-          capacityEl.textContent = "No execution capacity available at the moment";
-        } else {
-          capacityEl.textContent = "Render time window: " + Math.round(rounded * 100) + "% of base runtime";
-        }
-      }
-
-      var uploadSection = document.getElementById("upload");
-      if (uploadSection) {
-        if (state === "SATURATED") {
-          uploadSection.style.opacity = "0.4";
-          uploadSection.style.pointerEvents = "none";
-        } else {
-          uploadSection.style.opacity = "1";
-          uploadSection.style.pointerEvents = "auto";
-        }
-      }
-
-      if (barEl) {
-        barEl.style.opacity = state === "SATURATED" ? "0.25" : "1";
-      }
-
-    } catch (_) {
-    }
-  }
-
-  (async function initCapacity() {
-    await updateCapacity();
-    setInterval(updateCapacity, 120000);
-  })();
-
-})();
-</script>
-
-<!-- ========================================================= -->
 <!--  TRUST & RELIABILITY                                     -->
 <!-- ========================================================= -->
 <section id="trust">
@@ -1307,11 +1164,10 @@ document.addEventListener("DOMContentLoaded", () => {
     <div class="trust-grid">
 
       <div class="trust-card">
-        <h3>Real RTX Hardware</h3>
+        <h3>RTX 5090 Powered</h3>
         <p>
-          Your renders run on dedicated high-end NVIDIA GPUs.
-          No fake benchmarks or simulated capacity.
-          
+          Your renders run on dedicated high-end NVIDIA RTX 5090 GPUs,
+          optimized for fast Blender rendering and real production workloads.
         </p>
         <span class="trust-inline-badge">Physical GPUs · Measured Runtime</span>
       </div>
@@ -1442,7 +1298,7 @@ Technical failures are not billed.
         Start Automated Render
       </button>
       <div style="margin-top:10px;font-size:13px;opacity:0.85;color:#baffff;text-align:center;">
-                    Launch offer: Strict profile currently testable free with voucher.
+                    Launch offer: Budget plan currently available free with voucher..
                 </div>
     </form>
 
