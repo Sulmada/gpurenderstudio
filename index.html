@@ -1220,42 +1220,41 @@ document.addEventListener("DOMContentLoaded", () => {
 </section>
 
 <!-- ========================================================= -->
-<!--  FAQ — SEO / LLM OPTIMIZED                                -->
+<!--  FAQ — SEO / CUSTOMER FRIENDLY                            -->
 <!-- ========================================================= -->
 <section id="faq">
 <div class="content-box">
 
-<h2>Frequently Asked Questions</h2>
+<h2>Questions Before You Upload?</h2>
 
 <div class="faq-item">
 <h3>How does pricing work?</h3>
 <p>
-Slot packages include guaranteed runtime. Overflow is optional.
-CAP limits extra spend.
+Choose between Budget, Standard, Fast or Express depending on your preferred price and delivery speed. Final pricing is confirmed before rendering begins.
 <a href="pricing-explained.html">Full pricing details →</a>
 </p>
 </div>
 
 <div class="faq-item">
-<h3>What is CAP?</h3>
+<h3>How fast can my render be completed?</h3>
 <p>
-CAP limits overflow spending after the slot window.
-<a href="cap-model.html">CAP explained →</a>
+Delivery time depends on scene complexity, selected plan and current queue load. Fast and Express plans receive higher priority.
+<a href="how-it-works.html">How delivery works →</a>
 </p>
 </div>
 
 <div class="faq-item">
 <h3>Where are GPUs hosted?</h3>
 <p>
-All infrastructure is located in the EU.
+All infrastructure is operated in Europe for fast delivery and privacy-aware workflows.
 <a href="eu-gpu-hosting.html">Read more →</a>
 </p>
 </div>
 
 <div class="faq-item">
-<h3>How does the render pipeline work?</h3>
+<h3>How does the process work?</h3>
 <p>
-Upload, GPU precheck, slot selection, rendering and download.
+Upload your Blender project, receive a real GPU timing precheck, confirm your plan, and download the completed render when finished.
 <a href="how-it-works.html">Full pipeline →</a>
 </p>
 </div>
@@ -1263,7 +1262,7 @@ Upload, GPU precheck, slot selection, rendering and download.
 <div class="faq-item">
 <h3>What happens if rendering fails?</h3>
 <p>
-Technical failures are not billed.
+If rendering fails due to technical issues on our side, you are not charged.
 <a href="faq.html">See all FAQs →</a>
 </p>
 </div>
@@ -1871,9 +1870,18 @@ form.addEventListener("submit", async (e) => {
     resultBox.textContent = "Network error.";
   }
 });
+
 /* =========================================================
    SLOT + CAP UI
 ========================================================= */
+
+function publicName(name) {
+  if (name === "STRICT") return "Budget";
+  if (name === "EXTENDED") return "Standard";
+  if (name === "FLEXIBLE") return "Fast";
+  if (name === "OPEN_FIXED_MAX") return "Express";
+  return name;
+}
 
 function renderSlotChooser(precheck) {
 
@@ -1918,7 +1926,6 @@ function renderSlotChooser(precheck) {
   function getSlotInfo(slotName) {
     return slotAnalysis.find(s => s.slot === slotName);
   }
-
   function slotLimit(info) {
     return safeNum(
       info?.base_hours_limit ??
@@ -1964,7 +1971,7 @@ function renderSlotChooser(precheck) {
          value="${s.slot}"
          ${checked ? "checked" : ""}>
   <span style="font-weight:600;">
-    ${s.slot === "OPEN_FIXED_MAX" ? "OPEN" : s.slot}
+    ${publicName(s.slot)}
   </span>
   ${slotStatus(s.slot)}
   <span style="opacity:0.7;font-size:12px;margin-left:8px;">
@@ -1975,10 +1982,10 @@ function renderSlotChooser(precheck) {
   }).join("");
 
   resultBox.innerHTML = `
-<h3>Select execution profile</h3>
+<h3>Choose price vs speed</h3>
 
 <p style="font-size:13px;opacity:0.8;">
-Recommended profile: <strong>${recommended}${overflowRequired ? " + OVERFLOW" : ""}</strong>
+Recommended plan: <strong>${publicName(recommended)}${overflowRequired ? " + OVERFLOW" : ""}</strong>
 </p>
 
 <p>
@@ -1988,7 +1995,7 @@ Estimated render time:
 
 ${worstText ? `
 <p style="font-size:12px;opacity:0.7;margin-top:-6px;">
-Worst case: ${worstText}
+Delivery estimate: ${worstText}
 </p>
 ` : ""}
 
@@ -1998,7 +2005,8 @@ Standard slots are limited to 12h.
 </p>
 
 <p style="color:#ffb36b;font-weight:600;margin-top:-6px;">
-This job will require overflow runtime.
+Extended runtime may be needed for larger projects.
+Allow flexible completion window.
 </p>
 ` : ""}
 
@@ -2010,7 +2018,7 @@ This job will require overflow runtime.
    style="font-size:12px;opacity:0.7;">
 </p>
 
-<h4 style="margin-top:14px;">Execution profile</h4>
+<h4 style="margin-top:14px;">Plans</h4>
 ${slotHtml}
 
 <div style="margin-top:16px; max-width:420px;">
@@ -2036,13 +2044,13 @@ ${slotHtml}
   </div>
 
   <div style="font-size:12px;opacity:0.6;margin-top:4px;">
-    Strict profile may be testable free with valid voucher.
+    Budget plan may be available free with a valid voucher.
   </div>
 </div>
 
 <label style="margin-top:10px;display:block;">
   <input type="checkbox" id="overflowToggle">
-  Allow overflow if capacity is available
+  Allow flexible completion window
 </label>
 
 <div id="capBlock" style="margin-top:12px;display:none;">
@@ -2066,7 +2074,7 @@ ${slotHtml}
   <button class="btn btn-primary"
           id="confirmBtn"
           type="button">
-    Confirm & Start
+    Confirm Render
   </button>
 
   <div style="margin-top:8px;font-size:12px;opacity:0.75;">
@@ -2378,7 +2386,7 @@ function unlockConfirmUI() {
 
   if (btn) {
     btn.disabled = false;
-    btn.textContent = "Confirm & Start";
+    btn.textContent = "Confirm Render";
   }
 }
 if (myJobsList) {
