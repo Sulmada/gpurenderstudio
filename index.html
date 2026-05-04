@@ -1818,20 +1818,24 @@ form.addEventListener("submit", async (e) => {
     }
 
     // --------------------------------------------------
-    // 4. Duplicate info
+    // 4. Duplicate info (Phase 2 – non-blocking)
     // --------------------------------------------------
-    if (uploadData.active_jobs_notice?.already_has_active_jobs) {
-      myJobsNotice.textContent =
-        "You already have active jobs running (" +
-        uploadData.active_jobs_notice.count +
-        ").";
 
-      confirmStatus.textContent =
-        "You already have " +
-        uploadData.active_jobs_notice.count +
-        " active job(s) running or queued.";
+    if (uploadData.active_jobs_notice?.already_has_active_jobs) {
+        console.warn(
+            "Legacy active_jobs_notice ignored in Phase 2",
+            uploadData.active_jobs_notice
+        );
+
+        // Visa info men blockera inte
+        myJobsNotice.textContent =
+            "Note: Legacy job tracking detected (" +
+            uploadData.active_jobs_notice.count +
+            "), but ignored in Phase 2.";
+
+        confirmStatus.textContent = "";
     } else {
-      confirmStatus.textContent = "";
+        confirmStatus.textContent = "";
     }
 
     resultBox.textContent = "Upload successful. Preparing job...";
