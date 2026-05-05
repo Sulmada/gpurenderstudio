@@ -545,7 +545,12 @@ async function pollStatusLoop() {
     try {
         const job = await fetchAndRenderOnce();
 
-        const status = (job.status || "").toLowerCase();
+        let status = (job.status || "").toLowerCase();
+
+        // Phase 2 override: if job is claimed → it's running
+        if (job.claimed_by && !job.completed_at && !job.failed_at) {
+            status = "running";
+        }
 
         if (TERMINAL_STATUSES.includes(status)) {
             console.log("[STATUS] terminal state reached:", status);
