@@ -590,7 +590,12 @@ function renderJob(job) {
     dynamicInfo.innerHTML = "";
     progressPanel.style.display = "none";
 
-    const status = (job.status || "").toLowerCase();
+    let status = (job.status || "").toLowerCase();
+
+    // 🔥 Phase 2 override
+    if (job.claimed_by && !job.completed_at && !job.failed_at) {
+        status = "running";
+    }
 
     const STATUS_LABELS = {
         queued: "Waiting for GPU Capacity",
