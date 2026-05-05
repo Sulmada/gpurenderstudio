@@ -545,6 +545,8 @@ async function pollStatusLoop() {
     try {
         const job = await fetchAndRenderOnce();
 
+        console.log("DEBUG STATUS:", job);
+
         let status = (job.status || "").toLowerCase();
 
         // Phase 2 override: if job is claimed → it's running
