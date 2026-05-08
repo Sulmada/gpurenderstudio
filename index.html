@@ -1644,7 +1644,7 @@ return (
   "</div>" +
   "</div>" +
   '<div class="job-meta">Created: ' +
-  escapeHtml(new Date(job.created_at).toLocaleString()) +
+  escapeHtml(formatDateTime(job.timestamps?.created)) +
   "</div>" +
   queueLine +
   progressLine +
