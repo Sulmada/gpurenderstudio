@@ -1421,6 +1421,52 @@ function setSelectedPlan(plan) {
   if (active) active.classList.add("selected");
 }
 
+async function runPrecheckWithRetry(jobId, resultBox) {
+
+  while (true) {
+
+    resultBox.textContent =
+      "Running GPU timing precheck...";
+
+    const precheckRes = await fetch(
+      API_BASE + "/api/contracts/precheck/real",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          job_id: jobId
+        })
+      }
+    );
+
+    // -----------------------------------------
+    // GPU timing slot busy
+    // -----------------------------------------
+    if (precheckRes.status === 423) {
+
+      let busyData = null;
+
+      try {
+        busyData = await precheckRes.json();
+      } catch (_) {}
+
+      const retryMs =
+        busyData?.retry_after_ms || 3000;
+
+      resultBox.textContent =
+        "GPU timing system busy. Waiting for available GPU slot...";
+
+      await new Promise(r => setTimeout(r, retryMs));
+
+      continue;
+    }
+
+    return precheckRes;
+  }
+}
+
 /* =========================================================
    UPLOAD + PRECHECK
 ========================================================= */
@@ -1863,11 +1909,11 @@ form.addEventListener("submit", async (e) => {
     // --------------------------------------------------
     resultBox.textContent = "Running GPU timing precheck...";
 
-    const precheckRes = await fetch(API_BASE + "/api/contracts/precheck/real", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ job_id: CURRENT_JOB_ID })
-    });
+    const precheckRes =
+      await runPrecheckWithRetry(
+        CURRENT_JOB_ID,
+        resultBox
+      );
 
     const precheck = await precheckRes.json().catch(() => null);
 
