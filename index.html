@@ -1848,11 +1848,12 @@ form.addEventListener("submit", async (e) => {
     // --------------------------------------------------
     // 2. UPLOAD
     // --------------------------------------------------
+    console.log("🔥 ABOUT TO CALL /api/upload");
     const uploadRes = await fetch(API_BASE + "/api/upload", {
       method: "POST",
       body: fd
     });
-
+    console.log("🔥 UPLOAD RESPONSE RECEIVED");
     if (!uploadRes.ok) {
       resultBox.textContent = "Upload failed.";
       return;
