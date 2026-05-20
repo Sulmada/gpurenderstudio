@@ -1425,45 +1425,60 @@ async function runPrecheckWithRetry(jobId, resultBox) {
 
   while (true) {
 
-    resultBox.textContent =
-      "Running GPU timing precheck...";
-
-    const precheckRes = await fetch(
-      API_BASE + "/api/contracts/precheck/real",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          job_id: jobId
-        })
-      }
-    );
-
-    // -----------------------------------------
-    // GPU timing slot busy
-    // -----------------------------------------
-    if (precheckRes.status === 423) {
-
-      let busyData = null;
-
-      try {
-        busyData = await precheckRes.json();
-      } catch (_) {}
-
-      const retryMs =
-        busyData?.retry_after_ms || 3000;
+    try {
 
       resultBox.textContent =
-        "GPU timing system busy. Waiting for available GPU slot...";
+        "Running GPU timing precheck...";
 
-      await new Promise(r => setTimeout(r, retryMs));
+      const precheckRes = await fetch(
+        API_BASE + "/api/contracts/precheck/real",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            job_id: jobId
+          })
+        }
+      );
 
-      continue;
+      // -----------------------------------------
+      // GPU timing slot busy
+      // -----------------------------------------
+      if (precheckRes.status === 423) {
+
+        let busyData = null;
+
+        try {
+          busyData = await precheckRes.json();
+        } catch (_) {}
+
+        const retryMs =
+          busyData?.retry_after_ms || 3000;
+
+        resultBox.textContent =
+          "GPU timing system busy. Waiting for available GPU slot...";
+
+        await new Promise(r => setTimeout(r, retryMs));
+
+        continue;
+      }
+
+      return precheckRes;
+
+    } catch (err) {
+
+      console.warn(
+        "[PRECHECK RETRY]",
+        err
+      );
+
+      resultBox.textContent =
+        "Temporary connection issue. Retrying GPU timing precheck...";
+
+      await new Promise(r => setTimeout(r, 3000));
     }
-
-    return precheckRes;
   }
 }
 
