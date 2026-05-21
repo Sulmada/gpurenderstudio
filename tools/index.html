@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Blender Render Tools | GPU Render Studio</title>
+
+<meta name="description"
+content="Free Blender render tools for estimating render time, VRAM usage, scene complexity and cloud rendering cost.">
+
+<style>
+
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:#0b0b0b;
+    color:#e0e0e0;
+}
+
+a{
+    color:#6ecbff;
+    text-decoration:none;
+}
+
+.topnav{
+    position:fixed;
+    top:0;
+    width:100%;
+    background:rgba(15,15,15,0.6);
+    backdrop-filter:blur(10px);
+    padding:14px 20px;
+    border-bottom:1px solid rgba(255,255,255,0.05);
+    z-index:100;
+}
+
+.topnav a{
+    margin-right:20px;
+    color:#cceeee;
+    font-size:14px;
+}
+
+.hero{
+    padding:140px 20px 80px 20px;
+    text-align:center;
+}
+
+.hero h1{
+    font-size:54px;
+    margin-bottom:20px;
+}
+
+.hero p{
+    font-size:20px;
+    max-width:760px;
+    margin:auto;
+    opacity:0.82;
+}
+
+.tool-grid{
+    max-width:1100px;
+    margin:50px auto;
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+    gap:22px;
+    padding:0 20px 80px 20px;
+}
+
+.tool-card{
+    background:rgba(20,20,20,0.7);
+    border:1px solid rgba(255,255,255,0.06);
+    border-radius:14px;
+    padding:26px;
+    transition:0.25s;
+}
+
+.tool-card:hover{
+    border-color:rgba(0,255,255,0.35);
+    box-shadow:0 0 28px rgba(0,255,255,0.08);
+    transform:translateY(-4px);
+}
+
+.tool-card h2{
+    margin-top:0;
+    color:#baffff;
+}
+
+.tool-card p{
+    font-size:14px;
+    opacity:0.78;
+    line-height:1.6;
+}
+
+.badge{
+    display:inline-block;
+    margin-top:14px;
+    padding:6px 10px;
+    border-radius:6px;
+    background:rgba(0,255,255,0.08);
+    border:1px solid rgba(0,255,255,0.2);
+    font-size:12px;
+    color:#baffff;
+}
+
+.footer{
+    text-align:center;
+    padding:40px 20px;
+    opacity:0.5;
+    border-top:1px solid rgba(255,255,255,0.05);
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="topnav">
+    <a href="/">Home</a>
+    <a href="/how-it-works.html">How it Works</a>
+    <a href="/pricing-explained.html">Pricing</a>
+    <a href="/tools/">Tools</a>
+</div>
+
+<section class="hero">
+
+    <h1>Blender Render Tools</h1>
+
+    <p>
+        Analyze scenes, estimate render times,
+        calculate VRAM usage and compare local rendering
+        vs cloud rendering before you commit.
+    </p>
+
+</section>
+
+<section class="tool-grid">
+
+    <div class="tool-card">
+        <h2>Render Time Calculator</h2>
+        <p>
+            Estimate render duration based on GPU,
+            samples, frames, resolution and scene complexity.
+        </p>
+        <div class="badge">Coming soon</div>
+    </div>
+
+    <div class="tool-card">
+        <h2>VRAM Calculator</h2>
+        <p>
+            Estimate whether your Blender scene
+            may exceed available GPU memory.
+        </p>
+        <div class="badge">Coming soon</div>
+    </div>
+
+    <div class="tool-card">
+        <h2>Local vs Cloud</h2>
+        <p>
+            Compare electricity cost, render duration
+            and productivity between local rendering
+            and cloud rendering.
+        </p>
+        <div class="badge">Coming soon</div>
+    </div>
+
+    <div class="tool-card">
+        <h2>Scene Analyzer</h2>
+        <p>
+            Upload a Blender scene and receive
+            compatibility checks, bottleneck warnings,
+            runtime estimates and optimization suggestions.
+        </p>
+        <div class="badge">Beta planned</div>
+    </div>
+
+</section>
+
+<div class="footer">
+GPU Render Studio — Intelligent Blender Rendering
+</div>
+
+</body>
+</html>

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Blender Render Time Calculator | GPU Render Studio</title>
+
+<meta name="description"
+content="Estimate Blender render times based on GPU, samples, frames, resolution and scene complexity.">
+
+<style>
+
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:#0b0b0b;
+    color:#e0e0e0;
+}
+
+a{
+    color:#6ecbff;
+    text-decoration:none;
+}
+
+.topnav{
+    position:fixed;
+    top:0;
+    width:100%;
+    background:rgba(15,15,15,0.6);
+    backdrop-filter:blur(10px);
+    padding:14px 20px;
+    border-bottom:1px solid rgba(255,255,255,0.05);
+    z-index:100;
+}
+
+.topnav a{
+    margin-right:20px;
+    color:#cceeee;
+    font-size:14px;
+}
+
+.container{
+    max-width:900px;
+    margin:auto;
+    padding:130px 20px 80px 20px;
+}
+
+h1{
+    font-size:52px;
+    margin-bottom:20px;
+}
+
+.subtitle{
+    font-size:20px;
+    opacity:0.8;
+    line-height:1.6;
+    margin-bottom:50px;
+}
+
+.calculator{
+    background:rgba(20,20,20,0.75);
+    border:1px solid rgba(255,255,255,0.06);
+    border-radius:14px;
+    padding:32px;
+}
+
+.field{
+    margin-bottom:24px;
+}
+
+label{
+    display:block;
+    margin-bottom:10px;
+    font-size:14px;
+    color:#baffff;
+}
+
+select,
+input{
+    width:100%;
+    padding:14px;
+    border-radius:8px;
+    border:1px solid #333;
+    background:#111;
+    color:#e0e0e0;
+    font-size:15px;
+}
+
+button{
+    width:100%;
+    padding:16px;
+    background:#113333;
+    border:1px solid #1effff;
+    border-radius:10px;
+    color:#fff;
+    font-size:16px;
+    cursor:pointer;
+    transition:0.2s;
+}
+
+button:hover{
+    background:#164444;
+}
+
+.result{
+    margin-top:36px;
+    padding:24px;
+    background:rgba(0,255,255,0.05);
+    border:1px solid rgba(0,255,255,0.15);
+    border-radius:12px;
+    display:none;
+}
+
+.result h2{
+    margin-top:0;
+    color:#baffff;
+}
+
+.result-line{
+    margin-top:14px;
+    font-size:16px;
+}
+
+.footer{
+    margin-top:60px;
+    opacity:0.55;
+    font-size:14px;
+    text-align:center;
+}
+
+.small{
+    margin-top:16px;
+    font-size:13px;
+    opacity:0.6;
+    line-height:1.6;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="topnav">
+    <a href="/">Home</a>
+    <a href="/tools/">Tools</a>
+    <a href="/pricing-explained.html">Pricing</a>
+</div>
+
+<div class="container">
+
+    <h1>Render Time Calculator</h1>
+
+    <p class="subtitle">
+        Estimate Blender render duration based on GPU,
+        frame count, samples and scene complexity.
+    </p>
+
+    <div class="calculator">
+
+        <div class="field">
+            <label>GPU</label>
+
+            <select id="gpu">
+                <option value="1">RTX 5090</option>
+                <option value="1.35">RTX 4090</option>
+                <option value="1.9">RTX 3090</option>
+                <option value="2.6">RTX 3080</option>
+                <option value="4.2">Laptop GPU</option>
+            </select>
+        </div>
+
+        <div class="field">
+            <label>Frames</label>
+            <input type="number" id="frames" value="250">
+        </div>
+
+        <div class="field">
+            <label>Samples</label>
+            <input type="number" id="samples" value="256">
+        </div>
+
+        <div class="field">
+            <label>Resolution</label>
+
+            <select id="resolution">
+                <option value="1">1080p</option>
+                <option value="1.8">1440p</option>
+                <option value="4">4K</option>
+                <option value="8">8K</option>
+            </select>
+        </div>
+
+        <div class="field">
+            <label>Scene Complexity</label>
+
+            <select id="complexity">
+                <option value="1">Simple</option>
+                <option value="2">Moderate</option>
+                <option value="4">Complex</option>
+                <option value="8">Heavy FX / Particles</option>
+            </select>
+        </div>
+
+        <button onclick="calculateRender()">
+            Estimate Render Time
+        </button>
+
+        <div class="result" id="result">
+
+            <h2>Estimated Render</h2>
+
+            <div class="result-line" id="renderTime"></div>
+
+            <div class="result-line" id="cloudCost"></div>
+
+            <div class="result-line" id="localCost"></div>
+
+            <div class="small">
+                Estimates are approximate and intended for planning purposes only.
+                Actual render duration depends on scene optimization,
+                VRAM usage, lighting, textures and render engine settings.
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="footer">
+        GPU Render Studio — Blender GPU Rendering
+    </div>
+
+</div>
+
+<script>
+
+function calculateRender(){
+
+    const gpu =
+        parseFloat(document.getElementById("gpu").value);
+
+    const frames =
+        parseFloat(document.getElementById("frames").value);
+
+    const samples =
+        parseFloat(document.getElementById("samples").value);
+
+    const resolution =
+        parseFloat(document.getElementById("resolution").value);
+
+    const complexity =
+        parseFloat(document.getElementById("complexity").value);
+
+    let minutes =
+        (frames * samples * resolution * complexity * gpu) / 500;
+
+    if(minutes < 1){
+        minutes = 1;
+    }
+
+    const hours =
+        minutes / 60;
+
+    const cloudCost =
+        hours * 2.5;
+
+    const localCost =
+        hours * 0.6;
+
+    document.getElementById("renderTime").innerHTML =
+        "<strong>Estimated render time:</strong> " +
+        hours.toFixed(1) +
+        " hours";
+
+    document.getElementById("cloudCost").innerHTML =
+        "<strong>Estimated cloud rendering cost:</strong> $" +
+        cloudCost.toFixed(2);
+
+    document.getElementById("localCost").innerHTML =
+        "<strong>Estimated local electricity cost:</strong> $" +
+        localCost.toFixed(2);
+
+    document.getElementById("result").style.display = "block";
+}
+
+</script>
+
+</body>
+</html>
