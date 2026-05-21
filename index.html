@@ -1839,30 +1839,63 @@ form.addEventListener("submit", async (e) => {
   // --------------------------------------------------
   const fd = new FormData(form);
 
-  const existingAccountToken = localStorage.getItem("account_token");
+  const existingAccountToken =
+    localStorage.getItem("account_token");
+
   if (existingAccountToken) {
     fd.append("account_token", existingAccountToken);
   }
 
   try {
+
     // --------------------------------------------------
     // 2. UPLOAD
     // --------------------------------------------------
+
     console.log("🔥 ABOUT TO CALL /api/upload");
-    const uploadRes = await fetch(API_BASE + "/api/upload", {
-      method: "POST",
-      body: fd
-    });
+
+    console.log(
+      "[UPLOAD] sending to",
+      API_BASE + "/api/upload"
+    );
+
+    const uploadRes = await fetch(
+      API_BASE + "/api/upload",
+      {
+        method: "POST",
+        body: fd
+      }
+    );
+
     console.log("🔥 UPLOAD RESPONSE RECEIVED");
+
+    console.log(
+      "[UPLOAD] response status",
+      uploadRes.status
+    );
+
     if (!uploadRes.ok) {
-      resultBox.textContent = "Upload failed.";
+
+      const errData =
+        await uploadRes.json().catch(() => null);
+
+      resultBox.textContent =
+        "Upload failed: " +
+        (errData?.error || uploadRes.status);
+
+      console.error("[UPLOAD FAILED]", {
+        status: uploadRes.status,
+        data: errData
+      });
+
       return;
     }
 
     const uploadData = await uploadRes.json();
 
     if (!uploadData?.job_id) {
-      resultBox.textContent = "Unexpected upload response.";
+      resultBox.textContent =
+        "Unexpected upload response.";
       return;
     }
 
@@ -1954,9 +1987,13 @@ form.addEventListener("submit", async (e) => {
     renderSlotChooser(precheck);
 
   } catch (err) {
-    console.error("Upload error:", err);
-    resultBox.textContent = "Network error.";
+    console.error("[UPLOAD FLOW ERROR]", err);
+
+    resultBox.textContent =
+      "Network error: " +
+      (err?.message || String(err));
   }
+
 });
 
 /* =========================================================
