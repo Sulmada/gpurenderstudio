@@ -820,10 +820,25 @@ function renderJob(job) {
                 `Frames ${p.frames_done}/${p.frames_total} (${p.percent || 0}%)`;
 
             if (p.eta_seconds) {
-                const min = Math.round(p.eta_seconds / 60);
-                progressEta.textContent = "ETA: " + min + " min";
+
+                const min =
+                    Math.round(p.eta_seconds / 60);
+
+                progressEta.textContent =
+                    "ETA: " + min + " min";
+
             } else {
-                progressEta.textContent = "ETA: calculating…";
+
+                progressEta.innerHTML =
+
+                    "Preparing render environment...<br>" +
+
+                    "<span style='opacity:0.75;font-size:13px;'>" +
+
+                    "ETA will appear after enough frames " +
+                    "have been rendered for accurate estimation." +
+
+                    "</span>";
             }
         }
 
