@@ -335,77 +335,79 @@ async function calculateRender(){
         }
 
         const est =
-            data.estimate;
+                data.estimate;
 
         const estHours =
-            (est.estimated_minutes / 60).toFixed(1);
+                (est.estimated_minutes / 60).toFixed(1);
 
         const lowHours =
-            (est.low_minutes / 60).toFixed(1);
+                (est.low_minutes / 60).toFixed(1);
 
         const highHours =
-            (est.high_minutes / 60).toFixed(1);
+                (est.high_minutes / 60).toFixed(1);
 
         document.getElementById("renderTime").innerHTML =
-            "<strong>Estimated render time:</strong> " +
-            lowHours +
-            "–" +
-            highHours +
-            " hours" +
-            "<br><br>" +
-            "<strong>Most likely:</strong> " +
-            estHours +
-            " hours" +
-            "<br><br>" +
-            "<strong>Confidence:</strong> " +
-            est.confidence;
+                "<strong>Estimated render time:</strong> " +
+                lowHours +
+                "–" +
+                highHours +
+                " hours" +
+                "<br><br>" +
+                "<strong>Most likely:</strong> " +
+                estHours +
+                " hours" +
+                "<br><br>" +
+                "<strong>Confidence:</strong> " +
+                est.confidence;
+
         const plans =
-            data.pricing_snapshot?.slot_prices_usd || {};
+                data.pricing_snapshot?.slot_prices_usd || {};
 
         const limits =
-            data.pricing_snapshot?.slot_limits || {};
+                data.pricing_snapshot?.slot_limits || {};
 
-        const estHours =
-            est.estimated_minutes / 60;
+        const estHoursRaw =
+                est.estimated_minutes / 60;
 
         function fits(limit) {
 
-            return estHours <= Number(limit || 0);
+                return estHoursRaw <= Number(limit || 0);
         }
 
         function statusText(limit) {
 
-            return fits(limit)
-                ? "✔ fits"
-                : "⚠ upgrade recommended";
+                return fits(limit)
+                        ? "✔ fits"
+                        : "⚠ overflow likely";
         }
 
         document.getElementById("cloudCost").innerHTML =
-            "<strong>Likely Studio Plans</strong><br><br>" +
 
-            "Budget " +
-            statusText(limits.STRICT) +
-            " ($" +
-            Number(plans.STRICT || 0).toFixed(2) +
-            ")<br>" +
+                "<strong>Likely Studio Plans</strong><br><br>" +
 
-            "Standard " +
-            statusText(limits.EXTENDED) +
-            " ($" +
-            Number(plans.EXTENDED || 0).toFixed(2) +
-            ")<br>" +
+                "Budget " +
+                statusText(limits.STRICT) +
+                " ($" +
+                Number(plans.STRICT || 0).toFixed(2) +
+                ")<br>" +
 
-            "Fast " +
-            statusText(limits.FLEXIBLE) +
-            " ($" +
-            Number(plans.FLEXIBLE || 0).toFixed(2) +
-            ")<br>" +
+                "Standard " +
+                statusText(limits.EXTENDED) +
+                " ($" +
+                Number(plans.EXTENDED || 0).toFixed(2) +
+                ")<br>" +
 
-            "Express " +
-            statusText(limits.OPEN_FIXED_MAX) +
-            " ($" +
-            Number(plans.OPEN_FIXED_MAX || 0).toFixed(2) +
-            ")";
+                "Fast " +
+                statusText(limits.FLEXIBLE) +
+                " ($" +
+                Number(plans.FLEXIBLE || 0).toFixed(2) +
+                ")<br>" +
+
+                "Express " +
+                statusText(limits.OPEN_FIXED_MAX) +
+                " ($" +
+                Number(plans.OPEN_FIXED_MAX || 0).toFixed(2) +
+                ")";
 
         document.getElementById("localCost").innerHTML =
             "";
