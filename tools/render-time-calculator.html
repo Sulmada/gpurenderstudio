@@ -359,26 +359,51 @@ async function calculateRender(){
             "<br><br>" +
             "<strong>Confidence:</strong> " +
             est.confidence;
-
         const plans =
             data.pricing_snapshot?.slot_prices_usd || {};
+
+        const limits =
+            data.pricing_snapshot?.slot_limits || {};
+
+        const estHours =
+            est.estimated_minutes / 60;
+
+        function fits(limit) {
+
+            return estHours <= Number(limit || 0);
+        }
+
+        function statusText(limit) {
+
+            return fits(limit)
+                ? "✔ fits"
+                : "⚠ upgrade recommended";
+        }
 
         document.getElementById("cloudCost").innerHTML =
             "<strong>Likely Studio Plans</strong><br><br>" +
 
-            "Budget ✔ fits ($" +
+            "Budget " +
+            statusText(limits.STRICT) +
+            " ($" +
             Number(plans.STRICT || 0).toFixed(2) +
             ")<br>" +
 
-            "Standard ✔ fits ($" +
+            "Standard " +
+            statusText(limits.EXTENDED) +
+            " ($" +
             Number(plans.EXTENDED || 0).toFixed(2) +
             ")<br>" +
-  
-            "Fast ✔ fits ($" +
+
+            "Fast " +
+            statusText(limits.FLEXIBLE) +
+            " ($" +
             Number(plans.FLEXIBLE || 0).toFixed(2) +
             ")<br>" +
 
-            "Express ✔ fits ($" +
+            "Express " +
+            statusText(limits.OPEN_FIXED_MAX) +
+            " ($" +
             Number(plans.OPEN_FIXED_MAX || 0).toFixed(2) +
             ")";
 
