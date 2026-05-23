@@ -256,7 +256,7 @@ button:hover{
 
 <script>
 
-function calculateRender(){
+async function calculateRender(){
 
     const gpu =
         parseFloat(document.getElementById("gpu").value);
@@ -273,36 +273,109 @@ function calculateRender(){
     const complexity =
         parseFloat(document.getElementById("complexity").value);
 
-    let minutes =
-        (frames * samples * resolution * complexity * gpu) / 500;
-
-    if(minutes < 1){
-        minutes = 1;
-    }
-
-    const hours =
-        minutes / 60;
-
-    const cloudCost =
-        hours * 2.5;
-
-    const localCost =
-        hours * 0.6;
+    const resultBox =
+        document.getElementById("result");
 
     document.getElementById("renderTime").innerHTML =
-        "<strong>Estimated render time:</strong> " +
-        hours.toFixed(1) +
-        " hours";
+        "Calculating estimate...";
 
-    document.getElementById("cloudCost").innerHTML =
-        "<strong>Estimated cloud rendering cost:</strong> $" +
-        cloudCost.toFixed(2);
+    document.getElementById("cloudCost").innerHTML = "";
+    document.getElementById("localCost").innerHTML = "";
 
-    document.getElementById("localCost").innerHTML =
-        "<strong>Estimated local electricity cost:</strong> $" +
-        localCost.toFixed(2);
+    resultBox.style.display = "block";
 
-    document.getElementById("result").style.display = "block";
+    try {
+
+        const API_BASE =
+            location.hostname === "localhost"
+                ? "http://localhost:3001"
+                : "https://api.gpurenderstudio.com";
+
+        const res = await fetch(
+            API_BASE + "/api/tools/render-time-estimate",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+
+                    frames:
+                        frames,
+
+                    samples:
+                        samples,
+
+                    resolution_factor:
+                        resolution,
+
+                    gpu_factor:
+                        gpu,
+
+                    complexity_multiplier:
+                        complexity
+                })
+            }
+        );
+
+        const data =
+            await res.json();
+
+        if (!res.ok || !data?.ok) {
+
+            document.getElementById("renderTime").innerHTML =
+                "Estimator unavailable.";
+
+            return;
+        }
+
+        const est =
+            data.estimate;
+
+        const estHours =
+            (est.estimated_minutes / 60).toFixed(1);
+
+        const lowHours =
+            (est.low_minutes / 60).toFixed(1);
+
+        const highHours =
+            (est.high_minutes / 60).toFixed(1);
+
+        const cloudCost =
+            (est.estimated_minutes / 60) * 2.5;
+
+        const localCost =
+            (est.estimated_minutes / 60) * 0.6;
+
+        document.getElementById("renderTime").innerHTML =
+            "<strong>Estimated render time:</strong> " +
+            lowHours +
+            "–" +
+            highHours +
+            " hours" +
+            "<br><br>" +
+            "<strong>Most likely:</strong> " +
+            estHours +
+            " hours" +
+            "<br><br>" +
+            "<strong>Confidence:</strong> " +
+            est.confidence;
+
+        document.getElementById("cloudCost").innerHTML =
+            "<strong>Estimated cloud rendering cost:</strong> $" +
+            cloudCost.toFixed(2);
+
+        document.getElementById("localCost").innerHTML =
+            "<strong>Estimated local electricity cost:</strong> $" +
+            localCost.toFixed(2);
+
+    } catch(err) {
+
+        console.error(err);
+
+        document.getElementById("renderTime").innerHTML =
+            "Network error while calculating estimate.";
+    }
 }
 
 </script>
