@@ -376,11 +376,19 @@ async function calculateRender(){
 
         function statusText(limit) {
 
-                return fits(limit)
-                        ? "✔ fits"
-                        : "⚠ overflow likely";
-        }
+                const l =
+                        Number(limit || 0);
 
+                if (estHours <= l * 0.8) {
+                return "✔ fits";
+                }
+
+                if (estHours <= l * 1.25) {
+                        return "⚠ overflow likely";
+                }
+
+                return "✖ not recommended";
+        }
         document.getElementById("cloudCost").innerHTML =
 
                 "<strong>Likely Studio Plans</strong><br><br>" +
