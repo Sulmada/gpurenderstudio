@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Blender VRAM Calculator | GPU Render Studio</title>
+
+<meta name="description"
+content="Estimate Blender GPU memory usage and VRAM risk before rendering.">
+
+<style>
+
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:#0b0b0b;
+    color:#e0e0e0;
+}
+
+a{
+    color:#6ecbff;
+    text-decoration:none;
+}
+
+.topnav{
+    position:fixed;
+    top:0;
+    width:100%;
+    background:rgba(15,15,15,0.6);
+    backdrop-filter:blur(10px);
+    padding:14px 20px;
+    border-bottom:1px solid rgba(255,255,255,0.05);
+    z-index:100;
+}
+
+.topnav a{
+    margin-right:20px;
+    color:#cceeee;
+    font-size:14px;
+}
+
+.container{
+    max-width:900px;
+    margin:auto;
+    padding:130px 20px 80px 20px;
+}
+
+h1{
+    font-size:52px;
+    margin-bottom:20px;
+}
+
+.subtitle{
+    font-size:20px;
+    opacity:0.8;
+    line-height:1.6;
+    margin-bottom:30px;
+}
+
+.calculator{
+    background:rgba(20,20,20,0.75);
+    border:1px solid rgba(255,255,255,0.06);
+    border-radius:14px;
+    padding:32px;
+}
+
+.field{
+    margin-bottom:24px;
+}
+
+label{
+    display:block;
+    margin-bottom:10px;
+    font-size:14px;
+    color:#baffff;
+}
+
+select,
+input{
+    width:100%;
+    padding:14px;
+    border-radius:8px;
+    border:1px solid #333;
+    background:#111;
+    color:#e0e0e0;
+    font-size:15px;
+    box-sizing:border-box;
+}
+
+button{
+    width:100%;
+    padding:16px;
+    background:#113333;
+    border:1px solid #1effff;
+    border-radius:10px;
+    color:#fff;
+    font-size:16px;
+    cursor:pointer;
+    transition:0.2s;
+}
+
+button:hover{
+    background:#164444;
+}
+
+.result{
+    margin-top:36px;
+    padding:24px;
+    background:rgba(0,255,255,0.05);
+    border:1px solid rgba(0,255,255,0.15);
+    border-radius:12px;
+    display:none;
+}
+
+.result h2{
+    margin-top:0;
+    color:#baffff;
+}
+
+.result-line{
+    margin-top:14px;
+    font-size:16px;
+    line-height:1.6;
+}
+
+.small{
+    margin-top:16px;
+    font-size:13px;
+    opacity:0.65;
+    line-height:1.6;
+}
+
+.footer{
+    margin-top:60px;
+    opacity:0.55;
+    font-size:14px;
+    text-align:center;
+}
+
+details{
+    margin-top:10px;
+    margin-bottom:26px;
+    padding:18px;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,0.07);
+    background:rgba(255,255,255,0.025);
+}
+
+summary{
+    cursor:pointer;
+    color:#baffff;
+    font-size:15px;
+    margin-bottom:14px;
+}
+
+.risk-low{
+    color:#9dffbf;
+}
+
+.risk-medium{
+    color:#ffe58a;
+}
+
+.risk-high{
+    color:#ffb36e;
+}
+
+.risk-extreme{
+    color:#ff7777;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="topnav">
+    <a href="/">Home</a>
+    <a href="/tools/">Tools</a>
+    <a href="/pricing-explained.html">Pricing</a>
+</div>
+
+<div class="container">
+
+    <h1>VRAM Calculator</h1>
+
+    <p class="subtitle">
+        Estimate whether your Blender scene may fit inside available GPU memory
+        before you render.
+    </p>
+
+    <div class="small">
+        This tool gives a practical VRAM risk estimate, not an exact memory profile.
+        Actual usage depends on geometry, textures, simulations, render engine and scene optimization.
+    </div>
+
+    <div class="calculator">
+
+        <div class="field">
+            <label>GPU / Available VRAM</label>
+            <select id="gpuVram">
+                <option value="32">RTX 5090 — 32 GB</option>
+                <option value="24">RTX 4090 — 24 GB</option>
+                <option value="16">RTX 4080 / 5080 — 16 GB</option>
+                <option value="12">RTX 4070 / 3060 — 12 GB</option>
+                <option value="8">8 GB GPU</option>
+                <option value="6">6 GB GPU</option>
+                <option value="4">4 GB GPU</option>
+            </select>
+        </div>
+
+        <div class="field">
+            <label>Render Engine</label>
+            <select id="engine">
+                <option value="1.15">Cycles</option>
+                <option value="0.85">Eevee</option>
+            </select>
+        </div>
+
+        <div class="field">
+            <label>Geometry Complexity</label>
+            <select id="geometry">
+                <option value="1.2">Low — simple models</option>
+                <option value="2.5">Medium — normal production scene</option>
+                <option value="5.5">High — dense assets / subdivision</option>
+                <option value="10">Extreme — film-grade geometry</option>
+            </select>
+        </div>
+
+        <div class="field">
+            <label>Texture Usage</label>
+            <select id="textures">
+                <option value="1">Minimal — mostly small textures</option>
+                <option value="3">Moderate — mostly 2K / 4K</option>
+                <option value="7">Heavy — many 4K / some 8K</option>
+                <option value="14">Extreme — 8K / UDIM-heavy assets</option>
+            </select>
+        </div>
+
+        <div class="field">
+            <label>Volumetrics / Smoke / Fire</label>
+            <select id="volumes">
+                <option value="0">None</option>
+                <option value="1.5">Light</option>
+                <option value="4">Moderate</option>
+                <option value="8">Heavy</option>
+            </select>
+        </div>
+
+        <div class="field">
+            <label>Hair / Particles / Scattering</label>
+            <select id="particles">
+                <option value="0">None</option>
+                <option value="1.5">Some</option>
+                <option value="4">Heavy</option>
+                <option value="7">Extreme</option>
+            </select>
+        </div>
+
+        <div class="field">
+            <label>Render Resolution</label>
+            <select id="resolution">
+                <option value="0.8">1080p</option>
+                <option value="1">1440p</option>
+                <option value="1.35">4K</option>
+                <option value="2">8K</option>
+            </select>
+        </div>
+
+        <details>
+            <summary>Advanced Blender Settings</summary>
+
+            <div class="field">
+                <label>Subdivision / Displacement</label>
+                <select id="subdivision">
+                    <option value="0">None / low</option>
+                    <option value="1.5">Moderate</option>
+                    <option value="4">Heavy</option>
+                </select>
+            </div>
+
+            <div class="field">
+                <label>Geometry Nodes / Generated Geometry</label>
+                <select id="geometryNodes">
+                    <option value="0">None / simple</option>
+                    <option value="2">Moderate</option>
+                    <option value="5">Heavy</option>
+                </select>
+            </div>
+
+            <div class="field">
+                <label>Render Passes / Compositing Buffers</label>
+                <select id="passes">
+                    <option value="0">Beauty only / simple</option>
+                    <option value="1">Several passes</option>
+                    <option value="2.5">Many passes / Cryptomatte</option>
+                </select>
+            </div>
+
+            <div class="field">
+                <label>Safety Margin</label>
+                <select id="margin">
+                    <option value="1.1">Normal</option>
+                    <option value="1.25">Conservative</option>
+                    <option value="1.4">Very conservative</option>
+                </select>
+            </div>
+
+        </details>
+
+        <button onclick="calculateVram()">
+            Estimate VRAM Risk
+        </button>
+
+        <div class="result" id="result">
+
+            <h2>Estimated VRAM Risk</h2>
+
+            <div class="result-line" id="riskLevel"></div>
+            <div class="result-line" id="vramEstimate"></div>
+            <div class="result-line" id="likelyOutcome"></div>
+            <div class="result-line" id="recommendations"></div>
+
+            <div class="small">
+                This estimate is intended for planning only. Blender memory usage can change significantly
+                depending on texture compression, instancing, adaptive subdivision, simulation caches,
+                render passes and GPU backend.
+            </div>
+
+            <div style="margin-top:28px;text-align:center;">
+
+                <a href="/#upload">
+                    <button style="
+                        max-width:320px;
+                        background:#113333;
+                        border:1px solid #1effff;
+                    ">
+                        Try Cloud Rendering
+                    </button>
+                </a>
+
+                <p style="
+                    margin-top:14px;
+                    font-size:13px;
+                    opacity:0.7;
+                ">
+                    Upload your Blender project and render on RTX GPUs.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="footer">
+        GPU Render Studio — Blender GPU Rendering
+    </div>
+
+</div>
+
+<script>
+
+function getNumber(id){
+
+    return parseFloat(
+        document.getElementById(id).value
+    );
+}
+
+function calculateVram(){
+
+    const availableVram =
+        getNumber("gpuVram");
+
+    const engine =
+        getNumber("engine");
+
+    const geometry =
+        getNumber("geometry");
+
+    const textures =
+        getNumber("textures");
+
+    const volumes =
+        getNumber("volumes");
+
+    const particles =
+        getNumber("particles");
+
+    const resolution =
+        getNumber("resolution");
+
+    const subdivision =
+        getNumber("subdivision");
+
+    const geometryNodes =
+        getNumber("geometryNodes");
+
+    const passes =
+        getNumber("passes");
+
+    const margin =
+        getNumber("margin");
+
+    const baseOverhead =
+        1.2;
+
+    const rawEstimate =
+        (
+            baseOverhead +
+            geometry +
+            textures +
+            volumes +
+            particles +
+            subdivision +
+            geometryNodes +
+            passes
+        ) * engine * resolution;
+
+    const likelyVram =
+        rawEstimate * margin;
+
+    const lowVram =
+        likelyVram * 0.75;
+
+    const highVram =
+        likelyVram * 1.35;
+
+    const usageRatio =
+        likelyVram / availableVram;
+
+    let riskText =
+        "";
+
+    let riskClass =
+        "";
+
+    let outcome =
+        "";
+
+    if (usageRatio < 0.55) {
+
+        riskText =
+            "Low";
+
+        riskClass =
+            "risk-low";
+
+        outcome =
+            "This scene should probably fit comfortably on the selected GPU.";
+
+    } else if (usageRatio < 0.8) {
+
+        riskText =
+            "Medium";
+
+        riskClass =
+            "risk-medium";
+
+        outcome =
+            "This scene may fit, but there is not a huge amount of headroom.";
+
+    } else if (usageRatio < 1.05) {
+
+        riskText =
+            "High";
+
+        riskClass =
+            "risk-high";
+
+        outcome =
+            "This scene is close to the selected GPU memory limit. Optimization is recommended.";
+
+    } else {
+
+        riskText =
+            "Extreme";
+
+        riskClass =
+            "risk-extreme";
+
+        outcome =
+            "This scene may exceed available VRAM and could fail with out-of-memory errors.";
+    }
+
+    const tips =
+        buildRecommendations(
+            textures,
+            geometry,
+            volumes,
+            particles,
+            subdivision,
+            geometryNodes,
+            usageRatio
+        );
+
+    document.getElementById("riskLevel").innerHTML =
+        "<strong>Risk level:</strong> " +
+        "<span class='" +
+        riskClass +
+        "'>" +
+        riskText +
+        "</span>";
+
+    document.getElementById("vramEstimate").innerHTML =
+        "<strong>Estimated VRAM usage:</strong> " +
+        lowVram.toFixed(1) +
+        "–" +
+        highVram.toFixed(1) +
+        " GB" +
+        "<br><br>" +
+        "<strong>Most likely:</strong> " +
+        likelyVram.toFixed(1) +
+        " GB" +
+        "<br><br>" +
+        "<strong>Selected GPU memory:</strong> " +
+        availableVram.toFixed(0) +
+        " GB";
+
+    document.getElementById("likelyOutcome").innerHTML =
+        "<strong>Likely outcome:</strong><br>" +
+        outcome;
+
+    document.getElementById("recommendations").innerHTML =
+        "<strong>Suggestions:</strong><br>" +
+        tips.join("<br>");
+
+    document.getElementById("result").style.display =
+        "block";
+}
+
+function buildRecommendations(
+    textures,
+    geometry,
+    volumes,
+    particles,
+    subdivision,
+    geometryNodes,
+    usageRatio
+){
+
+    const tips =
+        [];
+
+    if (textures >= 7) {
+
+        tips.push(
+            "• Reduce 8K textures, use smaller texture sets, or convert unused maps."
+        );
+    }
+
+    if (geometry >= 5.5 || subdivision >= 4) {
+
+        tips.push(
+            "• Check subdivision, displacement and dense mesh assets."
+        );
+    }
+
+    if (volumes >= 4) {
+
+        tips.push(
+            "• Reduce volume resolution or simplify smoke/fire simulations."
+        );
+    }
+
+    if (particles >= 4) {
+
+        tips.push(
+            "• Use instancing where possible and reduce hair/particle density."
+        );
+    }
+
+    if (geometryNodes >= 5) {
+
+        tips.push(
+            "• Inspect Geometry Nodes output and avoid converting too much generated geometry to real mesh."
+        );
+    }
+
+    if (usageRatio >= 0.8) {
+
+        tips.push(
+            "• Consider using a GPU with more VRAM or rendering through cloud hardware."
+        );
+    }
+
+    if (tips.length === 0) {
+
+        tips.push(
+            "• Scene looks reasonable for the selected GPU. Keep textures and subdivisions under control."
+        );
+    }
+
+    return tips;
+}
+
+</script>
+
+</body>
+</html>
