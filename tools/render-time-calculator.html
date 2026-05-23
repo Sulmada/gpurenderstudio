@@ -346,12 +346,6 @@ async function calculateRender(){
         const highHours =
             (est.high_minutes / 60).toFixed(1);
 
-        const cloudCost =
-            (est.estimated_minutes / 60) * 2.5;
-
-        const localCost =
-            (est.estimated_minutes / 60) * 0.6;
-
         document.getElementById("renderTime").innerHTML =
             "<strong>Estimated render time:</strong> " +
             lowHours +
@@ -366,14 +360,30 @@ async function calculateRender(){
             "<strong>Confidence:</strong> " +
             est.confidence;
 
+        const plans =
+            data.pricing_snapshot?.slot_prices_usd || {};
+
         document.getElementById("cloudCost").innerHTML =
-            "<strong>Estimated cloud rendering cost:</strong> $" +
-            cloudCost.toFixed(2);
+            "<strong>Likely Studio Plans</strong><br><br>" +
+
+            "Budget ✔ fits ($" +
+            Number(plans.STRICT || 0).toFixed(2) +
+            ")<br>" +
+
+            "Standard ✔ fits ($" +
+            Number(plans.EXTENDED || 0).toFixed(2) +
+            ")<br>" +
+  
+            "Fast ✔ fits ($" +
+            Number(plans.FLEXIBLE || 0).toFixed(2) +
+            ")<br>" +
+
+            "Express ✔ fits ($" +
+            Number(plans.OPEN_FIXED_MAX || 0).toFixed(2) +
+            ")";
 
         document.getElementById("localCost").innerHTML =
-            "<strong>Estimated local electricity cost:</strong> $" +
-            localCost.toFixed(2);
-
+            "";
     } catch(err) {
 
         console.error(err);
