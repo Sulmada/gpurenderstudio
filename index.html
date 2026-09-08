@@ -7,21 +7,21 @@
 
     <!-- SEO + LLM STRUCTURED DATA -->
     <meta name="description"
-    content="Professional Blender GPU rendering. Upload your scene, choose price vs speed, get fast delivery on RTX GPUs.">  
+    content="Render finished Blender projects on dedicated RTX 5090 GPUs. Upload your scene and receive a measured runtime and exact price before you approve the render.">
     <meta name="keywords" content="GPU rendering, Blender render farm, automated rendering, Cycles GPU, cloud rendering, NVIDIA GPU render, batch rendering">
 
     <link rel="canonical" href="https://gpurenderstudio.com/">
 
-    
+
 <!-- Preload hero assets -->
 <link rel="preload" as="image" href="assets/images/hero_poster_desktop.jpg">
-<link rel="preload" as="image" href="assets/images/hero_poster_mobile.jpg">
+<link rel="preload" as="image" href="assets/images/hero_poster_mobile_fixed.jpg">
 <link rel="preload" as="video" href="assets/video/loop_desktop_v9.webm">
 <link rel="preload" as="video" href="assets/video/loop_mobile_v9.webm">
 
 <!-- Open Graph -->
 <meta property="og:title" content="GPU Render Studio — Blender GPU Rendering">
-<meta property="og:description" content="Upload your Blender project, choose price vs speed, and get fast rendering on RTX GPUs.">
+<meta property="og:description" content="Upload your Blender scene and receive a measured runtime and exact price before you approve the RTX 5090 render.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://gpurenderstudio.com/">
 <meta property="og:image" content="https://gpurenderstudio.com/assets/images/hero_poster_desktop.jpg">
@@ -29,7 +29,7 @@
 <!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="GPU Render Studio — Blender GPU Rendering">
-<meta name="twitter:description" content="Professional Blender GPU rendering with clear pricing and fast delivery.">
+<meta name="twitter:description" content="Measured Blender render estimates and automated RTX 5090 rendering from Europe.">
 <meta name="twitter:image" content="https://gpurenderstudio.com/assets/images/hero_poster_desktop.jpg">
 
 <!-- FAQ STRUCTURED DATA -->
@@ -43,7 +43,7 @@
       "name": "How does pricing work?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Choose between Budget, Standard, Fast or Express depending on your preferred price and delivery speed. Final pricing is confirmed before rendering begins."
+        "text": "Plans include different GPU-time windows. A real precheck recommends a suitable plan and shows the exact price before confirmation."
       }
     },
     {
@@ -72,48 +72,14 @@
   "@context": "https://schema.org",
   "@type": "Service",
   "name": "GPU Render Studio - Blender GPU Rendering",
-  "description": "Professional Blender GPU rendering with RTX hardware, clear pricing and fast delivery.",
+  "description": "Automated Blender rendering on dedicated RTX 5090 hardware with a measured runtime and price shown before approval.",
   "brand": {
     "@type": "Brand",
     "name": "GPU Render Studio"
   },
   "category": "Cloud Rendering Service",
   "image": "https://gpurenderstudio.com/assets/images/hero_poster_desktop.jpg",
-  "url": "https://gpurenderstudio.com/",
-  "offers": [
-    {
-      "@type": "Offer",
-      "name": "Budget",
-      "price": "0.50",
-      "priceCurrency": "USD",
-      "availability": "https://schema.org/InStock",
-      "description": "Lowest price with flexible delivery timing."
-    },
-    {
-      "@type": "Offer",
-      "name": "Standard",
-      "price": "2.00",
-      "priceCurrency": "USD",
-      "availability": "https://schema.org/InStock",
-      "description": "Balanced speed and value for most Blender projects."
-    },
-    {
-      "@type": "Offer",
-      "name": "Fast",
-      "price": "4.00",
-      "priceCurrency": "USD",
-      "availability": "https://schema.org/InStock",
-      "description": "Priority queue handling for tighter deadlines."
-    },
-    {
-      "@type": "Offer",
-      "name": "Express",
-      "price": "5.00",
-      "priceCurrency": "USD",
-      "availability": "https://schema.org/InStock",
-      "description": "Highest priority and fastest available turnaround."
-    }
-  ]
+  "url": "https://gpurenderstudio.com/"
 }
 </script>
 
@@ -125,7 +91,7 @@
   "name": "GPU Render Studio",
   "url": "https://gpurenderstudio.com/",
   "logo": "https://gpurenderstudio.com/assets/images/logo.png",
-  "description": "European Blender GPU rendering service with RTX hardware, transparent pricing and automated delivery.",
+  "description": "European Blender GPU rendering service with RTX 5090 hardware, measured prechecks and automated delivery.",
   "areaServed": {
     "@type": "AdministrativeArea",
     "name": "European Union"
@@ -444,9 +410,9 @@
             }
 
             .profile-row > div:nth-child(1)::before { content: "Profile"; }
-            .profile-row > div:nth-child(2)::before { content: "Base runtime"; }
-            .profile-row > div:nth-child(3)::before { content: "Price"; }
-            .profile-row > div:nth-child(4)::before { content: "Risk"; }
+            .profile-row > div:nth-child(2)::before { content: "Included time"; }
+            .profile-row > div:nth-child(3)::before { content: "Base price"; }
+            .profile-row > div:nth-child(4)::before { content: "Best for"; }
 
             .profile-row > div::before {
                 font-weight: 600;
@@ -638,7 +604,7 @@
             .hero-content h1 {
                 font-size: 34px;
                 line-height: 1.12;
-            }     
+            }
             .hero-content p  {
                 font-size: 16px;
             }
@@ -783,6 +749,297 @@
             opacity: 1;
         }
 
+        /* 2026 conversion-focused refresh */
+        :root {
+            --ink: #f5fbfb;
+            --muted: #aebfc1;
+            --panel: rgba(10, 19, 21, 0.88);
+            --panel-soft: rgba(13, 27, 29, 0.72);
+            --line: rgba(151, 244, 238, 0.16);
+            --accent: #69f4e8;
+            --accent-strong: #27d9cc;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; }
+
+        body {
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background:
+                radial-gradient(circle at 85% 20%, rgba(30, 163, 155, 0.08), transparent 30rem),
+                #071012;
+            color: var(--ink);
+        }
+
+        h1, h2, h3 { text-shadow: none; }
+        section { padding: 72px 22px; }
+
+        .content-box {
+            max-width: 1120px;
+            background: var(--panel-soft);
+            padding: 48px;
+            border-radius: 20px;
+            border: 1px solid var(--line);
+            box-shadow: 0 24px 80px rgba(0,0,0,0.28);
+        }
+
+        .topnav {
+            min-height: 68px;
+            padding: 0 max(22px, env(safe-area-inset-right)) 0 max(22px, env(safe-area-inset-left));
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: nowrap;
+            background: rgba(5, 13, 15, 0.82);
+            border-color: var(--line);
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            color: #fff !important;
+            font-weight: 760;
+            letter-spacing: -0.02em !important;
+            font-size: 16px !important;
+            margin: 0 !important;
+        }
+
+        .brand-mark {
+            width: 28px;
+            height: 28px;
+            display: grid;
+            place-items: center;
+            border: 1px solid rgba(105,244,232,.65);
+            border-radius: 8px;
+            color: var(--accent);
+            box-shadow: inset 0 0 18px rgba(105,244,232,.12);
+        }
+
+        .nav-links { display: flex; align-items: center; }
+        .topnav .nav-links a { margin: 0 13px; color: #c8d5d6; letter-spacing: .02em; }
+        .topnav .nav-cta {
+            margin-left: 12px;
+            padding: 10px 16px;
+            border: 1px solid rgba(105,244,232,.55);
+            border-radius: 9px;
+            color: #ecfffd;
+            background: rgba(39,217,204,.1);
+        }
+
+        .hero {
+            min-height: 690px;
+            height: 92vh;
+            max-height: 900px;
+            padding: 110px 24px 64px;
+            justify-content: flex-start;
+            text-align: left;
+        }
+
+        .hero-video { filter: brightness(.42) saturate(1.08) contrast(1.08); }
+        .hero-overlay {
+            background:
+                linear-gradient(90deg, rgba(3,10,12,.94) 0%, rgba(3,10,12,.78) 42%, rgba(3,10,12,.18) 76%, rgba(3,10,12,.34) 100%),
+                linear-gradient(0deg, rgba(3,10,12,.68), transparent 50%);
+        }
+
+        .hero-content {
+            width: 100%;
+            max-width: 1180px;
+            padding: 20px 0;
+            text-align: left;
+        }
+
+        .hero-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            margin-bottom: 22px;
+            color: #c8fffa;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: .11em;
+            text-transform: uppercase;
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 14px rgba(105,244,232,.85);
+        }
+
+        .hero-content h1 {
+            max-width: 800px;
+            margin: 0 0 24px;
+            font-size: clamp(44px, 6.1vw, 78px);
+            line-height: .98;
+            letter-spacing: -.055em;
+        }
+
+        .hero-content .hero-lead {
+            max-width: 680px;
+            margin: 0 0 24px;
+            color: #d4e1e2;
+            font-size: clamp(18px, 2vw, 22px);
+            line-height: 1.55;
+        }
+
+        .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 0 0 18px; }
+        .hero-actions .btn { margin: 0; min-height: 52px; }
+        .btn {
+            border-radius: 10px;
+            font-weight: 700;
+            box-shadow: none;
+        }
+        .btn-primary {
+            background: var(--accent);
+            color: #031111;
+            border-color: var(--accent);
+        }
+        .btn-primary:hover { background: #9cfff7; color: #031111; }
+
+        .hero-assurance {
+            margin: 0 0 22px;
+            color: #bac8c9;
+            font-size: 14px;
+        }
+
+        .hero-proof {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            max-width: 760px;
+        }
+
+        .proof-chip {
+            padding: 8px 11px;
+            border: 1px solid rgba(255,255,255,.14);
+            border-radius: 999px;
+            background: rgba(3,12,14,.54);
+            color: #d7e6e7;
+            font-size: 13px;
+        }
+
+        .section-eyebrow {
+            margin: 0 0 12px;
+            color: var(--accent);
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: .14em;
+            text-transform: uppercase;
+        }
+
+        .section-heading {
+            max-width: 720px;
+            margin-bottom: 12px;
+            font-size: clamp(30px, 4vw, 48px);
+            line-height: 1.08;
+            letter-spacing: -.035em;
+        }
+
+        .section-intro { max-width: 700px; color: var(--muted); font-size: 17px; }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-top: 34px;
+        }
+
+        .step-card {
+            min-height: 210px;
+            padding: 25px;
+            border: 1px solid var(--line);
+            border-radius: 15px;
+            background: linear-gradient(145deg, rgba(19,42,44,.72), rgba(6,16,18,.72));
+        }
+
+        .step-number {
+            display: block;
+            margin-bottom: 32px;
+            color: var(--accent);
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: .1em;
+        }
+
+        .step-card h3 { margin-bottom: 9px; font-size: 20px; }
+        .step-card p { margin: 0; color: var(--muted); font-size: 15px; }
+
+        .estimate-band {
+            display: grid;
+            grid-template-columns: 1.35fr .65fr;
+            gap: 32px;
+            align-items: center;
+            max-width: 1120px;
+            margin: 0 auto;
+            padding: 40px 46px;
+            border: 1px solid rgba(105,244,232,.24);
+            border-radius: 18px;
+            background: linear-gradient(100deg, rgba(17,55,55,.82), rgba(8,23,25,.92));
+        }
+
+        .estimate-band h2 { margin-bottom: 10px; font-size: clamp(28px, 3.5vw, 42px); }
+        .estimate-band p { margin: 0; color: #bfd0d1; }
+        .estimate-facts { display: grid; gap: 9px; }
+        .estimate-fact { padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,.1); font-size: 14px; }
+        .estimate-fact:last-child { border-bottom: 0; }
+        .estimate-fact strong { display: block; color: var(--accent); font-size: 12px; text-transform: uppercase; letter-spacing: .09em; }
+
+        .profile-table { margin-top: 32px; border-color: var(--line); border-radius: 14px; }
+        .profile-row > div { padding: 18px; font-size: 15px; }
+        .profile-row strong { color: #eafffd; font-size: 16px; }
+
+        .trust-grid { grid-template-columns: repeat(4, 1fr); }
+        .trust-card { padding: 23px; border-color: var(--line); background: rgba(7,18,20,.7); }
+        .trust-card h3 { color: #eafffd; font-size: 17px; }
+        .trust-card p { font-size: 14px; color: var(--muted); opacity: 1; }
+        .trust-inline-badge { border: 0; background: none; padding: 0; color: var(--accent); }
+
+        .faq-list { display: grid; gap: 0; margin-top: 28px; }
+        .faq-item { padding: 24px 0; border-top: 1px solid var(--line); }
+        .faq-item h3 { margin-bottom: 8px; font-size: 18px; }
+        .faq-item p { margin: 0; color: var(--muted); }
+
+        #upload .content-box { max-width: 820px; border-color: rgba(105,244,232,.28); }
+        .upload-explainer {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 22px 0 18px;
+        }
+        .upload-explainer div { padding: 12px; border-radius: 9px; background: rgba(105,244,232,.06); color: #cfe0e1; font-size: 13px; }
+        .input-field { min-height: 50px; border-color: rgba(255,255,255,.14); background: rgba(1,8,10,.72); }
+
+        .footer { color: #c9d6d7; }
+
+        @media (max-width: 900px) {
+            .topnav .nav-links a:not(.nav-cta) { display: none; }
+            .steps-grid, .trust-grid { grid-template-columns: 1fr 1fr; }
+            .estimate-band { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 620px) {
+            section { padding: 52px 16px; }
+            .content-box { padding: 30px 22px; border-radius: 15px; }
+            .topnav { min-height: 60px; }
+            .nav-brand { font-size: 14px !important; }
+            .topnav .nav-cta { padding: 8px 10px; font-size: 12px; margin-left: 0; }
+            .hero { min-height: 720px; height: 100svh; padding: 92px 20px 54px; align-items: flex-end; }
+            .hero-overlay { background: linear-gradient(0deg, rgba(3,10,12,.96) 0%, rgba(3,10,12,.64) 70%, rgba(3,10,12,.28) 100%); }
+            .hero-content h1 { font-size: clamp(38px, 12vw, 54px); }
+            .hero-actions { display: grid; grid-template-columns: 1fr; }
+            .hero-actions a, .hero-actions .btn { width: 100%; }
+            .steps-grid, .trust-grid, .upload-explainer { grid-template-columns: 1fr; }
+            .step-card { min-height: auto; }
+            .step-number { margin-bottom: 20px; }
+            .estimate-band { margin: 0 16px; padding: 30px 22px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
+        }
+
     </style>
 </head>
 
@@ -791,37 +1048,26 @@
 <!-- ========================================================= -->
 <!--  NAVIGATION BAR                                           -->
 <!-- ========================================================= -->
-<div class="topnav">
+<nav class="topnav" aria-label="Main navigation">
+    <a class="nav-brand" href="/#start" aria-label="GPU Render Studio home">
+        <span class="brand-mark" aria-hidden="true">G</span>
+        <span>GPU Render Studio</span>
+    </a>
 
-    <a href="/#start">Home</a>
-
-    <a href="/how-it-works.html">How it Works</a>
-
-    <a href="/pricing-explained.html">Pricing</a>
-
-    <a href="/tools/">Tools</a>
-
-    <a href="/#trust">Trust</a>
-
-    <a href="/#upload">Upload</a>
-
-    <a href="/faq.html">FAQ</a>
-
-    <a href="/#contact">Contact</a>
-
-</div>
+    <div class="nav-links">
+        <a href="/#workflow">How it works</a>
+        <a href="/#prices">Plans</a>
+        <a href="/tools/">Tools</a>
+        <a href="/#trust">Trust</a>
+        <a href="/faq.html">FAQ</a>
+        <a class="nav-cta" href="/#upload">Get an estimate</a>
+    </div>
+</nav>
 
 <!-- ========================================================= -->
 <!--  HERO SECTION (Shimmer + Scroll Fade + Optimized Posters) -->
 <!-- ========================================================= -->
 <div id="start" class="hero">
-
-    <!-- Live badge -->
-    <div class="phase-label phase-1"
-         style="position:absolute;top:22px;right:22px;"
-         data-tooltip="Fully automated GPU rendering. Your project is executed exactly as uploaded.">
-        Live · Automated Rendering
-    </div>
 
     <video id="heroVid" class="hero-video"
            autoplay muted playsinline loop preload="auto"
@@ -830,6 +1076,8 @@
         <source id="vidWebm" src="assets/video/loop_desktop_v9.webm" type="video/webm">
         <source id="vidMp4"  src="assets/video/loop_fallback_v9.mp4"  type="video/mp4">
     </video>
+
+    <div class="hero-overlay" aria-hidden="true"></div>
 
     <!-- Scroll fade mask -->
     <div class="hero-scroll-mask"></div>
@@ -840,30 +1088,31 @@
     <!-- Content -->
     <div class="hero-content">
 
-        <h1 class="shimmer">
-            Render Blender Faster — Without Owning a GPU
-        </h1>
+        <div class="hero-kicker"><span class="live-dot"></span>Automated Blender rendering is live</div>
 
-        <p class="shimmer" style="max-width:760px;margin:auto;">
-            Upload your Blender scene, choose your price vs speed,
-            and let our RTX-powered system handle the rendering.
+        <h1>Render your Blender project on RTX 5090 GPUs</h1>
+
+        <p class="hero-lead">
+            Upload your finished scene and receive a measured render time and exact price before you decide. We handle the GPU, queue and delivery.
         </p>
 
-        <p style="font-size:14px;opacity:0.72;margin-top:14px;">
-        Real GPU timing · Live progress tracking · Transparent pricing
-        </p>
+        <div class="hero-actions">
+            <a href="#upload">
+                <button class="btn btn-primary" id="heroMainBtn">Get my render estimate</button>
+            </a>
+            <a href="#workflow">
+                <button class="btn">See how it works</button>
+            </a>
+        </div>
 
-        <a href="#upload">
-            <button class="btn btn-primary" id="heroMainBtn">
-                Upload Project
-            </button>
-        </a>
+        <p class="hero-assurance">Uploading starts the precheck—not the paid render. You approve the job after seeing the estimate.</p>
 
-        <a href="#prices">
-            <button class="btn">
-                Compare Plans
-            </button>
-        </a>
+        <div class="hero-proof" aria-label="Service highlights">
+            <span class="proof-chip">Dedicated RTX 5090</span>
+            <span class="proof-chip">Measured on a real GPU</span>
+            <span class="proof-chip">Live progress</span>
+            <span class="proof-chip">EU-based systems</span>
+        </div>
 
     </div>
 
@@ -1015,21 +1264,41 @@ document.addEventListener("DOMContentLoaded", () => {
 <!-- ========================================================= -->
 <section id="workflow">
     <div class="content-box">
-        <h2>How it Works</h2>
-        <ul>
-            <li>Upload a finished Blender project ready for final rendering</li>
-            <li>Automatic validation, GPU allocation, and execution</li>
-            <li>Download your completed frames — or receive clear error report if adjustments are needed</li>
-            <li>
-                The system runs fully unattended.
-                If a project exceeds limits, you get clear instructions on what to adjust.
-            </li>
-        </ul>
+        <p class="section-eyebrow">From scene to finished frames</p>
+        <h2 class="section-heading">A real estimate before you commit</h2>
+        <p class="section-intro">No guessing from file size or frame count. Your scene is tested on the rendering hardware before you choose whether to continue.</p>
+
+        <div class="steps-grid">
+            <article class="step-card">
+                <span class="step-number">01 · UPLOAD</span>
+                <h3>Send your finished scene</h3>
+                <p>Upload the ready-to-render <code>.blend</code> file. The automated service renders it exactly as supplied.</p>
+            </article>
+            <article class="step-card">
+                <span class="step-number">02 · MEASURE</span>
+                <h3>Review the GPU precheck</h3>
+                <p>We run a real timing test and show the expected render duration, suitable plan and exact price.</p>
+            </article>
+            <article class="step-card">
+                <span class="step-number">03 · APPROVE</span>
+                <h3>Render and download</h3>
+                <p>Approve the job, follow progress live and download the completed frames when they are ready.</p>
+            </article>
+        </div>
     </div>
 </section>
 
-<div class="image-section"
-     style="background-image:url('assets/images/workflow_timeline.jpg');">
+<div class="estimate-band">
+    <div>
+        <p class="section-eyebrow">Built to remove uncertainty</p>
+        <h2>Know the cost before the full render begins</h2>
+        <p>The precheck measures your actual scene on GPU hardware. You stay in control: review the result, choose a plan and confirm only when it makes sense.</p>
+    </div>
+    <div class="estimate-facts" aria-label="Estimate features">
+        <div class="estimate-fact"><strong>Timing</strong>Measured on a physical GPU</div>
+        <div class="estimate-fact"><strong>Price</strong>Shown before confirmation</div>
+        <div class="estimate-fact"><strong>Control</strong>Optional spending cap for extended jobs</div>
+    </div>
 </div>
 
 <!-- ========================================================= -->
@@ -1040,21 +1309,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
     <div
       class="phase-label"
-      data-tooltip="Choose lower cost or faster delivery. Your final quote is confirmed before rendering starts."
+      data-tooltip="Choose the GPU-time window that fits your measured estimate. The exact price is shown before rendering starts."
     >
-      Live · Price vs Speed
+      Live · Measured pricing
     </div>
 
-    <h2>Choose Your Price vs Speed</h2>
+    <p class="section-eyebrow">Simple plan selection</p>
+    <h2 class="section-heading">Choose after seeing your measured result</h2>
 
-    <p style="font-size:14px; opacity:0.78; margin-bottom:14px;">
-      Select the option that best matches your budget and deadline.
-      Every plan uses the same professional RTX-powered render infrastructure.
+    <p class="section-intro">
+      Every plan uses the same RTX 5090 render infrastructure. The precheck recommends the smallest plan that fits your estimated runtime.
     </p>
 
     <p style="font-size:13px; opacity:0.72; margin-bottom:24px;">
-      You are choosing queue priority, scheduling speed and delivery target —
-      not weaker hardware.
+      Longer render windows provide more headroom for complex scenes. You see the exact recommendation and price before confirming.
     </p>
 
     <div class="profile-table">
@@ -1062,8 +1330,8 @@ document.addEventListener("DOMContentLoaded", () => {
       <!-- HEADER -->
       <div class="profile-row header">
         <div>Option</div>
-        <div>Delivery Speed</div>
-        <div>Price Level</div>
+        <div>Included GPU time</div>
+        <div>Base price</div>
         <div>Best For</div>
       </div>
 
@@ -1078,15 +1346,15 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
 
         <div>
-          Flexible delivery window
+          Up to 1.5 hours
         </div>
 
         <div>
-          Lowest available price
+          $1.50
         </div>
 
         <div>
-          Non-urgent renders
+          Small, short renders
         </div>
       </div>
 
@@ -1101,15 +1369,15 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
 
         <div>
-          Balanced turnaround
+          Up to 4 hours
         </div>
 
         <div>
-          Best value
+          $4.00
         </div>
 
         <div>
-          Most projects
+          Typical projects
         </div>
       </div>
 
@@ -1120,19 +1388,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
         <div>
           <strong>Fast</strong><br>
-          <span style="font-size:12px;opacity:0.7;">Priority queue</span>
+          <span style="font-size:12px;opacity:0.7;">More render headroom</span>
         </div>
 
         <div>
-          Shorter ETA
+          Up to 8 hours
         </div>
 
         <div>
-          Premium
+          $8.00
         </div>
 
         <div>
-          Tight deadlines
+          Longer scenes
         </div>
       </div>
 
@@ -1143,19 +1411,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
         <div>
           <strong>Express</strong><br>
-          <span style="font-size:12px;opacity:0.7;">Maximum priority</span>
+          <span style="font-size:12px;opacity:0.7;">Largest base window</span>
         </div>
 
         <div>
-          Fastest available delivery
+          Up to 12 hours
         </div>
 
         <div>
-          Highest priority rate
+          $12.00
         </div>
 
         <div>
-          Urgent client work
+          Heavy render jobs
         </div>
       </div>
 
@@ -1169,12 +1437,11 @@ document.addEventListener("DOMContentLoaded", () => {
       </h3>
 
       <p style="font-size:13px; opacity:0.72; max-width:760px; margin:auto;">
-        Faster plans receive earlier access to available GPU capacity.
-        Budget plans trade delivery speed for lower cost.
+        The precheck estimates how much GPU time your scene needs and highlights a suitable plan.
       </p>
 
       <p style="font-size:12px; opacity:0.58; margin-top:12px;">
-        Final timing and pricing are confirmed during GPU precheck before you commit.
+        $1 per included GPU hour. Extended completion can be enabled with a spending cap when a job needs more time.
       </p>
 
     </div>
@@ -1188,7 +1455,9 @@ document.addEventListener("DOMContentLoaded", () => {
 <section id="trust">
   <div class="content-box">
 
-    <h2>Why GPU Render Studio</h2>
+    <p class="section-eyebrow">Rendering without the hardware investment</p>
+    <h2 class="section-heading">Built for finished Blender projects</h2>
+    <p class="section-intro">A focused automated service for creators who need more GPU capacity without buying and maintaining another workstation.</p>
 
     <div class="trust-grid">
 
@@ -1213,16 +1482,15 @@ document.addEventListener("DOMContentLoaded", () => {
       <div class="trust-card">
         <h3>EU-Based Infrastructure</h3>
         <p>
-          All systems operate in Europe for fast delivery and privacy-aware workflows.
+          Project processing and render infrastructure are operated in Europe.
         </p>
-        <span class="trust-inline-badge">EU Datacenters · GDPR aware</span>
+        <span class="trust-inline-badge">EU-based processing</span>
       </div>
 
       <div class="trust-card">
         <h3>No Charge on Failure</h3>
         <p>
-          If technical rendering fails, you are not billed.
-          Simple and fair.
+          If the job fails because of a technical rendering issue on our side, you are not charged.
         </p>
         <span class="trust-inline-badge">No charge on failure · Full audit trail</span>
       </div>
@@ -1232,7 +1500,7 @@ document.addEventListener("DOMContentLoaded", () => {
     <ul class="trust-list">
           <li>Real GPU timing checks before confirmation</li>
           <li>Live status page with progress and ETA</li>
-          <li>Secure file handling and automatic cleanup</li>
+          <li>File handling designed for automated project processing</li>
           <li>Designed for finished Blender projects</li>
           </ul>
 
@@ -1251,10 +1519,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
 <h2>Questions Before You Upload?</h2>
 
+<div class="faq-list">
+
 <div class="faq-item">
 <h3>How does pricing work?</h3>
 <p>
-Choose between Budget, Standard, Fast or Express depending on your preferred price and delivery speed. Final pricing is confirmed before rendering begins.
+Plans provide different included GPU-time windows. The measured precheck recommends the smallest suitable option and shows the exact price before you confirm.
 <a href="pricing-explained.html">Full pricing details →</a>
 </p>
 </div>
@@ -1262,15 +1532,15 @@ Choose between Budget, Standard, Fast or Express depending on your preferred pri
 <div class="faq-item">
 <h3>How fast can my render be completed?</h3>
 <p>
-Delivery time depends on scene complexity, selected plan and current queue load. Fast and Express plans receive higher priority.
-<a href="how-it-works.html">How delivery works →</a>
+Delivery time depends on scene complexity, measured GPU runtime and the current queue. Your estimate is shown after the precheck.
+<a href="how-it-works.html">How estimates work →</a>
 </p>
 </div>
 
 <div class="faq-item">
 <h3>Where are GPUs hosted?</h3>
 <p>
-All infrastructure is operated in Europe for fast delivery and privacy-aware workflows.
+Project processing and render infrastructure are operated in Europe.
 <a href="eu-gpu-hosting.html">Read more →</a>
 </p>
 </div>
@@ -1292,6 +1562,8 @@ If rendering fails due to technical issues on our side, you are not charged.
 </div>
 
 </div>
+
+</div>
 </section>
 
 <!-- ========================================================= -->
@@ -1299,7 +1571,15 @@ If rendering fails due to technical issues on our side, you are not charged.
 <!-- ========================================================= -->
 <section id="upload">
   <div class="content-box">
-    <h2>Upload Project</h2>
+    <p class="section-eyebrow">Start with measured information</p>
+    <h2 class="section-heading">Get your render estimate</h2>
+    <p class="section-intro">Upload a finished Blender scene. We validate it and run a real GPU timing precheck before asking you to approve a paid render.</p>
+
+    <div class="upload-explainer" aria-label="What happens after upload">
+      <div><strong>1.</strong> Upload and validate</div>
+      <div><strong>2.</strong> Review time and price</div>
+      <div><strong>3.</strong> Approve the render</div>
+    </div>
 
     <form id="uploadForm" enctype="multipart/form-data">
                 <input type="hidden" name="project_type" value="blender">
@@ -1319,14 +1599,14 @@ If rendering fails due to technical issues on our side, you are not charged.
       </p>
 
       <p style="font-size:12px;opacity:0.6;margin-top:6px;">
-        Failed jobs are not charged. Price and runtime are locked at submission.
+        Uploading starts the estimate only. The full render does not begin until you review the precheck and confirm.
       </p>
 
       <button class="btn btn-primary" type="submit" style="width:100%;margin-top:18px;">
-        Start Automated Render
+        Upload scene and get estimate
       </button>
       <div style="margin-top:10px;font-size:13px;opacity:0.85;color:#baffff;text-align:center;">
-                    Launch offer: Budget plan currently available free with voucher..
+                    Have a launch voucher? Enter it after the precheck to make an eligible Budget render free.
                 </div>
     </form>
 
@@ -1406,13 +1686,7 @@ function setSelectedPlan(plan) {
 
   const btn = document.getElementById("heroMainBtn");
   if (btn) {
-    const names = {
-      budget: "Start Budget Render",
-      standard: "Start Standard Render",
-      fast: "Start Fast Render",
-      express: "Start Express Render"
-    };
-    btn.textContent = names[plan] || "Start Render";
+    btn.textContent = "Get my render estimate";
   }
 
   document.querySelectorAll(".plan-card").forEach(card => {
@@ -2031,8 +2305,18 @@ function renderSlotChooser(precheck) {
   const slots =
     precheck.slot_suggestion?.slot_analysis || [];
 
-  const pricing =
+  const pricingFromApi =
     precheck.pricing_snapshot?.slot_prices_usd || {};
+
+  const hourlyRate = safeNum(precheck.pricing_snapshot?.hourly_rate_usd) || 1;
+  const slotLimitsFromApi = precheck.pricing_snapshot?.slot_limits || {};
+  const pricing = {
+    STRICT: hourlyRate * (safeNum(slotLimitsFromApi.STRICT) || 1.5),
+    EXTENDED: hourlyRate * (safeNum(slotLimitsFromApi.EXTENDED) || 4),
+    FLEXIBLE: hourlyRate * (safeNum(slotLimitsFromApi.FLEXIBLE) || 8),
+    OPEN_FIXED_MAX: hourlyRate * (safeNum(slotLimitsFromApi.OPEN_FIXED_MAX) || 12),
+    ...pricingFromApi
+  };
 
   const backendRecommended =
     precheck.slot_suggestion?.recommended_profile || null;
@@ -2109,7 +2393,7 @@ function renderSlotChooser(precheck) {
   }).join("");
 
   resultBox.innerHTML = `
-<h3>Choose price vs speed</h3>
+<h3>Choose your render plan</h3>
 
 <p style="font-size:13px;opacity:0.8;">
 Recommended plan: <strong>${publicName(recommended)}${overflowRequired ? " + OVERFLOW" : ""}</strong>
@@ -2537,7 +2821,7 @@ if (myJobsList) {
       }
 
     }
- 
+
     catch (err) {
       console.error(err);
 
@@ -2565,7 +2849,7 @@ if (myJobsList) {
 })();
 
 document.addEventListener("DOMContentLoaded", async () => {
-  
+
   setSelectedPlan("standard");
 
   const accountToken = localStorage.getItem("account_token");
