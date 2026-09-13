@@ -21,40 +21,24 @@ jobs:
         shell: python
         run: |
           from pathlib import Path
+          import re
 
           p = Path('index.html')
           s = p.read_text(encoding='utf-8')
 
-          old = '''        <div class="hero-actions">
-              <a href="#upload">
-                  <button class="btn btn-primary" id="heroMainBtn">Get my render estimate</button>
-              </a>
-              <a href="#workflow">
-                  <button class="btn">See how it works</button>
-              </a>
-          </div>
-          '''
-          new = '''        <div class="hero-actions">
-              <a href="#upload">
-                  <button class="btn btn-primary" id="heroMainBtn">Get my render estimate</button>
-              </a>
-              <a href="/blender-render-farm.html">
-                  <button class="btn">Blender render farm</button>
-              </a>
-              <a href="#workflow">
-                  <button class="btn">See how it works</button>
-              </a>
-          </div>
-          '''
-          if old not in s:
-              raise SystemExit('Hero action block not found; refusing unsafe patch')
-          s = s.replace(old, new, 1)
+          if '/blender-render-farm.html' not in s:
+              pattern = r'(<a href="#upload">\s*<button class="btn btn-primary" id="heroMainBtn">Get my render estimate</button>\s*</a>)(\s*)(<a href="#workflow">)'
+              replacement = r'''\1\2<a href="/blender-render-farm.html">
+                <button class="btn">Blender render farm</button>
+            </a>\2\3'''
+              s, n = re.subn(pattern, replacement, s, count=1)
+              if n != 1:
+                  raise SystemExit('Could not safely insert hero link')
 
-          old2 = '''    <p class="section-intro">A focused automated service for creators who need more GPU capacity without buying and maintaining another workstation.</p>'''
-          new2 = '''    <p class="section-intro">A focused <a href="/blender-render-farm.html">Blender render farm and GPU rendering service</a> for creators who need more GPU capacity without buying and maintaining another workstation.</p>'''
-          if old2 not in s:
-              raise SystemExit('Trust intro not found; refusing unsafe patch')
-          s = s.replace(old2, new2, 1)
+          old = 'A focused automated service for creators who need more GPU capacity without buying and maintaining another workstation.'
+          new = 'A focused <a href="/blender-render-farm.html">Blender render farm and GPU rendering service</a> for creators who need more GPU capacity without buying and maintaining another workstation.'
+          if old in s:
+              s = s.replace(old, new, 1)
 
           p.write_text(s, encoding='utf-8')
 
