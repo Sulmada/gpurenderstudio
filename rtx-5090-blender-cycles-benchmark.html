@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RTX 5090 Blender Cycles Benchmark – Real Render Times & Cost | GPU Render Studio</title>
+  <meta name="description" content="Measured RTX 5090 Blender Cycles results from GPU Render Studio: Blender Open Data performance, real scene render times, and multi-frame Persistent Data speedups." />
+  <link rel="canonical" href="https://gpurenderstudio.com/rtx-5090-blender-cycles-benchmark.html" />
+  <meta property="og:title" content="RTX 5090 Blender Cycles Benchmark – Real Render Times & Cost" />
+  <meta property="og:description" content="Real Blender 5.1.1 + OptiX measurements on an RTX 5090, including multi-frame A/B tests with Persistent Data enabled and disabled." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://gpurenderstudio.com/rtx-5090-blender-cycles-benchmark.html" />
+  <meta property="og:image" content="https://gpurenderstudio.com/assets/images/hero_poster_desktop.jpg" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"TechArticle",
+    "headline":"RTX 5090 Blender Cycles Benchmark – Real Render Times & Cost",
+    "description":"Measured Blender Cycles performance on an RTX 5090, including official Blender Open Data context and real multi-frame A/B render tests.",
+    "datePublished":"2026-09-16",
+    "dateModified":"2026-09-16",
+    "author":{"@type":"Organization","name":"GPU Render Studio"},
+    "publisher":{"@type":"Organization","name":"GPU Render Studio"},
+    "mainEntityOfPage":"https://gpurenderstudio.com/rtx-5090-blender-cycles-benchmark.html"
+  }
+  </script>
+
+  <style>
+    :root{--bg:#071012;--panel:#0d1b1d;--text:#f3fbfb;--muted:#adc0c2;--accent:#69f4e8;--line:rgba(151,244,238,.16)}
+    *{box-sizing:border-box} html{scroll-behavior:smooth} body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at 85% 10%,rgba(30,163,155,.08),transparent 30rem),var(--bg);color:var(--text);line-height:1.7}
+    a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}.nav{position:sticky;top:0;z-index:20;display:flex;justify-content:space-between;align-items:center;gap:20px;padding:16px max(22px,calc((100vw - 1120px)/2));background:rgba(5,13,15,.9);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}.brand{color:#fff;font-weight:800}.nav-links{display:flex;gap:18px;align-items:center;flex-wrap:wrap}.cta{display:inline-block;padding:12px 18px;border-radius:10px;background:var(--accent);color:#031111;font-weight:800}.cta:hover{text-decoration:none;filter:brightness(1.08)}
+    header,main,footer{max-width:1020px;margin:auto;padding-left:28px;padding-right:28px}header{padding-top:76px;padding-bottom:44px}.eyebrow{color:var(--accent);text-transform:uppercase;letter-spacing:.14em;font-size:12px;font-weight:800}h1{font-size:clamp(40px,6vw,72px);line-height:1.02;letter-spacing:-.045em;margin:14px 0 22px}h2{font-size:clamp(28px,4vw,42px);line-height:1.1;letter-spacing:-.03em;margin:0 0 14px}h3{margin:26px 0 8px}.lead{font-size:20px;color:#d2e0e1;max-width:820px}.note,.panel{border:1px solid var(--line);border-radius:16px;background:linear-gradient(145deg,rgba(19,42,44,.72),rgba(6,16,18,.75));padding:24px}.note{margin-top:28px}.panel{margin:28px 0}.muted{color:var(--muted)}section{padding:42px 0;border-top:1px solid rgba(255,255,255,.06)}table{width:100%;border-collapse:collapse;margin:22px 0 10px;background:rgba(5,15,17,.55);border:1px solid var(--line);border-radius:12px;overflow:hidden}th,td{padding:13px 14px;text-align:right;border-bottom:1px solid rgba(255,255,255,.07)}th:first-child,td:first-child{text-align:left}th{font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:#c9dddd;background:rgba(255,255,255,.035)}tr:last-child td{border-bottom:0}.big{font-size:clamp(34px,5vw,58px);font-weight:800;color:#fff;letter-spacing:-.04em}.metric-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px}.metric{padding:20px;border:1px solid var(--line);border-radius:14px;background:rgba(105,244,232,.045)}.metric strong{display:block;color:var(--accent);font-size:12px;text-transform:uppercase;letter-spacing:.08em}.metric span{display:block;margin-top:5px;font-size:26px;font-weight:800}.method li{margin:7px 0}.fineprint{font-size:13px;color:#8fa3a5}footer{padding-top:30px;padding-bottom:52px;border-top:1px solid rgba(255,255,255,.06);color:#819597;font-size:14px}@media(max-width:760px){.metric-grid{grid-template-columns:1fr}.nav-links a:not(.cta){display:none}table{font-size:13px}th,td{padding:10px 8px}}
+  </style>
+</head>
+<body>
+  <nav class="nav" aria-label="Main navigation">
+    <a class="brand" href="/">GPU Render Studio</a>
+    <div class="nav-links">
+      <a href="/blender-render-farm.html">Blender render farm</a>
+      <a href="/pricing-explained.html">Pricing</a>
+      <a class="cta" href="/#upload">Get an estimate</a>
+    </div>
+  </nav>
+
+  <header>
+    <p class="eyebrow">Measured on production hardware · September 2026</p>
+    <h1>RTX 5090 Blender Cycles benchmark: real render times and multi-frame throughput</h1>
+    <p class="lead">Synthetic GPU scores are useful, but they do not tell the whole story for an animation render service. We measured our production RTX 5090 with Blender Open Data, real Blender scenes, and controlled 10-frame A/B tests of our multi-frame runtime.</p>
+    <div class="note"><strong>Headline result:</strong> Persistent Data reduced 10-frame render time by <strong>14.2% to 57.3%</strong> across four Blender benchmark scenes. Across the complete four-scene test set, total Blender render time was <strong>37.3% lower</strong>.</div>
+  </header>
+
+  <main>
+    <section>
+      <p class="eyebrow">Two different questions</p>
+      <h2>Raw GPU speed vs production throughput</h2>
+      <p class="muted">We keep these measurements separate. Blender Open Data measures raw Cycles performance. Our multi-frame benchmark measures how efficiently the render service processes consecutive frames from the same scene.</p>
+      <div class="metric-grid">
+        <div class="metric"><strong>Blender Open Data</strong><span>17,027</span><p class="muted">Total score from Classroom, Junkshop and Monster on the official benchmark.</p></div>
+        <div class="metric"><strong>Comparable median</strong><span>17,050</span><p class="muted">Median of 20 matching RTX 5090 + Blender 5.2 + Linux + OptiX submissions in our September 16 snapshot.</p></div>
+        <div class="metric"><strong>Multi-frame total</strong><span>−37.3%</span><p class="muted">Combined Blender render time in our four-scene 10-frame Persistent Data A/B test.</p></div>
+      </div>
+      <p class="fineprint">Open Data submissions are submissions, not guaranteed unique physical GPUs. The official benchmark and the production runtime benchmark answer different questions and should not be combined into one score.</p>
+    </section>
+
+    <section>
+      <p class="eyebrow">Production multi-frame A/B</p>
+      <h2>Same scenes, same RTX 5090, one runtime change</h2>
+      <p class="muted">Each scene was rendered as an identical 10-frame Blender 5.1.1 Cycles/OptiX job. The controlled variable was Cycles Persistent Data: disabled for the baseline and enabled for the optimized run.</p>
+      <table>
+        <thead><tr><th>Scene</th><th>Persistent Data off</th><th>Persistent Data on</th><th>Time reduction</th><th>Throughput</th></tr></thead>
+        <tbody>
+          <tr><td>BMW</td><td>19.597 s</td><td>14.017 s</td><td>28.5%</td><td>1.40×</td></tr>
+          <tr><td>Classroom</td><td>58.339 s</td><td>50.068 s</td><td>14.2%</td><td>1.17×</td></tr>
+          <tr><td>Junkshop</td><td>80.445 s</td><td>34.347 s</td><td>57.3%</td><td>2.34×</td></tr>
+          <tr><td>Monster</td><td>38.055 s</td><td>24.658 s</td><td>35.2%</td><td>1.54×</td></tr>
+        </tbody>
+      </table>
+      <div class="panel">
+        <div class="big">196.44 s → 123.09 s</div>
+        <p class="muted">Combined Blender render time across all four 10-frame tests. That is 73.35 seconds saved, or 37.3% lower total render time. Results are scene-dependent; this is not a guaranteed percentage for every Blender project.</p>
+      </div>
+    </section>
+
+    <section>
+      <p class="eyebrow">Why it helps</p>
+      <h2>Persistent Data avoids rebuilding everything between frames</h2>
+      <p class="muted">For eligible multi-frame jobs, Blender can keep reusable Cycles scene data in memory between frames. That means later frames may avoid part of the setup work paid by the first frame. The gain depends heavily on what changes from frame to frame and how expensive scene setup is.</p>
+      <p class="muted">The clearest example in our test was Junkshop. The first frame still paid the normal setup cost, while later frames dropped to roughly 2.83 seconds each in our direct 10-frame test. Classroom improved more modestly. This is exactly why we publish a range rather than a single universal speed claim.</p>
+    </section>
+
+    <section>
+      <p class="eyebrow">Safety and execution policy</p>
+      <h2>Only enabled where it can help</h2>
+      <p class="muted">GPU Render Studio enables Persistent Data for multi-frame animation work and keeps it off for single-frame stills. Long Render chunks also use it within each multi-frame chunk. The setting is applied in memory for execution; customer scene quality settings are not rewritten and the uploaded .blend file is not saved with the change.</p>
+      <p class="muted">We verified the production worker path, single-frame path and Long Render chunk path before rollout. The production worker retained OptiX, progress reporting, output packaging and wall-time billing.</p>
+    </section>
+
+    <section>
+      <p class="eyebrow">Methodology</p>
+      <h2>How the numbers were measured</h2>
+      <ul class="method muted">
+        <li>GPU: NVIDIA GeForce RTX 5090, 32 GB class VRAM.</li>
+        <li>Production Blender runtime: Blender 5.1.1, Cycles, OptiX.</li>
+        <li>Multi-frame A/B scenes: BMW, Classroom, Junkshop and Monster.</li>
+        <li>Each A/B run used the same 10-frame scene copy and the same GPU backend.</li>
+        <li>Persistent Data was the intended controlled variable between the off and on runs.</li>
+        <li>Production E2E validation used the real GPU Render Studio worker and isolated test Redis state.</li>
+        <li>Official Blender Open Data comparison used a September 16, 2026 snapshot filtered to RTX 5090 + Blender 5.2 + Linux + OptiX + single compute device + complete Classroom/Junkshop/Monster results.</li>
+      </ul>
+    </section>
+
+    <section>
+      <p class="eyebrow">What this means for customers</p>
+      <h2>More useful than quoting a GPU model alone</h2>
+      <p class="muted">An RTX 5090 is fast, but animation throughput also depends on how the renderer is operated. Our goal is to measure the actual uploaded project, use an execution path suited to Blender multi-frame work, and show the expected time and exact price before the full render is approved.</p>
+      <p><a class="cta" href="/#upload">Upload a Blender scene for a measured estimate</a></p>
+      <p class="fineprint">Benchmark results describe these measured test scenes and configurations. Your scene can be faster or slower depending on geometry, textures, sampling, effects, compositing, frame-to-frame changes and other workload characteristics.</p>
+    </section>
+  </main>
+
+  <footer>© GPU Render Studio · Measured Blender GPU rendering on dedicated RTX 5090 hardware</footer>
+</body>
+</html>
