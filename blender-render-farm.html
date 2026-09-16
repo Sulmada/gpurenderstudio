@@ -175,6 +175,15 @@
     .fact { padding:18px; background:rgba(105,244,232,.05); border-radius:12px; }
     .fact strong { display:block; color:#fff; margin-bottom:5px; }
     .fact span { color:var(--muted); font-size:14px; }
+    .benchmark-table { width:100%; border-collapse:collapse; margin:26px 0 14px; border:1px solid var(--line); background:rgba(5,15,17,.55); border-radius:12px; overflow:hidden; }
+    .benchmark-table th,.benchmark-table td { padding:13px 14px; text-align:right; border-bottom:1px solid rgba(255,255,255,.07); }
+    .benchmark-table th:first-child,.benchmark-table td:first-child { text-align:left; }
+    .benchmark-table th { font-size:12px; text-transform:uppercase; letter-spacing:.07em; color:#c9dddd; background:rgba(255,255,255,.035); }
+    .benchmark-table tr:last-child td { border-bottom:0; }
+    .benchmark-highlight { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:22px; }
+    .benchmark-highlight div { padding:20px; border:1px solid var(--line); border-radius:14px; background:rgba(105,244,232,.045); }
+    .benchmark-highlight strong { display:block; color:var(--accent); font-size:12px; text-transform:uppercase; letter-spacing:.08em; }
+    .benchmark-highlight span { display:block; margin-top:5px; font-size:28px; font-weight:800; }
     .faq { display:grid; gap:0; margin-top:24px; }
     .faq article { padding:20px 0; border-top:1px solid var(--line); }
     .faq p { margin:0; color:var(--muted); }
@@ -182,10 +191,10 @@
     .links a { padding:20px; border:1px solid var(--line); border-radius:14px; background:rgba(7,18,20,.7); }
     footer { max-width:1120px; margin:auto; padding:28px 32px 50px; color:#819597; font-size:14px; border-top:1px solid rgba(255,255,255,.06); }
     @media(max-width:820px){
-      .hero{grid-template-columns:1fr;padding-top:70px}.grid,.facts,.links{grid-template-columns:1fr 1fr}.nav-links a:not(.cta){display:none}
+      .hero{grid-template-columns:1fr;padding-top:70px}.grid,.facts,.links{grid-template-columns:1fr 1fr}.benchmark-highlight{grid-template-columns:1fr}.nav-links a:not(.cta){display:none}
     }
     @media(max-width:560px){
-      .hero,main{padding-left:20px;padding-right:20px}.grid,.facts,.links{grid-template-columns:1fr}.hero{gap:28px}.lead{font-size:18px}.nav{padding:14px 18px}
+      .hero,main{padding-left:20px;padding-right:20px}.grid,.facts,.links{grid-template-columns:1fr}.hero{gap:28px}.lead{font-size:18px}.nav{padding:14px 18px}.benchmark-table{font-size:13px}.benchmark-table th,.benchmark-table td{padding:10px 8px}
     }
   </style>
 </head>
@@ -244,6 +253,32 @@
     </section>
 
     <section>
+      <p class="eyebrow">Measured multi-frame performance</p>
+      <h2>14–57% shorter render time in our Blender Cycles tests</h2>
+      <p class="intro">Our production runtime reuses eligible Cycles scene data across consecutive animation frames. In controlled 10-frame A/B tests on the same RTX 5090, Blender 5.1.1 and OptiX, Persistent Data reduced render time in all four benchmark scenes we tested.</p>
+
+      <table class="benchmark-table">
+        <thead><tr><th>Scene</th><th>Without optimization</th><th>With optimization</th><th>Reduction</th></tr></thead>
+        <tbody>
+          <tr><td>BMW</td><td>19.60 s</td><td>14.02 s</td><td>28.5%</td></tr>
+          <tr><td>Classroom</td><td>58.34 s</td><td>50.07 s</td><td>14.2%</td></tr>
+          <tr><td>Junkshop</td><td>80.45 s</td><td>34.35 s</td><td>57.3%</td></tr>
+          <tr><td>Monster</td><td>38.06 s</td><td>24.66 s</td><td>35.2%</td></tr>
+        </tbody>
+      </table>
+
+      <div class="benchmark-highlight">
+        <div><strong>Combined test set</strong><span>37.3% lower render time</span></div>
+        <div><strong>Largest measured gain</strong><span>2.34× throughput</span></div>
+      </div>
+
+      <div class="band">
+        <p><strong>What this means:</strong> the improvement is scene-dependent, so we do not promise one universal percentage. The useful point is that the service is optimized for multi-frame Blender workloads rather than simply exposing an RTX 5090.</p>
+        <p><a href="/rtx-5090-blender-cycles-benchmark.html">See the full benchmark, methodology and Open Data context →</a></p>
+      </div>
+    </section>
+
+    <section>
       <p class="eyebrow">Pricing</p>
       <h2>Know the price before the full render begins</h2>
       <p class="intro">GPU Render Studio currently prices included GPU time at $1 per GPU hour, with render windows starting at $1.50. The precheck recommends the smallest suitable window based on the measured project.</p>
@@ -280,9 +315,9 @@
       <p class="eyebrow">Related Blender rendering resources</p>
       <h2>Learn more before you upload</h2>
       <div class="links">
+        <a href="/rtx-5090-blender-cycles-benchmark.html"><strong>RTX 5090 benchmark</strong><br><span>Measured Cycles performance and multi-frame A/B results.</span></a>
         <a href="/how-it-works.html"><strong>How it works</strong><br><span>Step-by-step render workflow.</span></a>
         <a href="/pricing-explained.html"><strong>Pricing explained</strong><br><span>GPU-time windows and precheck pricing.</span></a>
-        <a href="/tools/"><strong>Render tools</strong><br><span>Estimate and compare rendering workloads.</span></a>
       </div>
     </section>
   </main>
