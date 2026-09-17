@@ -1,0 +1,91 @@
+name: Center hero once
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/center-hero-once.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  center-hero:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Center desktop hero
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text()
+          replacements = {
+          '''        .hero {
+            min-height: 690px;
+            height: 92vh;
+            max-height: 900px;
+            padding: 110px 24px 64px;
+            justify-content: flex-start;
+            text-align: left;
+        }
+''': '''        .hero {
+            min-height: 690px;
+            height: 92vh;
+            max-height: 900px;
+            padding: 110px 24px 64px;
+            justify-content: center;
+            text-align: center;
+        }
+''',
+          '''        .hero-content {
+            width: 100%;
+            max-width: 1180px;
+            padding: 20px 0;
+            text-align: left;
+        }
+''': '''        .hero-content {
+            width: 100%;
+            max-width: 900px;
+            margin: auto;
+            padding: 20px 0;
+            text-align: center;
+        }
+''',
+          '''            margin: 0 0 24px;
+            font-size: clamp(44px, 6.1vw, 78px);
+''': '''            margin: 0 auto 24px;
+            font-size: clamp(44px, 6.1vw, 78px);
+''',
+          '''            margin: 0 0 24px;
+            color: #d4e1e2;
+''': '''            margin: 0 auto 24px;
+            color: #d4e1e2;
+''',
+          '''        .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 0 0 18px; }
+''': '''        .hero-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin: 0 0 18px; }
+''',
+          '''            max-width: 760px;
+        }
+''': '''            max-width: 760px;
+            margin: 0 auto;
+        }
+'''
+          }
+          for old, new in replacements.items():
+              if old not in s:
+                  raise SystemExit('Expected hero snippet not found:\n' + old)
+              s = s.replace(old, new, 1)
+          p.write_text(s)
+          PY
+      - name: Remove one-time workflow
+        run: rm .github/workflows/center-hero-once.yml
+      - name: Commit change
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html .github/workflows/center-hero-once.yml
+          git commit -m 'Center homepage hero content'
+          git push
