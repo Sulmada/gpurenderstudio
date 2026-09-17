@@ -830,8 +830,8 @@
             height: 92vh;
             max-height: 900px;
             padding: 110px 24px 64px;
-            justify-content: flex-start;
-            text-align: left;
+            justify-content: center;
+            text-align: center;
         }
 
         .hero-video { filter: brightness(.42) saturate(1.08) contrast(1.08); }
@@ -843,9 +843,9 @@
 
         .hero-content {
             width: 100%;
-            max-width: 1180px;
+            max-width: 900px;
             padding: 20px 0;
-            text-align: left;
+            text-align: center;
         }
 
         .hero-kicker {
@@ -870,7 +870,7 @@
 
         .hero-content h1 {
             max-width: 800px;
-            margin: 0 0 24px;
+            margin: 0 auto 24px;
             font-size: clamp(44px, 6.1vw, 78px);
             line-height: .98;
             letter-spacing: -.055em;
@@ -878,13 +878,13 @@
 
         .hero-content .hero-lead {
             max-width: 680px;
-            margin: 0 0 24px;
+            margin: 0 auto 24px;
             color: #d4e1e2;
             font-size: clamp(18px, 2vw, 22px);
             line-height: 1.55;
         }
 
-        .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 0 0 18px; }
+        .hero-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin: 0 0 18px; }
         .hero-actions .btn { margin: 0; min-height: 52px; }
         .btn {
             border-radius: 10px;
@@ -908,7 +908,7 @@
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
-            max-width: 760px;
+            max-width: 760px; margin: 0 auto;
         }
 
         .proof-chip {
