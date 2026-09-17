@@ -411,7 +411,7 @@
 
             .profile-row > div:nth-child(1)::before { content: "Profile"; }
             .profile-row > div:nth-child(2)::before { content: "Included time"; }
-            .profile-row > div:nth-child(3)::before { content: "Base price"; }
+            .profile-row > div:nth-child(3)::before { content: "Minimum / rate"; }
             .profile-row > div:nth-child(4)::before { content: "Best for"; }
 
             .profile-row > div::before {
@@ -1304,6 +1304,22 @@ document.addEventListener("DOMContentLoaded", () => {
     </div>
 </div>
 
+<section id="performance-proof">
+  <div class="content-box">
+    <p class="section-eyebrow">Measured multi-frame performance</p>
+    <h2 class="section-heading">14–57% shorter render time in our Blender Cycles tests</h2>
+    <p class="section-intro">
+      Our optimized RTX 5090 runtime reduced 10-frame render time by 14.2% to 57.3% across four Blender benchmark scenes, depending on the scene. Across the complete four-scene test set, total render time was 37.3% lower.
+    </p>
+    <p style="margin-top:18px;font-size:13px;color:var(--muted);max-width:760px;">
+      Same RTX 5090, Blender 5.1.1 and OptiX configuration in each A/B run. Results vary by scene and are not a guaranteed speedup for every project.
+    </p>
+    <p style="margin-top:18px;">
+      <a href="/rtx-5090-blender-cycles-benchmark.html"><strong>See the RTX 5090 Blender benchmark →</strong></a>
+    </p>
+  </div>
+</section>
+
 <!-- ========================================================= -->
 <!--  PRICING – INTERACTIVE PRICE VS SPEED MODEL              -->
 <!-- ========================================================= -->
@@ -1325,7 +1341,7 @@ document.addEventListener("DOMContentLoaded", () => {
     </p>
 
     <p style="font-size:13px; opacity:0.72; margin-bottom:24px;">
-      Longer render windows provide more headroom for complex scenes. You see the exact recommendation and price before confirming.
+      Each plan has a minimum charge and an hourly GPU rate. You see the measured recommendation and estimated price before confirming.
     </p>
 
     <div class="profile-table">
@@ -1333,8 +1349,8 @@ document.addEventListener("DOMContentLoaded", () => {
       <!-- HEADER -->
       <div class="profile-row header">
         <div>Option</div>
-        <div>Included GPU time</div>
-        <div>Base price</div>
+        <div>GPU time</div>
+        <div>Minimum / GPU rate</div>
         <div>Best For</div>
       </div>
 
@@ -1353,7 +1369,8 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
 
         <div>
-          $1.50
+          <strong>$1 min</strong><br>
+          <span style="font-size:12px;opacity:0.72;">$1.00 / GPU hour</span>
         </div>
 
         <div>
@@ -1376,7 +1393,8 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
 
         <div>
-          $4.00
+          <strong>$3 min</strong><br>
+          <span style="font-size:12px;opacity:0.72;">$1.00 / GPU hour</span>
         </div>
 
         <div>
@@ -1391,7 +1409,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         <div>
           <strong>Fast</strong><br>
-          <span style="font-size:12px;opacity:0.7;">More render headroom</span>
+          <span style="font-size:12px;opacity:0.7;">Higher queue priority</span>
         </div>
 
         <div>
@@ -1399,11 +1417,12 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
 
         <div>
-          $8.00
+          <strong>$6 min</strong><br>
+          <span style="font-size:12px;opacity:0.72;">$1.25 / GPU hour</span>
         </div>
 
         <div>
-          Longer scenes
+          Longer or time-sensitive jobs
         </div>
       </div>
 
@@ -1414,7 +1433,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         <div>
           <strong>Express</strong><br>
-          <span style="font-size:12px;opacity:0.7;">Largest base window</span>
+          <span style="font-size:12px;opacity:0.7;">Highest normal priority</span>
         </div>
 
         <div>
@@ -1422,11 +1441,12 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
 
         <div>
-          $12.00
+          <strong>$10 min</strong><br>
+          <span style="font-size:12px;opacity:0.72;">$1.50 / GPU hour</span>
         </div>
 
         <div>
-          Heavy render jobs
+          Heavy or urgent render jobs
         </div>
       </div>
 
@@ -1444,7 +1464,10 @@ document.addEventListener("DOMContentLoaded", () => {
       </p>
 
       <p style="font-size:12px; opacity:0.58; margin-top:12px;">
-        $1 per included GPU hour. Extended completion can be enabled with a spending cap when a job needs more time.
+        Final charge is the greater of the plan minimum or actual GPU render time × that plan's hourly rate. Extended completion can be enabled with a spending cap when a job needs more time.
+      </p>
+      <p style="font-size:12px; opacity:0.7; margin-top:10px;">
+        <a href="/pricing-explained.html">Full pricing details →</a>
       </p>
 
     </div>
@@ -1527,7 +1550,7 @@ document.addEventListener("DOMContentLoaded", () => {
 <div class="faq-item">
 <h3>How does pricing work?</h3>
 <p>
-Plans provide different included GPU-time windows. The measured precheck recommends the smallest suitable option and shows the exact price before you confirm.
+Plans provide different GPU-time windows. The measured precheck recommends the smallest suitable option and shows the exact price before you confirm.
 <a href="pricing-explained.html">Full pricing details →</a>
 </p>
 </div>
