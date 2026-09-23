@@ -1,265 +1,119 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>GPU Render Pricing Explained | GPU Render Studio</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Blender Render Farm Pricing | RTX 5090 GPU Rendering</title>
+<meta name="description" content="Blender render farm pricing on dedicated RTX 5090 GPUs. See plan minimums, hourly GPU rates and how the measured precheck shows runtime and price before approval."/>
+<link rel="canonical" href="https://gpurenderstudio.com/pricing-explained.html"/>
 
-  <meta name="description" content="Understand GPU Render Studio pricing, plan minimums, hourly GPU rates and the measured precheck shown before render approval." />
+<meta property="og:title" content="Blender Render Farm Pricing | GPU Render Studio"/>
+<meta property="og:description" content="Transparent RTX 5090 Blender rendering prices with a measured GPU precheck before you approve the full render."/>
+<meta property="og:url" content="https://gpurenderstudio.com/pricing-explained.html"/>
+<meta property="og:type" content="article"/>
+<meta property="og:image" content="https://gpurenderstudio.com/assets/images/hero_poster_desktop.jpg"/>
+<meta name="twitter:card" content="summary_large_image"/>
 
-  <link rel="canonical" href="https://gpurenderstudio.com/pricing-explained.html" />
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"GPU Render Studio","item":"https://gpurenderstudio.com/"},
+    {"@type":"ListItem","position":2,"name":"Pricing","item":"https://gpurenderstudio.com/pricing-explained.html"}
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Service",
+  "name":"GPU Render Studio Blender rendering",
+  "url":"https://gpurenderstudio.com/pricing-explained.html",
+  "description":"Automated Blender GPU rendering on dedicated RTX 5090 hardware with a measured runtime and price shown before approval.",
+  "provider":{"@type":"Organization","name":"GPU Render Studio","url":"https://gpurenderstudio.com/"}
+}
+</script>
 
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-  <meta property="og:title" content="GPU Render Pricing Explained | GPU Render Studio" />
-  <meta property="og:description" content="Clear Blender GPU render plans with minimum charges, hourly GPU rates and measured estimates before approval." />
-  <meta property="og:url" content="https://gpurenderstudio.com/pricing-explained.html" />
-  <meta property="og:type" content="article" />
-
-  <meta name="twitter:card" content="summary_large_image" />
-
-  <script type="application/ld+json">
-  {
-    "@context":"https://schema.org",
-    "@type":"Service",
-    "name":"GPU Render Studio",
-    "description":"Automated Blender GPU rendering with measured estimates, plan minimums and hourly GPU pricing.",
-    "brand":{
-      "@type":"Organization",
-      "name":"GPU Render Studio"
-    }
-  }
-  </script>
-
-  <style>
-    body{
-      font-family:system-ui,Arial,sans-serif;
-      margin:0;
-      background:#0b0f14;
-      color:#eaeef3;
-    }
-
-    header,main,footer{
-      max-width:1100px;
-      margin:auto;
-      padding:32px;
-    }
-
-    h1,h2,h3{
-      color:#ffffff;
-      margin-top:0;
-    }
-
-    a{
-      color:#6ab7ff;
-      text-decoration:none;
-    }
-
-    a:hover{
-      text-decoration:underline;
-    }
-
-    .box{
-      background:#131a24;
-      border-radius:12px;
-      padding:22px;
-      margin:20px 0;
-      border:1px solid rgba(255,255,255,0.04);
-    }
-
-    .grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
-      gap:20px;
-    }
-
-    .tier{
-      background:#131a24;
-      border-radius:12px;
-      padding:22px;
-      border:1px solid rgba(255,255,255,0.04);
-    }
-
-    .tier h3{
-      color:#baffff;
-      margin-bottom:8px;
-    }
-
-    .tier p{
-      line-height:1.65;
-      opacity:0.92;
-    }
-
-    .small{
-      font-size:14px;
-      opacity:0.72;
-    }
-
-    footer{
-      opacity:0.7;
-      font-size:14px;
-    }
-  </style>
+<style>
+:root{--bg:#0b0f14;--panel:#131a24;--text:#eaeef3;--muted:#b5c0cc;--accent:#7ffcff;--link:#6ab7ff;--line:rgba(255,255,255,.08)}
+*{box-sizing:border-box}body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;margin:0;background:var(--bg);color:var(--text);line-height:1.65}
+header,main,footer,nav{max-width:1100px;margin:auto;padding-left:32px;padding-right:32px}
+nav{padding-top:18px;padding-bottom:18px;display:flex;gap:18px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+a{color:var(--link);text-decoration:none}a:hover{text-decoration:underline}
+header{padding-top:56px;padding-bottom:22px}.eyebrow{color:var(--accent);text-transform:uppercase;letter-spacing:.12em;font-size:12px;font-weight:800}
+h1{font-size:clamp(38px,6vw,62px);line-height:1.05;margin:10px 0 18px}h2,h3{margin-top:0}.lead{font-size:20px;color:#d3dbe4;max-width:850px}
+.box,.tier{background:var(--panel);border-radius:12px;padding:22px;border:1px solid var(--line)}.box{margin:22px 0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;margin-top:18px}
+.tier h3{color:var(--accent)}.price{font-size:20px;font-weight:800;color:#fff}.muted{color:var(--muted)}.cta{display:inline-block;padding:12px 18px;border-radius:9px;background:var(--accent);color:#071012;font-weight:800}
+.cta:hover{text-decoration:none;filter:brightness(1.05)}footer{padding-top:30px;padding-bottom:44px;color:#8e9aa8;font-size:14px}
+@media(max-width:600px){header,main,footer,nav{padding-left:20px;padding-right:20px}}
+</style>
 </head>
-
 <body>
+<nav aria-label="Main navigation">
+<a href="/">Home</a>
+<a href="/blender-render-farm.html">Blender render farm</a>
+<a href="/how-it-works.html">How it works</a>
+<a href="/rtx-5090-blender-cycles-benchmark.html">RTX 5090 benchmark</a>
+<a href="/faq.html">FAQ</a>
+</nav>
 
 <header>
-  <h1>GPU Render Pricing Explained</h1>
-  <p>
-    Simple plan-based pricing with a real measured estimate before you approve the render.
-  </p>
-<p>
-  <a href="./">← Back to main site</a>
-  &nbsp; | &nbsp;
-  <a href="/blender-render-farm.html">Blender Render Farm</a>
-  &nbsp; | &nbsp;
-  <a href="/tools/">Render Tools →</a>
-</p>
-
+<p class="eyebrow">Transparent Blender GPU pricing</p>
+<h1>Blender render farm pricing</h1>
+<p class="lead">GPU Render Studio measures your actual Blender project before the full job begins. You review the expected GPU runtime, suitable plan and price before approving the render.</p>
 </header>
 
 <main>
-
 <section class="box">
-  <h2>How Pricing Works</h2>
-  <p>
-    Each render plan has a <strong>minimum charge</strong> and an <strong>hourly GPU rate</strong>.
-    A real precheck estimates your scene and recommends the smallest suitable plan before you approve the job.
-  </p>
-
-  <ol>
-    <li>Upload your Blender project.</li>
-    <li>Run a real GPU precheck to estimate render time.</li>
-    <li>Review the recommended plan, hourly rate and estimated price.</li>
-    <li>Confirm your job before full rendering begins.</li>
-  </ol>
-
-  <p>
-    For normal plans, the final render charge is the greater of the plan minimum or the actual GPU render time multiplied by that plan's hourly rate.
-  </p>
-
-  <p class="small">
-    Final price depends on measured usage. Your estimate and applicable plan are shown after project analysis rather than guessed in advance.
-  </p>
+<h2>How pricing works</h2>
+<ol>
+<li>Upload a finished Blender project.</li>
+<li>A real GPU precheck measures render behaviour and estimates total GPU time.</li>
+<li>The system recommends the smallest suitable render plan.</li>
+<li>You review the measured estimate and price.</li>
+<li>The paid full render starts only after approval.</li>
+</ol>
+<p class="muted">For normal plans, the render charge is the greater of the plan minimum or actual GPU render time multiplied by the plan's hourly rate.</p>
 </section>
 
 <section class="box">
-  <h2>Render Plans</h2>
-
-  <div class="grid">
-
-    <div class="tier">
-      <h3>Budget</h3>
-      <p>
-        Up to 1.5 GPU hours. <strong>$1 minimum</strong>, then <strong>$1.00 per GPU hour</strong>. Lowest-cost option for short renders.
-      </p>
-    </div>
-
-    <div class="tier">
-      <h3>Standard</h3>
-      <p>
-        Up to 4 GPU hours. <strong>$3 minimum</strong>, then <strong>$1.00 per GPU hour</strong>. The normal choice for typical projects.
-      </p>
-    </div>
-
-    <div class="tier">
-      <h3>Fast</h3>
-      <p>
-        Up to 8 GPU hours. <strong>$6 minimum</strong>, then <strong>$1.25 per GPU hour</strong>. Higher queue priority for longer or more time-sensitive jobs.
-      </p>
-    </div>
-
-    <div class="tier">
-      <h3>Express</h3>
-      <p>
-        Up to 12 GPU hours. <strong>$10 minimum</strong>, then <strong>$1.50 per GPU hour</strong>. Highest normal queue priority.
-      </p>
-    </div>
-
-    <div class="tier">
-      <h3>Long Render</h3>
-      <p>
-        For eligible jobs expected to exceed 12 GPU hours. <strong>$12 minimum</strong>, then <strong>$1.00 per GPU hour</strong>. Long Render is preemptible between frames and uses a lower-priority queue so large jobs can remain economical.
-      </p>
-    </div>
-
-  </div>
+<h2>Current render plans</h2>
+<div class="grid">
+<article class="tier"><h3>Budget</h3><p class="price">$1 minimum · $1.00/GPU hour</p><p>Up to 1.5 GPU hours. Lowest-cost option for short, non-urgent renders.</p></article>
+<article class="tier"><h3>Standard</h3><p class="price">$3 minimum · $1.00/GPU hour</p><p>Up to 4 GPU hours. The normal choice for typical Blender projects.</p></article>
+<article class="tier"><h3>Fast</h3><p class="price">$6 minimum · $1.25/GPU hour</p><p>Up to 8 GPU hours with higher queue priority.</p></article>
+<article class="tier"><h3>Express</h3><p class="price">$10 minimum · $1.50/GPU hour</p><p>Up to 12 GPU hours with the highest normal queue priority.</p></article>
+<article class="tier"><h3>Long Render</h3><p class="price">$12 minimum · $1.00/GPU hour</p><p>For eligible jobs expected to exceed 12 GPU hours. Long Render uses a lower-priority, preemptible-between-frames queue.</p></article>
+</div>
 </section>
 
 <section class="box">
-  <h2>How Delivery Estimates Are Calculated</h2>
-  <p>
-    Delivery estimates are based on real GPU precheck analysis of your project.
-    This means timing is grounded in actual render behavior rather than rough assumptions.
-  </p>
-
-  <p>
-    Factors that affect timing include scene complexity, render settings, frame count,
-    measured GPU runtime and the selected plan.
-  </p>
+<h2>Why we measure the scene instead of quoting by file size</h2>
+<p>Blender render cost depends on the work performed by the renderer, not simply the size of the .blend file. Sampling, geometry, textures, lighting, volumetrics, compositing, effects, resolution and frame count can all change runtime substantially.</p>
+<p>A measured precheck gives you project-specific information before you commit. Read <a href="/how-it-works.html">how the workflow works</a> or see our <a href="/rtx-5090-blender-cycles-benchmark.html">measured RTX 5090 Cycles benchmark</a>.</p>
 </section>
 
 <section class="box">
-  <h2>What You Pay For</h2>
-
-  <div class="grid">
-    <div class="tier">
-      <h3>Real GPU Rendering</h3>
-      <p>
-        Your Blender project runs on physical GPU hardware built for rendering workloads.
-      </p>
-    </div>
-
-    <div class="tier">
-      <h3>Live Tracking</h3>
-      <p>
-        Every job includes status tracking with progress visibility and estimated completion.
-      </p>
-    </div>
-
-    <div class="tier">
-      <h3>Transparent Workflow</h3>
-      <p>
-        You see the recommended plan, project estimate and pricing before committing.
-      </p>
-    </div>
-
-    <div class="tier">
-      <h3>Failure Protection</h3>
-      <p>
-        Technical rendering failures are not billed.
-      </p>
-    </div>
-  </div>
+<h2>What the price includes</h2>
+<div class="grid">
+<div class="tier"><h3>Dedicated GPU rendering</h3><p>Your approved Blender project runs on physical RTX 5090 rendering hardware.</p></div>
+<div class="tier"><h3>Measured precheck</h3><p>The scene is timed before the full job so you can evaluate runtime and cost.</p></div>
+<div class="tier"><h3>Live job tracking</h3><p>The workflow includes status and progress visibility during execution.</p></div>
+<div class="tier"><h3>Failure protection</h3><p>Technical platform-side rendering failures are not billed under the current service policy.</p></div>
+</div>
 </section>
 
 <section class="box">
-  <h2>Before You Confirm</h2>
-  <p>
-    After upload, the system analyzes your project and presents the measured render estimate and suitable plan.
-    This is where final confirmation happens before the full render job starts.
-  </p>
-
-  <p class="small">
-    In other words: upload first, analyze second, review the measured price information, then confirm.
-  </p>
+<h2>Is a render farm worth it for every project?</h2>
+<p>No. If your scene already renders quickly on your own GPU, local rendering may make more sense. A render service becomes more useful when local rendering ties up the workstation, a deadline matters, or buying high-end hardware for occasional workloads would be inefficient.</p>
+<p>The precheck is designed to help you make that decision with the actual project rather than a generic estimate.</p>
+<a class="cta" href="/#upload">Measure a Blender project</a>
 </section>
 
-<section class="box">
-  <h2>Related Guides</h2>
-  <ul>
-    <li><a href="blender-render-farm.html">Blender Render Farm & RTX 5090 Rendering →</a></li>
-    <li><a href="faq.html">Full FAQ →</a></li>
-    <li><a href="how-it-works.html">How the Render Workflow Works →</a></li>
-    <li><a href="eu-gpu-hosting.html">EU GPU Hosting & Compliance →</a></li>
-  </ul>
-</section>
-
+<p class="muted">Related: <a href="/blender-render-farm.html">Blender render farm overview</a> · <a href="/faq.html">FAQ</a> · <a href="/eu-gpu-hosting.html">EU GPU infrastructure</a>.</p>
 </main>
 
-<footer>
-  <p>© GPU Render Studio</p>
-</footer>
-
+<footer>© GPU Render Studio · Blender GPU rendering pricing</footer>
 </body>
 </html>
