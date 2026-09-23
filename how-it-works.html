@@ -2,199 +2,96 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
-<title>How GPU Render Studio Works – Automated Blender GPU Rendering</title>
-
-<meta name="description" content="Learn how GPU Render Studio works: upload your Blender file, receive a measured GPU estimate, approve the price, track progress and download the final render."/>
-
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>How a Blender Render Farm Works | RTX 5090 GPU Rendering</title>
+<meta name="description" content="See how GPU Render Studio renders Blender projects on RTX 5090 GPUs: upload, measured precheck, exact price approval, live rendering and delivery."/>
 <link rel="canonical" href="https://gpurenderstudio.com/how-it-works.html"/>
 
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta property="og:title" content="How a Blender Render Farm Works | GPU Render Studio"/>
+<meta property="og:description" content="Upload a finished Blender project, get a real GPU timing precheck and exact price, then approve the RTX 5090 render."/>
+<meta property="og:type" content="article"/>
+<meta property="og:url" content="https://gpurenderstudio.com/how-it-works.html"/>
+<meta property="og:image" content="https://gpurenderstudio.com/assets/images/hero_poster_desktop.jpg"/>
+<meta name="twitter:card" content="summary_large_image"/>
+
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"GPU Render Studio","item":"https://gpurenderstudio.com/"},
+    {"@type":"ListItem","position":2,"name":"How it works","item":"https://gpurenderstudio.com/how-it-works.html"}
+  ]
+}
+</script>
 
 <style>
-body{
-    font-family:system-ui;
-    background:#0b0f14;
-    color:#eaeef3;
-    margin:0;
-}
-
-main,header,footer{
-    max-width:1100px;
-    margin:auto;
-    padding:32px;
-}
-
-h1,h2,h3{
-    margin-top:0;
-}
-
-a{
-    color:#6ab7ff;
-    text-decoration:none;
-}
-
-a:hover{
-    text-decoration:underline;
-}
-
-.box{
-    background:#131a24;
-    border-radius:12px;
-    padding:22px;
-    margin:20px 0;
-    border:1px solid rgba(255,255,255,0.04);
-}
-
-.grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
-    gap:18px;
-}
-
-.step{
-    background:#131a24;
-    border-radius:12px;
-    padding:22px;
-    border:1px solid rgba(255,255,255,0.04);
-}
-
-.step-number{
-    color:#baffff;
-    font-size:13px;
-    letter-spacing:1px;
-    text-transform:uppercase;
-    margin-bottom:10px;
-}
-
-.step h3{
-    font-size:22px;
-    margin-bottom:10px;
-}
-
-.step p{
-    line-height:1.65;
-    opacity:0.92;
-}
-
-.intro{
-    opacity:0.78;
-    margin-top:10px;
-}
-
-.small{
-    font-size:14px;
-    opacity:0.72;
-}
-
-footer{
-    opacity:0.7;
-    font-size:14px;
-}
+:root{--bg:#0b0f14;--panel:#131a24;--text:#eaeef3;--muted:#b5c0cc;--accent:#7ffcff;--link:#6ab7ff;--line:rgba(255,255,255,.08)}
+*{box-sizing:border-box} body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);margin:0;line-height:1.65}
+header,main,footer,nav{max-width:1100px;margin:auto;padding-left:32px;padding-right:32px}
+nav{padding-top:18px;padding-bottom:18px;display:flex;gap:18px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+a{color:var(--link);text-decoration:none} a:hover{text-decoration:underline}
+header{padding-top:56px;padding-bottom:26px}.eyebrow{color:var(--accent);text-transform:uppercase;letter-spacing:.12em;font-size:12px;font-weight:800}
+h1{font-size:clamp(38px,6vw,64px);line-height:1.04;margin:10px 0 18px} h2{margin-top:0} h3{margin-top:0}
+.lead{font-size:20px;color:#d3dbe4;max-width:830px}
+.box,.step,.card{background:var(--panel);border-radius:12px;padding:22px;border:1px solid var(--line)}
+.box{margin:22px 0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;margin:22px 0}
+.step-number{color:var(--accent);font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;margin-bottom:8px}
+.muted{color:var(--muted)} .cta{display:inline-block;margin-top:8px;padding:12px 18px;border-radius:9px;background:var(--accent);color:#071012;font-weight:800}
+.cta:hover{text-decoration:none;filter:brightness(1.05)} footer{padding-top:30px;padding-bottom:44px;color:#8e9aa8;font-size:14px}
+@media(max-width:600px){header,main,footer,nav{padding-left:20px;padding-right:20px}}
 </style>
 </head>
-
 <body>
+<nav aria-label="Main navigation">
+  <a href="/">Home</a>
+  <a href="/blender-render-farm.html">Blender render farm</a>
+  <a href="/rtx-5090-blender-cycles-benchmark.html">RTX 5090 benchmark</a>
+  <a href="/pricing-explained.html">Pricing</a>
+  <a href="/faq.html">FAQ</a>
+</nav>
 
 <header>
-<h1>How It Works</h1>
-
-<p class="intro">
-From upload to delivery through a measured and automated GPU rendering workflow.
-</p>
-
-<p>
-<a href="./">← Back to main site</a>
-</p>
+<p class="eyebrow">Measured workflow · Dedicated RTX 5090</p>
+<h1>How our Blender render farm works</h1>
+<p class="lead">GPU Render Studio is built for finished Blender projects. Upload your scene, receive a measured GPU runtime and exact price, approve the job, then follow the render through delivery.</p>
 </header>
 
 <main>
+<section class="box">
+<h2>Why the precheck comes first</h2>
+<p>Two Blender scenes with the same file size or frame count can take very different amounts of GPU time. Geometry, textures, sampling, lighting, compositing, effects and frame-to-frame changes all matter. Instead of guessing, GPU Render Studio measures the uploaded project on real render hardware before the full job begins.</p>
+<p class="muted">Uploading starts analysis. It does not automatically start a paid full render.</p>
+</section>
+
+<section class="grid" aria-label="Blender rendering workflow">
+<div class="step"><div class="step-number">Step 1</div><h3>Upload the finished Blender project</h3><p>Submit a project that is ready for final rendering. The automated service is intended for rendering rather than scene editing or creative changes.</p></div>
+<div class="step"><div class="step-number">Step 2</div><h3>Run a real GPU precheck</h3><p>The system performs a measured timing test and inspects the expected workload so the estimate is based on actual render behaviour.</p></div>
+<div class="step"><div class="step-number">Step 3</div><h3>Review runtime and exact price</h3><p>You see the measured estimate, suitable plan and price before approving the full render. See <a href="/pricing-explained.html">Blender render pricing</a> for the current plan model.</p></div>
+<div class="step"><div class="step-number">Step 4</div><h3>Render on RTX 5090 GPUs</h3><p>Approved jobs run on dedicated NVIDIA RTX 5090 hardware with automated scheduling and live progress reporting.</p></div>
+<div class="step"><div class="step-number">Step 5</div><h3>Track progress and receive output</h3><p>The job status page shows progress and delivery state. When processing is complete, the rendered output is made available for download.</p></div>
+</section>
 
 <section class="box">
-<h2>Simple Process</h2>
-
-<p>
-GPU Render Studio is built to make Blender rendering simple:
-upload your project, receive a measured estimate, approve the suitable plan
-and let the system handle the rest.
-</p>
+<h2>What is different from renting a raw GPU?</h2>
+<p>GPU Render Studio is not simply an hourly remote GPU. The service is designed around the Blender rendering workflow: project intake, measured precheck, plan selection, execution, tracking and output delivery are handled as one pipeline.</p>
+<p>For animation workloads, the production runtime can reuse eligible Cycles scene data across consecutive frames. Our published <a href="/rtx-5090-blender-cycles-benchmark.html">RTX 5090 Blender benchmark</a> documents the measured test method and results.</p>
 </section>
 
 <section class="grid">
-
-<div class="step">
-<div class="step-number">Step 1</div>
-<h3>Upload Your File</h3>
-<p>
-Upload your finished Blender project through the website. This starts the precheck, not the paid render.
-</p>
-</div>
-
-<div class="step">
-<div class="step-number">Step 2</div>
-<h3>Real GPU Precheck</h3>
-<p>
-Your project is analyzed using a real render timing test to estimate total GPU time.
-</p>
-</div>
-
-<div class="step">
-<div class="step-number">Step 3</div>
-<h3>Review and Approve</h3>
-<p>
-Review the measured runtime, recommended plan and exact price. The full render begins only after you confirm.
-</p>
-</div>
-
-<div class="step">
-<div class="step-number">Step 4</div>
-<h3>Rendering Begins</h3>
-<p>
-Your job runs on high-performance GPUs with automated scheduling
-and live progress updates.
-</p>
-</div>
-
-<div class="step">
-<div class="step-number">Step 5</div>
-<h3>Delivery</h3>
-<p>
-When complete, your output is ready for download. Successful jobs are charged according to the plan you approved.
-</p>
-</div>
-
+<div class="card"><h3>Best fit</h3><p>Finished Blender scenes where local rendering would tie up a workstation, miss a deadline or justify offloading to faster hardware.</p></div>
+<div class="card"><h3>Probably unnecessary</h3><p>Very small jobs that already finish quickly on your local GPU may be simpler and cheaper to render locally.</p></div>
+<div class="card"><h3>Before committing</h3><p>Use the measured estimate to decide whether outsourcing the render makes economic sense for that particular project.</p></div>
 </section>
 
 <section class="box">
-<h2>What Happens Behind the Scenes</h2>
-
-<p>
-The platform automatically manages GPU allocation, job scheduling,
-progress monitoring and delivery handling so you can focus on your project.
-</p>
-
-<p class="small">
-You choose the result. The system handles the complexity.
-</p>
+<h2>Ready to measure a project?</h2>
+<p>Start with the precheck and decide after you see the expected runtime and price.</p>
+<a class="cta" href="/#upload">Upload a Blender project</a>
+<p class="muted">You can also read the <a href="/blender-render-farm.html">Blender render farm overview</a>, <a href="/faq.html">FAQ</a> or <a href="/eu-gpu-hosting.html">EU infrastructure information</a>.</p>
 </section>
-
-<section class="box">
-<h2>Why Creators Use GPU Render Studio</h2>
-
-<ul style="line-height:1.8; padding-left:18px;">
-<li>Faster rendering without buying expensive hardware</li>
-<li>Real estimates before long jobs begin</li>
-<li>Live status tracking</li>
-<li>Simple pricing options</li>
-<li>Designed for Blender workflows</li>
-</ul>
-
-</section>
-
 </main>
 
-<footer>
-<p>© GPU Render Studio</p>
-</footer>
-
+<footer>© GPU Render Studio · Automated Blender GPU rendering</footer>
 </body>
 </html>
