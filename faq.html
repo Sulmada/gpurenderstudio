@@ -2,219 +2,89 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
-<title>FAQ – GPU Render Studio</title>
-
-<meta name="description" content="Frequently asked questions about GPU Render Studio pricing, measured GPU render estimates, live tracking, payments and Blender project rendering."/>
-
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Blender Render Farm FAQ | RTX 5090 Rendering & Pricing</title>
+<meta name="description" content="Answers about GPU Render Studio: Blender file uploads, RTX 5090 rendering, measured prechecks, pricing, animation renders, tracking, EU processing and failed jobs."/>
 <link rel="canonical" href="https://gpurenderstudio.com/faq.html"/>
 
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta property="og:title" content="Blender Render Farm FAQ | GPU Render Studio"/>
+<meta property="og:description" content="Common questions about Blender rendering on RTX 5090 GPUs, measured estimates, pricing and delivery."/>
+<meta property="og:type" content="article"/>
+<meta property="og:url" content="https://gpurenderstudio.com/faq.html"/>
+<meta property="og:image" content="https://gpurenderstudio.com/assets/images/hero_poster_desktop.jpg"/>
+<meta name="twitter:card" content="summary_large_image"/>
 
 <script type="application/ld+json">
 {
 "@context":"https://schema.org",
 "@type":"FAQPage",
 "mainEntity":[
-
-{
-"@type":"Question",
-"name":"How does pricing work?",
-"acceptedAnswer":{
-"@type":"Answer",
-"text":"Plans include different GPU-time windows. A real precheck recommends a suitable plan and shows the exact price before confirmation."
-}
-},
-
-{
-"@type":"Question",
-"name":"How accurate are delivery estimates?",
-"acceptedAnswer":{
-"@type":"Answer",
-"text":"Estimated delivery times are based on real GPU precheck testing of your Blender project before rendering begins."
-}
-},
-
-{
-"@type":"Question",
-"name":"What file types do you accept?",
-"acceptedAnswer":{
-"@type":"Answer",
-"text":"GPU Render Studio currently accepts finished Blender project files for automated rendering."
-}
-},
-
-{
-"@type":"Question",
-"name":"Can I track progress live?",
-"acceptedAnswer":{
-"@type":"Answer",
-"text":"Yes. Every render job includes a live status page with progress updates, estimated completion time and delivery status."
-}
-},
-
-{
-"@type":"Question",
-"name":"What happens if rendering fails?",
-"acceptedAnswer":{
-"@type":"Answer",
-"text":"Technical rendering failures are not billed. If a job cannot be completed due to platform-side issues, no charge is applied."
-}
-},
-
-{
-"@type":"Question",
-"name":"Where are GPUs hosted?",
-"acceptedAnswer":{
-"@type":"Answer",
-"text":"Project processing and render infrastructure are operated in the European Union."
-}
-},
-
-{
-"@type":"Question",
-"name":"When do I pay?",
-"acceptedAnswer":{
-"@type":"Answer",
-"text":"Uploading and the GPU precheck do not start the paid render. The price is shown before you approve the job, and successful jobs are charged according to the approved plan."
-}
-}
-
+{"@type":"Question","name":"How does GPU Render Studio pricing work?","acceptedAnswer":{"@type":"Answer","text":"Uploading starts a measured GPU precheck. The service estimates the project runtime, recommends a suitable plan and shows the applicable price before the full render is approved."}},
+{"@type":"Question","name":"What Blender files do you accept?","acceptedAnswer":{"@type":"Answer","text":"GPU Render Studio is intended for finished Blender project files that are ready for final rendering."}},
+{"@type":"Question","name":"What GPU hardware is used?","acceptedAnswer":{"@type":"Answer","text":"The current production service is built around dedicated NVIDIA GeForce RTX 5090 GPUs for Blender Cycles rendering."}},
+{"@type":"Question","name":"Can I render Blender animations?","acceptedAnswer":{"@type":"Answer","text":"Yes. Multi-frame Blender projects can use the same upload, measured precheck, approval, rendering and delivery workflow."}},
+{"@type":"Question","name":"Does uploading start a paid render?","acceptedAnswer":{"@type":"Answer","text":"No. Uploading starts the precheck. The measured runtime and applicable price are shown before the full render is approved."}},
+{"@type":"Question","name":"Can I track rendering progress?","acceptedAnswer":{"@type":"Answer","text":"Yes. Jobs include a live status page with progress and delivery information."}},
+{"@type":"Question","name":"What happens if rendering fails?","acceptedAnswer":{"@type":"Answer","text":"Technical platform-side rendering failures are not billed under the current service policy."}},
+{"@type":"Question","name":"Where is project processing performed?","acceptedAnswer":{"@type":"Answer","text":"GPU Render Studio operates its rendering infrastructure in the European Union."}}
 ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"GPU Render Studio","item":"https://gpurenderstudio.com/"},
+    {"@type":"ListItem","position":2,"name":"FAQ","item":"https://gpurenderstudio.com/faq.html"}
+  ]
 }
 </script>
 
 <style>
-body{
-    font-family:system-ui;
-    background:#0b0f14;
-    color:#eaeef3;
-    margin:0;
-}
-
-main,header,footer{
-    max-width:1000px;
-    margin:auto;
-    padding:32px;
-}
-
-h1,h2{
-    margin-top:0;
-}
-
-a{
-    color:#6ab7ff;
-    text-decoration:none;
-}
-
-a:hover{
-    text-decoration:underline;
-}
-
-.box{
-    background:#131a24;
-    border-radius:12px;
-    padding:22px;
-    margin:20px 0;
-    border:1px solid rgba(255,255,255,0.04);
-}
-
-.box h2{
-    color:#baffff;
-    font-size:22px;
-    margin-bottom:10px;
-}
-
-.box p{
-    line-height:1.65;
-    opacity:0.92;
-}
-
-.intro{
-    opacity:0.78;
-    margin-top:10px;
-}
-
-footer{
-    opacity:0.7;
-    font-size:14px;
-}
+:root{--bg:#0b0f14;--panel:#131a24;--text:#eaeef3;--muted:#b5c0cc;--accent:#7ffcff;--link:#6ab7ff;--line:rgba(255,255,255,.08)}
+*{box-sizing:border-box} body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);margin:0;line-height:1.65}
+header,main,footer,nav{max-width:1050px;margin:auto;padding-left:32px;padding-right:32px}
+nav{padding-top:18px;padding-bottom:18px;display:flex;gap:18px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+a{color:var(--link);text-decoration:none} a:hover{text-decoration:underline}
+header{padding-top:56px;padding-bottom:22px}.eyebrow{color:var(--accent);text-transform:uppercase;letter-spacing:.12em;font-size:12px;font-weight:800}
+h1{font-size:clamp(38px,6vw,60px);line-height:1.05;margin:10px 0 18px} h2{margin-top:0;color:#fff}
+.lead{font-size:19px;color:#d3dbe4;max-width:800px}.box{background:var(--panel);border-radius:12px;padding:22px;margin:18px 0;border:1px solid var(--line)}
+.box h2{color:var(--accent);font-size:21px}.muted{color:var(--muted)} footer{padding-top:30px;padding-bottom:44px;color:#8e9aa8;font-size:14px}
+@media(max-width:600px){header,main,footer,nav{padding-left:20px;padding-right:20px}}
 </style>
 </head>
-
 <body>
+<nav aria-label="Main navigation">
+<a href="/">Home</a>
+<a href="/blender-render-farm.html">Blender render farm</a>
+<a href="/how-it-works.html">How it works</a>
+<a href="/pricing-explained.html">Pricing</a>
+<a href="/rtx-5090-blender-cycles-benchmark.html">RTX 5090 benchmark</a>
+</nav>
 
 <header>
-<h1>Frequently Asked Questions</h1>
-
-<p class="intro">
-Answers about pricing, measured estimates and automated Blender rendering.
-</p>
-
-<p>
-  <a href="./">← Back to main site</a>
-  &nbsp; | &nbsp;
-  <a href="/tools/">Render Tools →</a>
-</p>
+<p class="eyebrow">Blender rendering questions</p>
+<h1>Blender render farm FAQ</h1>
+<p class="lead">Common questions about uploading Blender projects, measured RTX 5090 render estimates, pricing, animation rendering, progress tracking and delivery.</p>
 </header>
 
 <main>
+<div class="box"><h2>How does pricing work?</h2><p>Uploading starts a real GPU precheck. The project is measured, a suitable plan is recommended and the applicable price is shown before you approve the full render. See <a href="/pricing-explained.html">Blender render pricing</a>.</p></div>
+<div class="box"><h2>Does uploading start a paid render?</h2><p>No. Uploading begins analysis and the precheck. The full render starts only after you review and approve the measured estimate and price.</p></div>
+<div class="box"><h2>What Blender files do you accept?</h2><p>GPU Render Studio is intended for finished Blender project files prepared for final rendering. The automated tier does not perform scene editing or creative fixes.</p></div>
+<div class="box"><h2>What GPU hardware is used?</h2><p>The current production service is built around dedicated NVIDIA GeForce RTX 5090 GPUs. For measured Cycles performance, see the <a href="/rtx-5090-blender-cycles-benchmark.html">RTX 5090 Blender benchmark</a>.</p></div>
+<div class="box"><h2>Can I render Blender animations?</h2><p>Yes. Multi-frame projects can use the same upload, precheck, approval and rendering workflow. Eligible consecutive frames can also benefit from production optimizations documented in our benchmark methodology.</p></div>
+<div class="box"><h2>How accurate is the render estimate?</h2><p>The estimate is based on a real GPU timing precheck of the uploaded project rather than only file size or frame count. Actual workload still depends on scene settings and content, so the measurement is more useful than a generic per-frame guess.</p></div>
+<div class="box"><h2>Can I track progress live?</h2><p>Yes. Jobs include a live status page with progress and delivery information.</p></div>
+<div class="box"><h2>What happens if rendering fails?</h2><p>Technical platform-side rendering failures are not billed under the current service policy.</p></div>
+<div class="box"><h2>Where are GPUs hosted?</h2><p>GPU Render Studio operates its rendering infrastructure in the European Union. Read more on the <a href="/eu-gpu-hosting.html">EU GPU hosting page</a>.</p></div>
+<div class="box"><h2>Is this the same as renting a remote GPU?</h2><p>No. Raw GPU rental gives you compute access. GPU Render Studio wraps the Blender workflow around the hardware: project intake, measured precheck, pricing, execution, tracking and delivery are handled as a render service.</p></div>
+<div class="box"><h2>When is local rendering still better?</h2><p>If a small job already finishes quickly on your own hardware, local rendering may be simpler. The service is most useful when render time blocks your workstation, a deadline matters, or buying high-end hardware for occasional rendering does not make sense.</p></div>
 
-<div class="box">
-<h2>How does pricing work?</h2>
-<p>
-Choose between <strong>Budget</strong>, <strong>Standard</strong>,
-<strong>Fast</strong> or <strong>Express</strong>. Each plan includes a different GPU-time window.
-The precheck recommends a suitable plan and shows its exact price before you confirm.
-</p>
-</div>
-
-<div class="box">
-<h2>How accurate are delivery estimates?</h2>
-<p>
-Estimated times are based on real GPU precheck analysis of your project before the full render starts.
-</p>
-</div>
-
-<div class="box">
-<h2>What file types do you accept?</h2>
-<p>
-GPU Render Studio currently accepts finished Blender project files prepared for rendering.
-</p>
-</div>
-
-<div class="box">
-<h2>Can I track progress live?</h2>
-<p>
-Yes. Every job includes a live status page with progress updates, estimated completion and delivery status.
-</p>
-</div>
-
-<div class="box">
-<h2>What happens if rendering fails?</h2>
-<p>
-Technical platform-side failures are not billed.
-</p>
-</div>
-
-<div class="box">
-<h2>Where are GPUs hosted?</h2>
-<p>
-Project processing and render infrastructure are operated in the European Union.
-</p>
-</div>
-
-<div class="box">
-<h2>When do I pay?</h2>
-<p>
-Uploading and the GPU precheck do not start the paid render. You see the price before approval, and successful jobs are charged according to the plan you confirmed.
-</p>
-</div>
-
+<p class="muted">More detail: <a href="/how-it-works.html">how the workflow works</a> · <a href="/blender-render-farm.html">Blender render farm overview</a> · <a href="/#upload">upload a project for a measured estimate</a>.</p>
 </main>
 
-<footer>
-<p>© GPU Render Studio</p>
-</footer>
-
+<footer>© GPU Render Studio · Blender GPU rendering service</footer>
 </body>
 </html>

@@ -1,200 +1,99 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>EU Blender Render Farm | RTX 5090 GPU Rendering in Europe</title>
+<meta name="description" content="GPU Render Studio provides Blender rendering on RTX 5090 GPUs operated in the European Union, with privacy-aware project handling and automatic retention controls."/>
+<link rel="canonical" href="https://gpurenderstudio.com/eu-gpu-hosting.html"/>
 
-<title>EU GPU Hosting & GDPR Compliance — GPU Render Studio</title>
+<meta property="og:title" content="EU Blender Render Farm | GPU Render Studio"/>
+<meta property="og:description" content="Blender GPU rendering on RTX 5090 hardware operated in the European Union with privacy-aware project handling."/>
+<meta property="og:type" content="article"/>
+<meta property="og:url" content="https://gpurenderstudio.com/eu-gpu-hosting.html"/>
+<meta property="og:image" content="https://gpurenderstudio.com/assets/images/hero_poster_desktop.jpg"/>
+<meta name="twitter:card" content="summary_large_image"/>
 
-<meta name="description"
-content="GPU Render Studio operates all NVIDIA GPUs inside the European Union with GDPR-aware workflows, hardened security, audit trails and enterprise-grade compliance."/>
-
-<link rel="canonical" href="https://gpurenderstudio.com/eu-gpu-hosting.html">
-
-<meta property="og:title" content="EU GPU Hosting & GDPR Compliance — GPU Render Studio">
-<meta property="og:description" content="European GPU rendering infrastructure with GDPR-aware workflows, audit logs and secure operations.">
-<meta property="og:type" content="article">
-<meta property="og:url" content="https://gpurenderstudio.com/eu-gpu-hosting.html">
-
-<meta name="twitter:card" content="summary_large_image">
-
-<!-- ORGANIZATION SCHEMA -->
 <script type="application/ld+json">
 {
 "@context":"https://schema.org",
-"@type":"Organization",
-"name":"GPU Render Studio",
-"url":"https://gpurenderstudio.com/",
-"description":"European automated GPU rendering service for Blender with GDPR-aware workflows and hardened infrastructure.",
-"areaServed":{
-  "@type":"AdministrativeArea",
-  "name":"European Union"
-}
+"@type":"BreadcrumbList",
+"itemListElement":[
+{"@type":"ListItem","position":1,"name":"GPU Render Studio","item":"https://gpurenderstudio.com/"},
+{"@type":"ListItem","position":2,"name":"EU GPU hosting","item":"https://gpurenderstudio.com/eu-gpu-hosting.html"}
+]
 }
 </script>
 
 <style>
-body {
-  margin:0;
-  font-family:Arial,sans-serif;
-  background:#0b0b0b;
-  color:#e0e0e0;
-}
-
-section {
-  padding:120px 20px;
-}
-
-.content-box {
-  max-width:900px;
-  margin:auto;
-  background:rgba(20,20,20,0.65);
-  padding:40px 50px;
-  border-radius:14px;
-  border:1px solid rgba(255,255,255,0.04);
-  box-shadow:0 0 50px rgba(0,255,255,0.05);
-}
-
-/* NAV */
-.topnav {
-  position:fixed;
-  top:0;
-  width:100%;
-  backdrop-filter:blur(10px);
-  background:rgba(15,15,15,0.45);
-  padding:12px 20px;
-  border-bottom:1px solid rgba(255,255,255,0.05);
-  z-index:99;
-  display:flex;
-  justify-content:center;
-  flex-wrap:wrap;
-}
-
-.topnav a {
-  margin:0 16px;
-  text-decoration:none;
-  color:#cceeee;
-  font-size:14px;
-}
-
-.topnav a:hover {
-  color:#74ffff;
-}
-
-.doc-section {
-  margin-bottom:40px;
-}
-
-.doc-section h2 {
-  color:#7ffcff;
-}
-
-ul {
-  padding-left:20px;
-}
+:root{--bg:#0b0b0b;--panel:#141414;--text:#e0e0e0;--muted:#b9c3c3;--accent:#7ffcff;--link:#6ecbff;--line:rgba(255,255,255,.08)}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);line-height:1.65}
+header,main,footer,nav{max-width:1050px;margin:auto;padding-left:32px;padding-right:32px}
+nav{padding-top:18px;padding-bottom:18px;display:flex;gap:18px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+a{color:var(--link);text-decoration:none}a:hover{text-decoration:underline}
+header{padding-top:56px;padding-bottom:22px}.eyebrow{color:var(--accent);text-transform:uppercase;letter-spacing:.12em;font-size:12px;font-weight:800}
+h1{font-size:clamp(38px,6vw,60px);line-height:1.05;margin:10px 0 18px}h2{color:var(--accent);margin-top:0}.lead{font-size:19px;color:#d3dddd;max-width:840px}
+.box{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:24px;margin:20px 0}.muted{color:var(--muted)}footer{padding-top:30px;padding-bottom:44px;color:#8e9999;font-size:14px}
+@media(max-width:600px){header,main,footer,nav{padding-left:20px;padding-right:20px}}
 </style>
 </head>
-
 <body>
+<nav aria-label="Main navigation">
+<a href="/">Home</a>
+<a href="/blender-render-farm.html">Blender render farm</a>
+<a href="/how-it-works.html">How it works</a>
+<a href="/pricing-explained.html">Pricing</a>
+<a href="/faq.html">FAQ</a>
+</nav>
 
-<!-- NAV -->
-<div class="topnav">
-  <a href="/#start">Home</a>
-  <a href="/how-it-works.html">How it Works</a>
-  <a href="/pricing-explained.html">Pricing</a>
-  <a href="/tools/">Tools</a>
-  <a href="/eu-gpu-hosting.html">EU Hosting</a>
-  <a href="/faq.html">FAQ</a>
-  <a href="/#upload">Upload</a>
-</div>
+<header>
+<p class="eyebrow">European render infrastructure</p>
+<h1>EU-based Blender GPU rendering</h1>
+<p class="lead">GPU Render Studio operates its rendering infrastructure in the European Union. The service is designed for Blender projects that need high-end GPU capacity without handing the workflow over to a generic remote-compute environment.</p>
+</header>
 
-<section>
-<div class="content-box">
-
-<h1>EU GPU Hosting & Compliance</h1>
-
-<p>
-GPU Render Studio operates all physical NVIDIA GPUs inside the
-European Union with compliance-aware workflows, hardened environments
-and transparent operational controls.
-</p>
-
-<!-- EU -->
-<div class="doc-section">
-<h2>European Infrastructure</h2>
-
-<p>
-All rendering nodes run in EU-based facilities.
-Data residency remains inside European jurisdiction and follows
-regional compliance frameworks.
-</p>
-
-<ul>
-<li>EU data centers only</li>
-<li>Jurisdictional transparency</li>
-<li>No cross-region job migration</li>
-</ul>
-</div>
-
-<!-- GDPR -->
-<div class="doc-section">
-<h2>GDPR-Aware Workflows</h2>
-
-<p>
-Data handling is designed around EU privacy regulation.
-Uploaded scenes, renders and logs are processed only for job execution
-and are removed automatically after retention expiry.
-</p>
-
-<ul>
-<li>Minimal data retention</li>
-<li>Purpose-limited processing</li>
-<li>Deletion after completion</li>
-<li>Customer-initiated removal supported</li>
-</ul>
-</div>
-
-<!-- SECURITY -->
-<div class="doc-section">
-<h2>Security & Isolation</h2>
-
-<ul>
-<li>Sandboxed render containers</li>
-<li>Network isolation per job</li>
-<li>Audit logs for every execution</li>
-<li>Payment-gated downloads</li>
-<li>Integrity checks on output</li>
-</ul>
-</div>
-
-<!-- TRANSPARENCY -->
-<div class="doc-section">
-<h2>Operational Transparency</h2>
-
-<p>
-Every render includes runtime telemetry, billing breakdown,
-pause reasons and final execution logs.
-</p>
-
-<ul>
-<li>Live status page</li>
-<li>Frame-level progress</li>
-</ul>
-</div>
-
-<!-- RELATED -->
-<div class="doc-section">
-<h2>Related Guides</h2>
-
-<ul>
-<li><a href="/pricing-explained.html">Pricing Explained →</a></li>
-<li><a href="/how-it-works.html">How It Works →</a></li>
-<li><a href="/faq.html">FAQ →</a></li>
-</ul>
-</div>
-
-</div>
+<main>
+<section class="box">
+<h2>Rendering infrastructure in the EU</h2>
+<p>Approved Blender jobs are processed on GPU Render Studio rendering nodes operated in the European Union. The current production service is built around dedicated NVIDIA RTX 5090 hardware.</p>
+<p>For customers who prefer European processing, this keeps the render workflow and project handling within the service's EU operating environment.</p>
 </section>
 
+<section class="box">
+<h2>Project handling and retention</h2>
+<p>Uploaded scenes, rendered output and operational data are processed for the purpose of completing the render workflow. The platform is designed around limited retention and automatic cleanup after the applicable retention period.</p>
+<ul>
+<li>Purpose-limited project processing</li>
+<li>Automatic cleanup after the applicable retention window</li>
+<li>Customer-initiated removal support</li>
+<li>Job status and execution records used to operate and troubleshoot the service</li>
+</ul>
+</section>
+
+<section class="box">
+<h2>Automated render workflow</h2>
+<p>Customers do not need to administer a remote GPU instance. The platform handles project intake, measured precheck, job scheduling, rendering, status tracking and output delivery.</p>
+<p>See <a href="/how-it-works.html">how the Blender rendering workflow works</a> and <a href="/pricing-explained.html">how pricing is measured before approval</a>.</p>
+</section>
+
+<section class="box">
+<h2>RTX 5090 Blender performance</h2>
+<p>The GPU model alone does not determine production throughput. Blender version, Cycles settings, scene setup and multi-frame execution strategy also matter. We publish a <a href="/rtx-5090-blender-cycles-benchmark.html">measured RTX 5090 Blender Cycles benchmark</a> with methodology and scene-dependent results.</p>
+</section>
+
+<section class="box">
+<h2>Related resources</h2>
+<ul>
+<li><a href="/blender-render-farm.html">Blender render farm overview</a></li>
+<li><a href="/rtx-5090-blender-cycles-benchmark.html">RTX 5090 Blender Cycles benchmark</a></li>
+<li><a href="/pricing-explained.html">Blender render farm pricing</a></li>
+<li><a href="/faq.html">Blender rendering FAQ</a></li>
+<li><a href="/#upload">Upload a project for a measured estimate</a></li>
+</ul>
+<p class="muted">This page describes the service's current operating model and is not legal advice or a certification statement.</p>
+</section>
+</main>
+
+<footer>© GPU Render Studio · EU-based Blender GPU rendering</footer>
 </body>
 </html>
