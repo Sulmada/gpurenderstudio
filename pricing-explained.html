@@ -74,7 +74,7 @@ h1{font-size:clamp(38px,6vw,62px);line-height:1.05;margin:10px 0 18px}h2,h3{marg
 <li>You review the measured estimate and price.</li>
 <li>The paid full render starts only after approval.</li>
 </ol>
-<p class="muted">For normal plans, the render charge is the greater of the plan minimum or actual GPU render time multiplied by the plan's hourly rate.</p>
+<p class="muted">Plan minimums and hourly rates are the inputs to our fixed-price quotation. After a measured GPU precheck, eligible jobs receive a final fixed price for the selected plan. You approve that amount before rendering; actual render time does not change the charge. Unsuitable or uncertain jobs require manual review.</p>
 </section>
 
 <section class="box">
@@ -84,7 +84,7 @@ h1{font-size:clamp(38px,6vw,62px);line-height:1.05;margin:10px 0 18px}h2,h3{marg
 <article class="tier"><h3>Standard</h3><p class="price">$3 minimum · $1.00/GPU hour</p><p>Up to 4 GPU hours. The normal choice for typical Blender projects.</p></article>
 <article class="tier"><h3>Fast</h3><p class="price">$6 minimum · $1.25/GPU hour</p><p>Up to 8 GPU hours with higher queue priority.</p></article>
 <article class="tier"><h3>Express</h3><p class="price">$10 minimum · $1.50/GPU hour</p><p>Up to 12 GPU hours with the highest normal queue priority.</p></article>
-<article class="tier"><h3>Long Render</h3><p class="price">$12 minimum · $1.00/GPU hour</p><p>For eligible jobs expected to exceed 12 GPU hours. Long Render uses a lower-priority, preemptible-between-frames queue.</p></article>
+<article class="tier"><h3>Long Render</h3><p class="price">$12 minimum · $1.00/GPU hour</p><p>For jobs expected to exceed 12 GPU hours. Long Render is initially available by manually reviewed fixed-price offer only, with a lower-priority, between-frames-preemptible queue.</p></article>
 </div>
 </section>
 
