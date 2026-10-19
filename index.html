@@ -7,7 +7,7 @@
 
     <!-- SEO + LLM STRUCTURED DATA -->
     <meta name="description"
-    content="Render finished Blender projects on dedicated RTX 5090 GPUs. Upload your scene and receive a measured runtime and exact price before you approve the render.">
+    content="Render finished Blender projects on dedicated RTX 5090 GPUs. Upload your scene and receive a measured runtime estimate and fixed-price quote before you approve the render.">
     <meta name="keywords" content="GPU rendering, Blender render farm, automated rendering, Cycles GPU, cloud rendering, NVIDIA GPU render, batch rendering">
 
     <link rel="canonical" href="https://gpurenderstudio.com/">
@@ -21,7 +21,7 @@
 
 <!-- Open Graph -->
 <meta property="og:title" content="GPU Render Studio — Blender GPU Rendering">
-<meta property="og:description" content="Upload your Blender scene and receive a measured runtime and exact price before you approve the RTX 5090 render.">
+<meta property="og:description" content="Upload your Blender scene and receive a measured runtime estimate and fixed-price quote before you approve the RTX 5090 render.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://gpurenderstudio.com/">
 <meta property="og:image" content="https://gpurenderstudio.com/assets/images/hero_poster_desktop.jpg">
@@ -43,7 +43,7 @@
       "name": "How does pricing work?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Plans include different GPU-time windows. A real precheck recommends a suitable plan and shows the exact price before confirmation."
+        "text": "Plans include different GPU-time windows. A real precheck recommends a suitable plan and shows an fixed-price quote before confirmation."
       }
     },
     {
@@ -1093,7 +1093,7 @@
         <h1>Render your Blender project on RTX 5090 GPUs</h1>
 
         <p class="hero-lead">
-            Upload your finished scene and receive a measured render time and exact price before you decide. We handle the GPU, queue and delivery.
+            Upload your finished scene and receive a measured render time and fixed-price quote before you decide. We handle the GPU, queue and delivery.
         </p>
 
         <div class="hero-actions">
@@ -1280,7 +1280,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <article class="step-card">
                 <span class="step-number">02 · MEASURE</span>
                 <h3>Review the GPU precheck</h3>
-                <p>We run a real timing test and show the expected render duration, suitable plan and exact price.</p>
+                <p>We run a real timing test and show the expected render duration, suitable plan and fixed-price quote.</p>
             </article>
             <article class="step-card">
                 <span class="step-number">03 · APPROVE</span>
@@ -1328,7 +1328,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     <div
       class="phase-label"
-      data-tooltip="Choose the GPU-time window that fits your measured estimate. The exact price is shown before rendering starts."
+      data-tooltip="Choose the GPU-time window that fits your measured estimate. The fixed-price quote is shown before rendering starts."
     >
       Live · Measured pricing
     </div>
@@ -1341,7 +1341,7 @@ document.addEventListener("DOMContentLoaded", () => {
     </p>
 
     <p style="font-size:13px; opacity:0.72; margin-bottom:24px;">
-      Each plan has a minimum charge and an hourly GPU rate. You see the measured recommendation and estimated price before confirming.
+      Each plan has a minimum charge and an hourly GPU rate. You see the measured recommendation and fixed-price quote before confirming.
     </p>
 
     <div class="profile-table">
@@ -1464,7 +1464,7 @@ document.addEventListener("DOMContentLoaded", () => {
       </p>
 
       <p style="font-size:12px; opacity:0.58; margin-top:12px;">
-        Final charge is the greater of the plan minimum or actual GPU render time × that plan's hourly rate. Extended completion can be enabled with a spending cap when a job needs more time.
+        The precheck calculates a fixed offer from measured render time and the selected plan. You approve the exact quote before rendering; the final price does not increase if the render takes longer. Longer or uncertain projects require manual review.
       </p>
       <p style="font-size:12px; opacity:0.7; margin-top:10px;">
         <a href="/pricing-explained.html">Full pricing details →</a>
@@ -1550,7 +1550,7 @@ document.addEventListener("DOMContentLoaded", () => {
 <div class="faq-item">
 <h3>How does pricing work?</h3>
 <p>
-Plans provide different GPU-time windows. The measured precheck recommends the smallest suitable option and shows the exact price before you confirm.
+Plans provide different GPU-time windows. The measured precheck recommends the smallest suitable option and shows the fixed-price quote before you confirm.
 <a href="pricing-explained.html">Full pricing details →</a>
 </p>
 </div>
@@ -1674,6 +1674,7 @@ If rendering fails due to technical issues on our side, you are not charged.
     Sweden
 </div>
 
+<script src="/assets/js/render_pricing.js"></script>
 <!-- ========================================================= -->
 <!--  SCRIPT: UPLOAD HANDLING                                  -->
 <!-- ========================================================= -->
@@ -2302,402 +2303,76 @@ form.addEventListener("submit", async (e) => {
    SLOT + CAP UI
 ========================================================= */
 
-function publicName(name) {
-  if (name === "STRICT") return "Budget";
-  if (name === "EXTENDED") return "Standard";
-  if (name === "FLEXIBLE") return "Fast";
-  if (name === "OPEN_FIXED_MAX") return "Express";
-  return name;
-}
-
 function renderSlotChooser(precheck) {
-
-  const rp = precheck.real_precheck || precheck.real || {};
-
-  const estHuman = rp.estimated_time_human;
-  const worstHuman = rp.worst_time_human;
-
-  const est =
-    safeNum(rp.estimated_hours_real ?? rp.estimated_hours_effective);
-
-  const estFallback = est;
-
-  const estText =
-    estHuman ||
-    (estFallback === null ? "—" : estFallback.toFixed(2) + "h");
-
-  const worstText = worstHuman || null;
-
-  const slots =
-    precheck.slot_suggestion?.slot_analysis || [];
-
-  const pricingFromApi =
-    precheck.pricing_snapshot?.slot_prices_usd || {};
-
-  const hourlyRate = safeNum(precheck.pricing_snapshot?.hourly_rate_usd) || 1;
-  const slotLimitsFromApi = precheck.pricing_snapshot?.slot_limits || {};
-  const pricing = {
-    STRICT: hourlyRate * (safeNum(slotLimitsFromApi.STRICT) || 1.5),
-    EXTENDED: hourlyRate * (safeNum(slotLimitsFromApi.EXTENDED) || 4),
-    FLEXIBLE: hourlyRate * (safeNum(slotLimitsFromApi.FLEXIBLE) || 8),
-    OPEN_FIXED_MAX: hourlyRate * (safeNum(slotLimitsFromApi.OPEN_FIXED_MAX) || 12),
-    ...pricingFromApi
-  };
-
-  const backendRecommended =
-    precheck.slot_suggestion?.recommended_profile || null;
-
-  const allTooShort =
-    slots.length > 0 && slots.every(s => s.exceeds === true);
-
-  const overflowRequired =
-    !backendRecommended && allTooShort;
-
-  const recommended =
-    overflowRequired
-      ? "OPEN_FIXED_MAX"
-      : (backendRecommended || slots?.[0]?.slot || null);
-
-  const slotAnalysis = slots;
-
-  function getSlotInfo(slotName) {
-    return slotAnalysis.find(s => s.slot === slotName);
-  }
-  function slotLimit(info) {
-    return safeNum(
-      info?.base_hours_limit ??
-      info?.runtime_limit_hours ??
-      info?.slot_limit_hours
-    );
+  let model;
+  try {
+    model = window.GpuRenderPricing.makeModel(precheck);
+  } catch (err) {
+    resultBox.textContent = err.message;
+    return;
   }
 
-  function slotStatus(slotName) {
-
-    const info = getSlotInfo(slotName);
-    if (!info) return "";
-
-    const limit = slotLimit(info);
-
-    if (limit === null || est === null) return "";
-
-    if (est > limit) {
-      return `<span style="color:#ff6b6b;margin-left:8px;">❌ too short</span>`;
-    }
-
-    return `<span style="color:#6bff9a;margin-left:8px;">✔ fits</span>`;
+  if (model.manualQuote) {
+    resultBox.textContent = "This project needs a manually reviewed fixed-price quote. " +
+      (model.manualReason || "We cannot safely quote it automatically.");
+    return;
+  }
+  if (!model.recommended) {
+    resultBox.textContent = "No valid automatic fixed-price offer is available. " +
+      "Please run precheck again or contact support.";
+    return;
   }
 
-  const slotHtml = slots.map(s => {
-
-    const rawPrice = pricing[s.slot];
-
-    const price =
-      typeof rawPrice === "number" && isFinite(rawPrice)
-        ? rawPrice.toFixed(2)
-        : "0.00";
-
-    const checked =
-      overflowRequired
-        ? s.slot === "OPEN_FIXED_MAX"
-        : s.slot === recommended;
-
-    return `
-<label style="display:block;margin-top:6px;">
-  <input type="radio"
-         name="slotRadio"
-         value="${s.slot}"
-         ${checked ? "checked" : ""}>
-  <span style="font-weight:600;">
-    ${publicName(s.slot)}
-  </span>
-  ${slotStatus(s.slot)}
-  <span style="opacity:0.7;font-size:12px;margin-left:8px;">
-    $${price}
-  </span>
-</label>
-`;
+  const rowsHtml = model.rows.map(function (p) {
+    const limit = p.maxHours === null ? "Manual quote only" :
+      "Plan estimate window: up to " + p.maxHours + " GPU hours";
+    const selectable = p.eligible ? "" : " disabled";
+    const checked = p.key === model.recommended ? " checked" : "";
+    const status = p.eligible ? "" : " — Fixed quote unavailable";
+    const price = p.eligible
+      ? "<strong>Fixed price: " + window.GpuRenderPricing.money(p.fixedPrice) + " USD</strong>"
+      : "Request a manual quote";
+    return '<label style="display:block;margin:10px 0;line-height:1.5">' +
+      '<input type="radio" name="planRadio" value="' + p.key + '"' +
+      selectable + checked + '> <strong>' + p.label + '</strong>' +
+      ' · ' + limit + status +
+      '<div style="margin-left:22px;opacity:0.9">' + price + '</div></label>';
   }).join("");
 
-  resultBox.innerHTML = `
-<h3>Choose your render plan</h3>
+  resultBox.innerHTML =
+    '<h3>Your fixed-price offer</h3>' +
+    '<p>Estimated GPU rendering time: <strong>' + model.hours.toFixed(2) +
+    ' hours</strong>. This is a time estimate, not a promised delivery deadline.</p>' +
+    '<div role="group" aria-label="Fixed-price render plans">' + rowsHtml + '</div>' +
+    '<label style="display:block;margin:14px 0">Launch voucher (optional): ' +
+    '<input type="text" id="voucherInput" placeholder="Voucher code" autocomplete="off"></label>' +
+    '<p id="pricePreview" style="font-weight:600"></p>' +
+    '<p id="pricingDisclosure" style="font-size:13px;opacity:0.8"></p>' +
+    '<button class="btn btn-primary" id="confirmBtn" type="button">Accept Fixed Price and Render</button>' +
+    '<p style="font-size:12px;opacity:0.8">You pay the accepted fixed price only after ' +
+    'successful delivery. Platform errors and incomplete renders are not billed.</p>';
 
-<p style="font-size:13px;opacity:0.8;">
-Recommended plan: <strong>${publicName(recommended)}${overflowRequired ? " + OVERFLOW" : ""}</strong>
-</p>
-
-<p>
-Estimated render time:
-<strong>${estText}</strong>
-</p>
-
-${worstText ? `
-<p style="font-size:12px;opacity:0.7;margin-top:-6px;">
-Delivery estimate: ${worstText}
-</p>
-` : ""}
-
-${overflowRequired ? `
-<p style="color:#ffb36b;font-weight:600;margin-top:10px;">
-Standard slots are limited to 12h.
-</p>
-
-<p style="color:#ffb36b;font-weight:600;margin-top:-6px;">
-Extended runtime may be needed for larger projects.
-Allow flexible completion window.
-</p>
-` : ""}
-
-<p id="slotFitHint"
-   style="font-size:12px;opacity:0.7;margin-top:4px;">
-</p>
-
-<p id="totalRuntimeHint"
-   style="font-size:12px;opacity:0.7;">
-</p>
-
-<h4 style="margin-top:14px;">Plans</h4>
-${slotHtml}
-
-<div style="margin-top:16px; max-width:420px;">
-  <label style="display:block;font-weight:600;margin-bottom:6px;">
-    Got voucher?
-  </label>
-
-  <div style="display:flex; gap:8px; align-items:center;">
-    <input
-      type="text"
-      id="voucherInput"
-      placeholder="Enter code"
-      style="
-        flex:1;
-        padding:10px 12px;
-        background:#1a1a1a;
-        border:1px solid #333;
-        border-radius:6px;
-        color:#e0e0e0;
-        font-size:14px;
-        max-width:220px;
-      ">
-  </div>
-
-  <div style="font-size:12px;opacity:0.6;margin-top:4px;">
-    Budget plan may be available free with a valid voucher.
-  </div>
-</div>
-
-<label style="margin-top:10px;display:block;">
-  <input type="checkbox" id="overflowToggle">
-  Allow flexible completion window
-</label>
-
-<div id="capBlock" style="margin-top:12px;display:none;">
-  <label>
-    Spending cap (USD):
-    <input type="range" min="1" max="20" step="0.5"
-           id="capSlider">
-    <span id="capVal">$5</span>
-  </label>
-
-  <div style="font-size:11px;opacity:0.6;">
-    Job will pause automatically when this limit is reached.
-  </div>
-
-  <div id="maxCostPreview"
-       style="margin-top:8px;font-weight:600;">
-  </div>
-</div>
-
-<div style="margin-top:14px;">
-  <button class="btn btn-primary"
-          id="confirmBtn"
-          type="button">
-    Confirm Render
-  </button>
-
-  <div style="margin-top:8px;font-size:12px;opacity:0.75;">
-    You will only be charged after successful completion.
-  </div>
-</div>
-`;
-
-  const slider = document.getElementById("capSlider");
-  const capVal = document.getElementById("capVal");
-  const overflowToggle = document.getElementById("overflowToggle");
-  const capBlock = document.getElementById("capBlock");
-  const maxCostPreview =
-    document.getElementById("maxCostPreview");
-
-  const slotFitHint =
-    document.getElementById("slotFitHint");
-
-  const totalRuntimeHint =
-    document.getElementById("totalRuntimeHint");
-
-  if (overflowRequired && overflowToggle) {
-    overflowToggle.checked = true;
+  const preview = document.getElementById("pricePreview");
+  const disclosure = document.getElementById("pricingDisclosure");
+  function updateQuote() {
+    const selected = document.querySelector('input[name="planRadio"]:checked');
+    const plan = model.rows.find((p) => selected && p.key === selected.value);
+    if (!plan || !plan.eligible) {
+      preview.textContent = "Select a plan with a valid fixed-price offer.";
+      disclosure.textContent = "";
+      return;
+    }
+    preview.textContent = "Your total agreed render price: " +
+      window.GpuRenderPricing.money(plan.fixedPrice) + " USD";
+    disclosure.textContent = "The price stays the same if rendering takes longer or shorter " +
+      "than estimated. Quote valid until " + new Date(plan.expiresAt).toLocaleString() +
+      ". Voucher discounts, if applicable, are applied at payment.";
   }
 
-  function updateMaxCostPreview() {
-
-    const selected =
-      document.querySelector('input[name="slotRadio"]:checked')?.value;
-
-    const info = getSlotInfo(selected);
-
-    if (!selected || !info || !maxCostPreview) {
-      return;
-    }
-
-    const rawPrice = pricing[selected];
-
-    const basePrice =
-      typeof rawPrice === "number" && isFinite(rawPrice)
-        ? rawPrice
-        : 0;
-
-    const limit = slotLimit(info);
-
-    const needsOverflow =
-      est !== null && limit !== null && est > limit;
-
-    const capExtra =
-      overflowToggle.checked
-        ? Number(slider.value || 0)
-        : 0;
-
-    if (!overflowToggle.checked || (!info.near_limit && !needsOverflow)) {
-      maxCostPreview.textContent =
-        `Base price: $${basePrice.toFixed(2)}`;
-      return;
-    }
-
-    const total = basePrice + capExtra;
-
-    maxCostPreview.textContent =
-      `Max total cost: $${total.toFixed(2)} ` +
-      `(slot $${basePrice.toFixed(2)} + CAP $${capExtra.toFixed(2)})`;
-  }
-
-  function syncCapVisibility() {
-
-    const selected =
-      document.querySelector('input[name="slotRadio"]:checked')?.value;
-
-    const info = getSlotInfo(selected);
-
-    const limit = slotLimit(info);
-
-    const needsOverflow =
-      est !== null && limit !== null && est > limit;
-
-    if (!overflowToggle.checked || !info || (!info.near_limit && !needsOverflow)) {
-      capBlock.style.display = "none";
-    } else {
-      capBlock.style.display = "block";
-      capVal.textContent = "$" + slider.value;
-    }
-
-    updateMaxCostPreview();
-    updateSlotFitHint();
-    updateTotalRuntimeHint();
-  }
-
-  function updateSlotFitHint() {
-
-    if (!slotFitHint || est === null) {
-      slotFitHint.textContent = "";
-      return;
-    }
-
-    const selected =
-      document.querySelector('input[name="slotRadio"]:checked')?.value;
-
-    const info = getSlotInfo(selected);
-
-    const limit = slotLimit(info);
-
-    if (!info || limit === null) {
-      slotFitHint.textContent = "";
-      return;
-    }
-
-    const delta = est - limit;
-
-    if (delta <= 0) {
-      slotFitHint.textContent =
-        `Fits inside slot (${limit}h). No overflow expected.`;
-    } else {
-      slotFitHint.textContent =
-        `Slot covers ${limit}h — overflow will likely be needed (~${delta.toFixed(1)}h extra).`;
-    }
-  }
-
-  function updateTotalRuntimeHint() {
-
-    if (!totalRuntimeHint || est === null) {
-      totalRuntimeHint.textContent = "";
-      return;
-    }
-
-    const selected =
-      document.querySelector('input[name="slotRadio"]:checked')?.value;
-
-    const info = getSlotInfo(selected);
-
-    const limit = slotLimit(info);
-
-    if (!info || limit === null) {
-      totalRuntimeHint.textContent = "";
-      return;
-    }
-
-    if (!overflowToggle.checked) {
-      totalRuntimeHint.textContent =
-        `Max runtime without overflow: ${limit}h`;
-      return;
-    }
-
-    if (est <= limit) {
-      totalRuntimeHint.textContent =
-        `Estimated runtime: ${est.toFixed(1)}h`;
-      return;
-    }
-
-    totalRuntimeHint.textContent =
-      `Likely total runtime: ~${est.toFixed(1)}h`;
-  }
-
-  document
-    .querySelectorAll('input[name="slotRadio"]')
-    .forEach(r =>
-      r.addEventListener("change", syncCapVisibility)
-    );
-
-  overflowToggle.addEventListener("change", () => {
-
-    if (!overflowToggle.checked) {
-      capBlock.style.display = "none";
-    }
-
-    syncCapVisibility();
-  });
-
-  slider.addEventListener("input", () => {
-
-    capVal.textContent = "$" + slider.value;
-
-    if (!overflowToggle.checked) {
-      overflowToggle.checked = true;
-    }
-
-    syncCapVisibility();
-  });
-
-  syncCapVisibility();
-
-  document
-    .getElementById("confirmBtn")
-    ?.addEventListener("click", confirmContract);
+  resultBox.querySelectorAll('input[name="planRadio"]').forEach((input) =>
+    input.addEventListener("change", updateQuote));
+  document.getElementById("confirmBtn").addEventListener("click", confirmContract);
+  updateQuote();
 }
 
 /* =========================================================
@@ -2705,112 +2380,56 @@ ${slotHtml}
 ========================================================= */
 
 async function confirmContract() {
-
   if (CONFIRM_IN_FLIGHT) return;
+  if (!CURRENT_JOB_ID || !CURRENT_PRECHECK) {
+    confirmStatus.textContent = "Missing precheck or job ID.";
+    return;
+  }
 
-  if (!CURRENT_JOB_ID) {
-    confirmStatus.textContent = "Missing job id.";
+  let body;
+  try {
+    const model = window.GpuRenderPricing.makeModel(CURRENT_PRECHECK);
+    const plan = document.querySelector('input[name="planRadio"]:checked')?.value;
+    const voucher = document.getElementById("voucherInput")?.value || null;
+    body = window.GpuRenderPricing.makeConfirmation(
+      model, CURRENT_JOB_ID, plan, voucher
+    );
+  } catch (err) {
+    confirmStatus.textContent = err.message;
     return;
   }
 
   CONFIRM_IN_FLIGHT = true;
-
   const btn = document.getElementById("confirmBtn");
   if (btn) {
     btn.disabled = true;
     btn.textContent = "Confirming...";
   }
-
-  confirmStatus.textContent =
-    "Confirming execution contract...";
-
-  const slot =
-    document.querySelector('input[name="slotRadio"]:checked')?.value;
-
-  if (!slot) {
-    confirmStatus.textContent =
-      "No execution profile selected.";
-    unlockConfirmUI();
-    return;
-  }
-
-const overflowToggle =
-  document.getElementById("overflowToggle");
-
-let overflow =
-  !!overflowToggle?.checked;
-
-const capBlock =
-  document.getElementById("capBlock");
-
-const capSlider =
-  document.getElementById("capSlider");
-
-// CAP only allowed if overflow is enabled
-let capUsd = null;
-
-if (overflow && capBlock && capBlock.style.display !== "none" && capSlider) {
-  const v = Number(capSlider.value);
-  if (isFinite(v) && v > 0) {
-    capUsd = v;
-  }
-}
-
-// Touching CAP auto-enables overflow
-if (capUsd && !overflow) {
-  overflowToggle.checked = true;
-  overflow = true;
-}
-
-let contract_type = "HOURLY_BUDGET";
-
-if (overflow && capUsd) {
-  contract_type = "HOURLY_OVERFLOW_CAP";
-}
-else if (overflow) {
-  contract_type = "HOURLY_OVERFLOW";
-}
-
-const voucherCode =
-  document.getElementById("voucherInput")?.value?.trim() || null;
-
-const body = {
-  job_id: CURRENT_JOB_ID,
-  slot,
-  contract_type,
-  cap_usd: capUsd,
-  voucher_code: voucherCode
-};
+  confirmStatus.textContent = "Confirming render plan...";
 
   try {
-
     const res = await fetch(API_BASE + "/api/contracts/confirm", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body)
     });
-
     const data = await res.json().catch(() => null);
-
-    if (!res.ok || data?.status !== "OK") {
-      confirmStatus.textContent =
-        data?.error || "Confirm failed.";
+    // Phase 2 uses status:"OK" for the initial confirmation, but returns
+    // ok:true with the actual job status for an idempotent retry.
+    if (!res.ok || !(data?.status === "OK" || data?.ok === true)) {
+      confirmStatus.textContent = data?.reason || data?.message ||
+        data?.error || "Confirmation failed.";
       unlockConfirmUI();
       return;
     }
 
     const token = getJobToken(CURRENT_JOB_ID);
-
-    window.location.href =
-              window.location.origin +
-              "/status/?job_id=" +
-              encodeURIComponent(CURRENT_JOB_ID) +
-              (token ? "&access_token=" + encodeURIComponent(token) : "");
-
+    window.location.href = window.location.origin +
+      "/status/?job_id=" + encodeURIComponent(CURRENT_JOB_ID) +
+      (token ? "&access_token=" + encodeURIComponent(token) : "");
   } catch (err) {
-
     console.error(err);
-    confirmStatus.textContent = "Network error.";
+    confirmStatus.textContent = "Network error. Check Your Jobs before retrying.";
     unlockConfirmUI();
   }
 }
