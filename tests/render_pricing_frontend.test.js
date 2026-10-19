@@ -91,4 +91,6 @@ test("published homepage uses new schema and accepts idempotent confirmation", (
   assert.match(html, /GpuRenderPricing\.makeConfirmation/);
   assert.match(html, /data\?\.ok === true/);
   assert.doesNotMatch(html, /\bslot_analysis\b|\bslot_prices_usd\b|\bslotRadio\b/);
+  assert.doesNotMatch(html, /exact price/i, "do not promise fixed prices before rendering");
+  assert.match(html, /\/api\/contracts\/confirm/, "Phase 2 confirm endpoint");
 });
