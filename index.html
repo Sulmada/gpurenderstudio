@@ -2313,89 +2313,64 @@ function renderSlotChooser(precheck) {
   }
 
   if (model.manualQuote) {
-    resultBox.textContent = "This project requires a manual quote before rendering. " +
-      (model.manualReason || "The automated render plans do not cover this project.");
+    resultBox.textContent = "This project needs a manually reviewed fixed-price quote. " +
+      (model.manualReason || "We cannot safely quote it automatically.");
     return;
   }
   if (!model.recommended) {
-    resultBox.textContent = "No automatic render plan fits this project. Please contact support.";
+    resultBox.textContent = "No valid automatic fixed-price offer is available. " +
+      "Please run precheck again or contact support.";
     return;
   }
 
   const rowsHtml = model.rows.map(function (p) {
-    const limit = p.maxHours === null ? "Long Render, eligible multi-frame projects" :
-      "Up to " + p.maxHours + " GPU hours";
+    const limit = p.maxHours === null ? "Manual quote only" :
+      "Plan estimate window: up to " + p.maxHours + " GPU hours";
     const selectable = p.eligible ? "" : " disabled";
     const checked = p.key === model.recommended ? " checked" : "";
-    const status = p.eligible ? "" : " — Not suitable for this estimate";
+    const status = p.eligible ? "" : " — Fixed quote unavailable";
+    const price = p.eligible
+      ? "<strong>Fixed price: " + window.GpuRenderPricing.money(p.fixedPrice) + " USD</strong>"
+      : "Request a manual quote";
     return '<label style="display:block;margin:10px 0;line-height:1.5">' +
       '<input type="radio" name="planRadio" value="' + p.key + '"' +
       selectable + checked + '> <strong>' + p.label + '</strong>' +
       ' · ' + limit + status +
-      '<div style="margin-left:22px;opacity:0.82">$' + p.minimum.toFixed(2) +
-      ' minimum · $' + p.hourly.toFixed(2) +
-      '/GPU hour · Estimated $' + p.estimatedPrice.toFixed(2) +
-      '</div></label>';
+      '<div style="margin-left:22px;opacity:0.9">' + price + '</div></label>';
   }).join("");
 
   resultBox.innerHTML =
-    '<h3>Review your render estimate and choose a plan</h3>' +
+    '<h3>Your fixed-price offer</h3>' +
     '<p>Estimated GPU rendering time: <strong>' + model.hours.toFixed(2) +
-    ' hours</strong>. This is an estimate, not a guaranteed completion time or fixed price.</p>' +
-    '<div role="group" aria-label="Render plans">' + rowsHtml + '</div>' +
+    ' hours</strong>. This is a time estimate, not a promised delivery deadline.</p>' +
+    '<div role="group" aria-label="Fixed-price render plans">' + rowsHtml + '</div>' +
     '<label style="display:block;margin:14px 0">Launch voucher (optional): ' +
     '<input type="text" id="voucherInput" placeholder="Voucher code" autocomplete="off"></label>' +
-    '<div id="extensionBox" style="margin:12px 0">' +
-    '<label><input id="overflowToggle" type="checkbox"> Allow additional GPU time with a spending cap</label>' +
-    '<div id="capBlock" style="display:none;margin:10px 0">' +
-    '<label>Additional spending cap: <input id="capSlider" type="range" min="1" max="20" step="0.5" value="5">' +
-    ' <strong id="capVal">$5.00</strong></label></div></div>' +
     '<p id="pricePreview" style="font-weight:600"></p>' +
     '<p id="pricingDisclosure" style="font-size:13px;opacity:0.8"></p>' +
-    '<button class="btn btn-primary" id="confirmBtn" type="button">Confirm Render</button>' +
-    '<p style="font-size:12px;opacity:0.8">Payment is requested after rendering. Jobs stopped at an approved time or spending limit may be partially completed and chargeable.</p>';
+    '<button class="btn btn-primary" id="confirmBtn" type="button">Accept Fixed Price and Render</button>' +
+    '<p style="font-size:12px;opacity:0.8">You pay the accepted fixed price only after ' +
+    'successful delivery. Platform errors and incomplete renders are not billed.</p>';
 
-  const capToggle = document.getElementById("overflowToggle");
-  const slider = document.getElementById("capSlider");
-  const capBlock = document.getElementById("capBlock");
-  const capVal = document.getElementById("capVal");
-  const extensionBox = document.getElementById("extensionBox");
   const preview = document.getElementById("pricePreview");
   const disclosure = document.getElementById("pricingDisclosure");
-
   function updateQuote() {
     const selected = document.querySelector('input[name="planRadio"]:checked');
     const plan = model.rows.find((p) => selected && p.key === selected.value);
     if (!plan || !plan.eligible) {
-      preview.textContent = "Select an eligible plan to continue.";
+      preview.textContent = "Select a plan with a valid fixed-price offer.";
+      disclosure.textContent = "";
       return;
     }
-    if (plan.key === "long_render") {
-      extensionBox.style.display = "none";
-      preview.textContent = "Estimated charge: " + window.GpuRenderPricing.money(plan.estimatedPrice);
-      disclosure.textContent = "Long Render uses a lower-priority, between-frames-preemptible queue. " +
-        "There is no automatic spending cap; the actual GPU time determines the final charge.";
-      return;
-    }
-
-    extensionBox.style.display = "block";
-    capBlock.style.display = capToggle.checked ? "block" : "none";
-    const extra = Number(slider.value);
-    capVal.textContent = window.GpuRenderPricing.money(extra);
-    preview.textContent = "Estimated charge: " + window.GpuRenderPricing.money(plan.estimatedPrice) +
-      (capToggle.checked ? " · Approved maximum charge: " +
-        window.GpuRenderPricing.money(plan.minimum + extra) : "");
-    disclosure.textContent = capToggle.checked
-      ? "The additional cap is added to the plan minimum. Rendering may stop with a partial result " +
-        "if your approved spending limit is reached."
-      : "Rendering stops at the selected plan's GPU-time limit. " +
-        "The final price is the higher of the minimum charge or actual GPU hours × the plan rate; partial results may be billed.";
+    preview.textContent = "Your total agreed render price: " +
+      window.GpuRenderPricing.money(plan.fixedPrice) + " USD";
+    disclosure.textContent = "The price stays the same if rendering takes longer or shorter " +
+      "than estimated. Quote valid until " + new Date(plan.expiresAt).toLocaleString() +
+      ". Voucher discounts, if applicable, are applied at payment.";
   }
 
   resultBox.querySelectorAll('input[name="planRadio"]').forEach((input) =>
     input.addEventListener("change", updateQuote));
-  capToggle.addEventListener("change", updateQuote);
-  slider.addEventListener("input", updateQuote);
   document.getElementById("confirmBtn").addEventListener("click", confirmContract);
   updateQuote();
 }
@@ -2415,11 +2390,9 @@ async function confirmContract() {
   try {
     const model = window.GpuRenderPricing.makeModel(CURRENT_PRECHECK);
     const plan = document.querySelector('input[name="planRadio"]:checked')?.value;
-    const extension = !!document.getElementById("overflowToggle")?.checked;
-    const extra = document.getElementById("capSlider")?.value;
     const voucher = document.getElementById("voucherInput")?.value || null;
     body = window.GpuRenderPricing.makeConfirmation(
-      model, CURRENT_JOB_ID, plan, extension, extra, voucher
+      model, CURRENT_JOB_ID, plan, voucher
     );
   } catch (err) {
     confirmStatus.textContent = err.message;
