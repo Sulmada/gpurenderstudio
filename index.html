@@ -2303,11 +2303,18 @@ form.addEventListener("submit", async (e) => {
 ========================================================= */
 
 function publicName(name) {
-  if (name === "STRICT") return "Budget";
-  if (name === "EXTENDED") return "Standard";
-  if (name === "FLEXIBLE") return "Fast";
-  if (name === "OPEN_FIXED_MAX") return "Express";
-  return name;
+  const labels = {
+    STRICT: "Budget",
+    EXTENDED: "Standard",
+    FLEXIBLE: "Fast",
+    OPEN_FIXED_MAX: "Express",
+    budget: "Budget",
+    standard: "Standard",
+    fast: "Fast",
+    express: "Express",
+    long_render: "Long Render"
+  };
+  return labels[name] || name;
 }
 
 function renderSlotChooser(precheck) {
@@ -2328,36 +2335,46 @@ function renderSlotChooser(precheck) {
 
   const worstText = worstHuman || null;
 
-  const slots =
-    precheck.slot_suggestion?.slot_analysis || [];
+  // Phase 2 precheck publishes plan_analysis and pricing_snapshot.plans.
+  // The old slot_analysis / slot_prices_usd schema produces an empty radio list.
+  const suggestion = precheck.plan_suggestion || precheck.slot_suggestion || {};
+  const planConfigs = precheck.pricing_snapshot?.plans || {};
+  const allowedNames = ["budget", "standard", "fast", "express", "long_render"];
+  const manualQuote =
+    precheck.requires_manual_quote === true ||
+    suggestion.manual_review_required === true;
 
-  const pricingFromApi =
-    precheck.pricing_snapshot?.slot_prices_usd || {};
+  const slots = (Array.isArray(suggestion.plan_analysis)
+    ? suggestion.plan_analysis
+    : []
+  ).filter(s => allowedNames.includes(s.plan) && planConfigs[s.plan])
+    .map(s => ({
+      ...s,
+      slot: s.plan,
+      base_hours_limit: planConfigs[s.plan].max_hours
+    }));
 
-  const hourlyRate = safeNum(precheck.pricing_snapshot?.hourly_rate_usd) || 1;
-  const slotLimitsFromApi = precheck.pricing_snapshot?.slot_limits || {};
-  const pricing = {
-    STRICT: hourlyRate * (safeNum(slotLimitsFromApi.STRICT) || 1.5),
-    EXTENDED: hourlyRate * (safeNum(slotLimitsFromApi.EXTENDED) || 4),
-    FLEXIBLE: hourlyRate * (safeNum(slotLimitsFromApi.FLEXIBLE) || 8),
-    OPEN_FIXED_MAX: hourlyRate * (safeNum(slotLimitsFromApi.OPEN_FIXED_MAX) || 12),
-    ...pricingFromApi
-  };
+  const pricing = Object.fromEntries(slots.map(s => {
+    const cfg = planConfigs[s.slot];
+    const minimum = Number(cfg.minimum_price_usd);
+    const rate = Number(cfg.hourly_rate_usd);
+    return [s.slot,
+      typeof cfg.minimum_price_usd === "number" && minimum > 0 &&
+      typeof cfg.hourly_rate_usd === "number" && rate > 0 &&
+      Number.isFinite(minimum) && Number.isFinite(rate)
+        ? Math.max(minimum, (est || 0) * rate)
+        : NaN];
+  }));
 
-  const backendRecommended =
-    precheck.slot_suggestion?.recommended_profile || null;
-
-  const allTooShort =
-    slots.length > 0 && slots.every(s => s.exceeds === true);
-
-  const overflowRequired =
-    !backendRecommended && allTooShort;
-
-  const recommended =
-    overflowRequired
-      ? "OPEN_FIXED_MAX"
-      : (backendRecommended || slots?.[0]?.slot || null);
-
+  const backendRecommended = suggestion.recommended_profile || null;
+  const recommended = manualQuote ? null : (
+    slots.find(s => s.slot === backendRecommended &&
+      s.fits === true && Number.isFinite(pricing[s.slot]))?.slot ||
+    slots.find(s => s.fits === true && Number.isFinite(pricing[s.slot]))?.slot ||
+    null
+  );
+  // New plans express eligibility directly; do not infer a legacy overflow slot.
+  const overflowRequired = false;
   const slotAnalysis = slots;
 
   function getSlotInfo(slotName) {
@@ -2365,6 +2382,7 @@ function renderSlotChooser(precheck) {
   }
   function slotLimit(info) {
     return safeNum(
+      info?.max_hours ??
       info?.base_hours_limit ??
       info?.runtime_limit_hours ??
       info?.slot_limit_hours
@@ -2375,6 +2393,12 @@ function renderSlotChooser(precheck) {
 
     const info = getSlotInfo(slotName);
     if (!info) return "";
+    if (info.fits === false) {
+      return '<span style="color:#ff9d9d;margin-left:8px;">Not eligible</span>';
+    }
+    if (slotName === "long_render") {
+      return '<span style="opacity:0.8;margin-left:8px;">Preemptible</span>';
+    }
 
     const limit = slotLimit(info);
 
@@ -2388,41 +2412,36 @@ function renderSlotChooser(precheck) {
   }
 
   const slotHtml = slots.map(s => {
-
-    const rawPrice = pricing[s.slot];
-
-    const price =
-      typeof rawPrice === "number" && isFinite(rawPrice)
-        ? rawPrice.toFixed(2)
-        : "0.00";
-
-    const checked =
-      overflowRequired
-        ? s.slot === "OPEN_FIXED_MAX"
-        : s.slot === recommended;
+    const cfg = planConfigs[s.slot];
+    const price = pricing[s.slot];
+    const eligible = !manualQuote && s.fits === true && Number.isFinite(price);
+    const checked = eligible && s.slot === recommended;
+    const limitText = s.slot === "long_render"
+      ? "Preemptible, frame-by-frame scheduling"
+      : "Up to " + cfg.max_hours + " GPU hours";
+    const priceText = Number.isFinite(price)
+      ? "Estimated $" + price.toFixed(2) +
+        " (minimum $" + Number(cfg.minimum_price_usd).toFixed(2) +
+        ", $" + Number(cfg.hourly_rate_usd).toFixed(2) + "/GPU hour)"
+      : "Price unavailable";
 
     return `
-<label style="display:block;margin-top:6px;">
-  <input type="radio"
-         name="slotRadio"
-         value="${s.slot}"
-         ${checked ? "checked" : ""}>
-  <span style="font-weight:600;">
-    ${publicName(s.slot)}
-  </span>
+<label style="display:block;margin:10px 0;line-height:1.6;">
+  <input type="radio" name="slotRadio" value="${s.slot}"
+         ${checked ? "checked" : ""} ${eligible ? "" : "disabled"}>
+  <strong>${publicName(s.slot)}</strong> — ${limitText}
   ${slotStatus(s.slot)}
-  <span style="opacity:0.7;font-size:12px;margin-left:8px;">
-    $${price}
+  <span style="display:block;opacity:0.8;font-size:12px;margin-left:22px;">
+    ${eligible ? priceText : "Not available for this scene"}
   </span>
-</label>
-`;
+</label>`;
   }).join("");
 
   resultBox.innerHTML = `
 <h3>Choose your render plan</h3>
 
 <p style="font-size:13px;opacity:0.8;">
-Recommended plan: <strong>${publicName(recommended)}${overflowRequired ? " + OVERFLOW" : ""}</strong>
+Recommended plan: <strong>${recommended ? publicName(recommended) : "Manual review required"}</strong>
 </p>
 
 <p>
@@ -2457,6 +2476,11 @@ Allow flexible completion window.
 
 <h4 style="margin-top:14px;">Plans</h4>
 ${slotHtml}
+${manualQuote
+  ? '<p role="alert">This project requires a manual quote. Automated confirmation is unavailable.</p>'
+  : !recommended
+    ? '<p role="alert">No eligible plan was returned by precheck. Please try again.</p>'
+    : ''}
 
 <div style="margin-top:16px; max-width:420px;">
   <label style="display:block;font-weight:600;margin-bottom:6px;">
@@ -2494,7 +2518,7 @@ ${slotHtml}
   <label>
     Spending cap (USD):
     <input type="range" min="1" max="20" step="0.5"
-           id="capSlider">
+           id="capSlider" value="5">
     <span id="capVal">$5</span>
   </label>
 
@@ -2510,7 +2534,7 @@ ${slotHtml}
 <div style="margin-top:14px;">
   <button class="btn btn-primary"
           id="confirmBtn"
-          type="button">
+          type="button" ${recommended ? "" : "disabled"}>
     Confirm Render
   </button>
 
@@ -2565,17 +2589,19 @@ ${slotHtml}
         ? Number(slider.value || 0)
         : 0;
 
+    const minimum = Number(planConfigs[selected]?.minimum_price_usd || 0);
+
     if (!overflowToggle.checked || (!info.near_limit && !needsOverflow)) {
       maxCostPreview.textContent =
-        `Base price: $${basePrice.toFixed(2)}`;
+        `Estimated charge: $${basePrice.toFixed(2)} (based on actual GPU time; minimum $${minimum.toFixed(2)})`;
       return;
     }
 
-    const total = basePrice + capExtra;
+    const total = minimum + capExtra;
 
     maxCostPreview.textContent =
-      `Max total cost: $${total.toFixed(2)} ` +
-      `(slot $${basePrice.toFixed(2)} + CAP $${capExtra.toFixed(2)})`;
+      `Maximum total cost: $${total.toFixed(2)} ` +
+      `(plan minimum $${minimum.toFixed(2)} + extra cap $${capExtra.toFixed(2)})`;
   }
 
   function syncCapVisibility() {
@@ -2584,6 +2610,11 @@ ${slotHtml}
       document.querySelector('input[name="slotRadio"]:checked')?.value;
 
     const info = getSlotInfo(selected);
+    if (overflowToggle) {
+      const isLongRender = selected === "long_render";
+      overflowToggle.disabled = isLongRender;
+      if (isLongRender) overflowToggle.checked = false;
+    }
 
     const limit = slotLimit(info);
 
@@ -2727,9 +2758,16 @@ async function confirmContract() {
   const slot =
     document.querySelector('input[name="slotRadio"]:checked')?.value;
 
-  if (!slot) {
+  const selectedPlanInfo = (
+    CURRENT_PRECHECK?.plan_suggestion ||
+    CURRENT_PRECHECK?.slot_suggestion
+  )?.plan_analysis?.find(p => p.plan === slot);
+
+  if (!slot || !selectedPlanInfo?.fits ||
+      !CURRENT_PRECHECK?.pricing_snapshot?.plans?.[slot] ||
+      CURRENT_PRECHECK?.requires_manual_quote === true) {
     confirmStatus.textContent =
-      "No execution profile selected.";
+      "Select an eligible render plan before confirming.";
     unlockConfirmUI();
     return;
   }
@@ -2776,7 +2814,7 @@ const voucherCode =
 
 const body = {
   job_id: CURRENT_JOB_ID,
-  slot,
+  plan: slot,
   contract_type,
   cap_usd: capUsd,
   voucher_code: voucherCode
