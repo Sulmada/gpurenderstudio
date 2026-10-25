@@ -2593,15 +2593,15 @@ ${manualQuote
 
     if (!overflowToggle.checked || (!info.near_limit && !needsOverflow)) {
       maxCostPreview.textContent =
-        `Estimated charge: ${basePrice.toFixed(2)} (based on actual GPU time; minimum ${minimum.toFixed(2)})`;
+        `Estimated charge: $${basePrice.toFixed(2)} (based on actual GPU time; minimum $${minimum.toFixed(2)})`;
       return;
     }
 
     const total = minimum + capExtra;
 
     maxCostPreview.textContent =
-      `Maximum total cost: ${total.toFixed(2)} ` +
-      `(plan minimum ${minimum.toFixed(2)} + extra cap ${capExtra.toFixed(2)})`;
+      `Maximum total cost: $${total.toFixed(2)} ` +
+      `(plan minimum $${minimum.toFixed(2)} + extra cap $${capExtra.toFixed(2)})`;
   }
 
   function syncCapVisibility() {
