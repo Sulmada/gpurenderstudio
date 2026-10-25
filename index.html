@@ -2358,15 +2358,19 @@ function renderSlotChooser(precheck) {
     const cfg = planConfigs[s.slot];
     const minimum = Number(cfg.minimum_price_usd);
     const rate = Number(cfg.hourly_rate_usd);
-    return [s.slot, Number.isFinite(minimum) && Number.isFinite(rate)
-      ? Math.max(minimum, (est || 0) * rate)
-      : NaN];
+    return [s.slot,
+      typeof cfg.minimum_price_usd === "number" && minimum > 0 &&
+      typeof cfg.hourly_rate_usd === "number" && rate > 0 &&
+      Number.isFinite(minimum) && Number.isFinite(rate)
+        ? Math.max(minimum, (est || 0) * rate)
+        : NaN];
   }));
 
   const backendRecommended = suggestion.recommended_profile || null;
   const recommended = manualQuote ? null : (
-    slots.find(s => s.slot === backendRecommended && s.fits === true)?.slot ||
-    slots.find(s => s.fits === true)?.slot ||
+    slots.find(s => s.slot === backendRecommended &&
+      s.fits === true && Number.isFinite(pricing[s.slot]))?.slot ||
+    slots.find(s => s.fits === true && Number.isFinite(pricing[s.slot]))?.slot ||
     null
   );
   // New plans express eligibility directly; do not infer a legacy overflow slot.
