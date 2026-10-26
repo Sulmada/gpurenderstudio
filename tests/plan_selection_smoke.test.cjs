@@ -80,8 +80,9 @@ test("Long Render without a signed fixed offer is not selectable",()=>{
 });
 test("missing plan analysis fails closed",()=>{
   const ui=render(precheck({missing:true}));
-  assert.match(ui.resultBox.textContent,/not available/i);
+  assert.match(ui.resultBox.innerHTML,/No automatic fixed-price offer is available/);
   assert.equal(ui.radios().length,0);
+  assert.match(ui.resultBox.innerHTML,/<button[^>]*id="confirmBtn"[^>]*disabled/);
 });
 test("confirmation posts only the canonical plan and server quote id",async()=>{
   const data=precheck();const model=pricing.makeModel(data);
