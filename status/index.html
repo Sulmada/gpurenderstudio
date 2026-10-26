@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="referrer" content="no-referrer">
 <title>GPU Render Studio – Job Status</title>
 
 <style>
@@ -306,18 +307,29 @@ if (jobId && jobToken) {
 if (!jobId) {
     statusEl.textContent = "Missing job_id";
     statusEl.className = "status-value status-fail";
+    failEl.style.display = "block";
+    failEl.textContent = "Open the link for an existing render, or find your previous jobs on the home page.";
+    copyLinkBtn.style.display = "none";
     return;
 }
+
+// Show the job identifier even if the saved token is missing.
+jobIdEl.textContent = jobId;
 
 if (!jobToken) {
     statusEl.textContent = "Missing access token";
     statusEl.className = "status-value status-fail";
     failEl.style.display = "block";
-    failEl.textContent = "This job requires its original access link. Open the link from upload confirmation or completion email.";
+    failEl.textContent = "This job requires its original access link. Open the link from your completion email, or check Your Jobs in the browser where you uploaded.";
+    copyLinkBtn.style.display = "none";
+    actionArea.style.display = "block";
+    const jobsLink = document.createElement("a");
+    jobsLink.href = "/#my-jobs";
+    jobsLink.className = "btn";
+    jobsLink.textContent = "Find Your Jobs";
+    actionArea.appendChild(jobsLink);
     return;
 }
-
-jobIdEl.textContent = jobId;
 
 // ===============================
 // Public plan labels (customer facing)
@@ -978,7 +990,12 @@ if (paidHint) {
 if (copyLinkBtn) {
   copyLinkBtn.addEventListener("click", async () => {
     try {
-      await navigator.clipboard.writeText(window.location.href);
+      // Stripe may return without the token in its URL. Always copy a
+      // canonical, usable access link from the verified token in memory.
+      const accessLink = new URL("/status/", window.location.origin);
+      accessLink.searchParams.set("job_id", jobId);
+      accessLink.searchParams.set("access_token", jobToken);
+      await navigator.clipboard.writeText(accessLink.toString());
 
       copyLinkBtn.textContent = "Copied!";
       setTimeout(() => {
