@@ -18,7 +18,7 @@ function precheck({manual=false,missing=false,long=false}={}) {
   const now = new Date(Date.now() + 3600000).toISOString();
   const names = ["budget","standard","fast","express","long_render"];
   const offers = Object.fromEntries(names.filter(n => n !== "long_render").map((plan,i) => [plan,{
-    pricing_model:"FIXED_QUOTE_V1",plan,currency:"USD",fixed_price_usd:[1.75,3,6,10][i],
+    pricing_model:"FIXED_QUOTE_V1",plan,currency:"USD",quoted_price_usd:[1.75,3,6,10][i],
     quote_id:"opaque-"+plan,expires_at:now
   }]));
   return {
@@ -108,6 +108,7 @@ test("confirmation posts only the canonical plan and server quote id",async()=>{
   assert.equal(request.body.contract_type,"FIXED_QUOTE");
   assert.equal(request.body.voucher_code,"launch");
   assert.equal(Object.hasOwn(request.body,"cap_usd"),false);
-  assert.equal(Object.hasOwn(request.body,"fixed_price_usd"),false);
+  assert.equal(Object.hasOwn(request.body,"quoted_price_usd"),false);
   assert.match(scope.window.location.href,/access_token=access-abc/);
 });
+

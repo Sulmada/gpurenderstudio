@@ -46,8 +46,8 @@
       const expiryMs = offer ? Date.parse(offer.expires_at) : NaN;
       const validOffer = offer && offer.pricing_model === "FIXED_QUOTE_V1" &&
         offer.plan === key && offer.currency === "USD" &&
-        typeof offer.fixed_price_usd === "number" &&
-        Number.isFinite(offer.fixed_price_usd) && offer.fixed_price_usd > 0 &&
+        typeof offer.quoted_price_usd === "number" &&
+        Number.isFinite(offer.quoted_price_usd) && offer.quoted_price_usd > 0 &&
         typeof offer.quote_id === "string" && offer.quote_id.length > 0 &&
         Number.isFinite(expiryMs) && nowMs < expiryMs;
 
@@ -56,7 +56,7 @@
         label: NAMES[key],
         maxHours: config.max_hours,
         eligible: !manualQuote && fit.fits === true && !!validOffer,
-        fixedPrice: validOffer ? offer.fixed_price_usd : null,
+        fixedPrice: validOffer ? offer.quoted_price_usd : null,
         quoteId: validOffer ? offer.quote_id : null,
         expiresAt: validOffer ? offer.expires_at : null
       };
@@ -99,3 +99,4 @@
   if (root) root.GpuRenderPricing = api;
   if (typeof module !== "undefined" && module.exports) module.exports = api;
 })(typeof window !== "undefined" ? window : null);
+

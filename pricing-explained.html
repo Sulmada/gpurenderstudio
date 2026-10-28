@@ -4,7 +4,7 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>Blender Render Farm Pricing | RTX 5090 GPU Rendering</title>
-<meta name="description" content="Blender render farm pricing on dedicated RTX 5090 GPUs. See plan minimums, hourly GPU rates and how the measured precheck shows runtime and price before approval."/>
+<meta name="description" content="Blender render farm pricing on dedicated RTX 5090 GPUs. See plan minimums, quote reference rates and how the measured precheck shows runtime and price before approval."/>
 <link rel="canonical" href="https://gpurenderstudio.com/pricing-explained.html"/>
 
 <meta property="og:title" content="Blender Render Farm Pricing | GPU Render Studio"/>
@@ -61,7 +61,7 @@ h1{font-size:clamp(38px,6vw,62px);line-height:1.05;margin:10px 0 18px}h2,h3{marg
 <header>
 <p class="eyebrow">Transparent Blender GPU pricing</p>
 <h1>Blender render farm pricing</h1>
-<p class="lead">GPU Render Studio measures your actual Blender project before the full job begins. You review the expected GPU runtime, suitable plan and price before approving the render.</p>
+<p class="lead">GPU Render Studio measures your actual Blender project before the full job begins. You review the expected GPU runtime, suitable plans and individual server-issued fixed prices before approving the render.</p>
 </header>
 
 <main>
@@ -74,17 +74,17 @@ h1{font-size:clamp(38px,6vw,62px);line-height:1.05;margin:10px 0 18px}h2,h3{marg
 <li>You review the measured estimate and price.</li>
 <li>The paid full render starts only after approval.</li>
 </ol>
-<p class="muted">For normal plans, the render charge is the greater of the plan minimum or actual GPU render time multiplied by the plan's hourly rate.</p>
+<p class="muted">For both Cycles and Eevee, the server calculates each project’s fixed total as the greater of the plan minimum or measured estimated render hours multiplied by that plan’s reference rate, rounded to cents. Approving an offer locks that total. Actual runtime cannot increase it. Failed, cancelled or incomplete new fixed-price jobs are not charged.</p>
 </section>
 
 <section class="box">
 <h2>Current render plans</h2>
 <div class="grid">
-<article class="tier"><h3>Budget</h3><p class="price">$1 minimum · $1.00/GPU hour</p><p>Up to 1.5 GPU hours. Lowest-cost option for short, non-urgent renders.</p></article>
-<article class="tier"><h3>Standard</h3><p class="price">$3 minimum · $1.00/GPU hour</p><p>Up to 4 GPU hours. The normal choice for typical Blender projects.</p></article>
-<article class="tier"><h3>Fast</h3><p class="price">$6 minimum · $1.25/GPU hour</p><p>Up to 8 GPU hours with higher queue priority.</p></article>
-<article class="tier"><h3>Express</h3><p class="price">$10 minimum · $1.50/GPU hour</p><p>Up to 12 GPU hours with the highest normal queue priority.</p></article>
-<article class="tier"><h3>Long Render</h3><p class="price">$12 minimum · $1.00/GPU hour</p><p>For eligible jobs expected to exceed 12 GPU hours. Long Render uses a lower-priority, preemptible-between-frames queue.</p></article>
+<article class="tier"><h3>Budget</h3><p class="price">$1 minimum · $1.00/measured-hour reference</p><p>Up to 1.5 GPU hours. Lowest-cost option for short, non-urgent renders.</p></article>
+<article class="tier"><h3>Standard</h3><p class="price">$3 minimum · $1.00/measured-hour reference</p><p>Up to 4 GPU hours. The normal choice for typical Blender projects.</p></article>
+<article class="tier"><h3>Fast</h3><p class="price">$6 minimum · $1.25/measured-hour reference</p><p>Up to 8 GPU hours with higher queue priority.</p></article>
+<article class="tier"><h3>Express</h3><p class="price">$10 minimum · $1.50/measured-hour reference</p><p>Up to 12 GPU hours with the highest normal queue priority.</p></article>
+<article class="tier"><h3>Long Render</h3><p class="price">$12 minimum · $1.00/measured-hour reference</p><p>For eligible jobs expected to exceed 12 GPU hours. Long Render uses a lower-priority, preemptible-between-frames queue.</p></article>
 </div>
 </section>
 

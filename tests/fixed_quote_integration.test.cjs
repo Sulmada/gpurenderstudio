@@ -7,7 +7,7 @@ const pricing = require("../assets/js/render_pricing.js");
 const root = path.join(__dirname, "..");
 const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
 const status = fs.readFileSync(path.join(root, "status/index.html"), "utf8");
-const quote = {quote_id:"fixed-test",pricing_model:"FIXED_QUOTE_V1",plan:"budget",currency:"USD",fixed_price_usd:3.25,expires_at:new Date(Date.now()+3600000).toISOString()};
+const quote = {quote_id:"fixed-test",pricing_model:"FIXED_QUOTE_V1",plan:"budget",currency:"USD",quoted_price_usd:3.25,expires_at:new Date(Date.now()+3600000).toISOString()};
 const response = {pricing_model:"FIXED_QUOTE_V1",fixed_quote_offers:{budget:quote},real_precheck:{estimated_hours_real:0.1},pricing_snapshot:{plans:{budget:{max_hours:1.5}}},plan_suggestion:{recommended_profile:"budget",plan_analysis:[{plan:"budget",fits:true}]}};
 test("fixed-price adapter uses backend offer and opaque quote id",()=>{
  const model=pricing.makeModel(response);
@@ -30,3 +30,4 @@ test("status and download implementation still present",()=>{
  assert.match(status,/access_token/);
  assert.match(html,/renderMyJobs\(data\.jobs\)/);
 });
+

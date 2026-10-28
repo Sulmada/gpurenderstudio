@@ -153,7 +153,8 @@ button:hover{
 
     <p class="subtitle">
         Get a fast approximate render estimate
-        before uploading your Blender project.
+        before uploading your Blender project. This is a time illustration, not a price quote.
+        Upload your project for a measured GPU precheck and an individual fixed total.
     </p>
 
     <div class="small">
@@ -360,62 +361,9 @@ async function calculateRender(){
                 "<strong>Confidence:</strong> " +
                 est.confidence;
 
-        const plans =
-                data.pricing_snapshot?.slot_prices_usd || {};
-
-        const limits =
-                data.pricing_snapshot?.slot_limits || {};
-
-        const estHoursRaw =
-                est.estimated_minutes / 60;
-
-        function fits(limit) {
-
-                return estHoursRaw <= Number(limit || 0);
-        }
-
-        function statusText(limit) {
-
-                const l =
-                        Number(limit || 0);
-
-                if (estHours <= l * 0.8) {
-                return "✔ fits";
-                }
-
-                if (estHours <= l * 1.25) {
-                        return "⚠ overflow likely";
-                }
-
-                return "✖ not recommended";
-        }
         document.getElementById("cloudCost").innerHTML =
-
-                "<strong>Likely Studio Plans</strong><br><br>" +
-
-                "Budget " +
-                statusText(limits.STRICT) +
-                " ($" +
-                Number(plans.STRICT || 0).toFixed(2) +
-                ")<br>" +
-
-                "Standard " +
-                statusText(limits.EXTENDED) +
-                " ($" +
-                Number(plans.EXTENDED || 0).toFixed(2) +
-                ")<br>" +
-
-                "Fast " +
-                statusText(limits.FLEXIBLE) +
-                " ($" +
-                Number(plans.FLEXIBLE || 0).toFixed(2) +
-                ")<br>" +
-
-                "Express " +
-                statusText(limits.OPEN_FIXED_MAX) +
-                " ($" +
-                Number(plans.OPEN_FIXED_MAX || 0).toFixed(2) +
-                ")";
+            '<a href="/">Upload your project</a> for a real GPU precheck and your fixed total. ' +
+            'The approved total never increases because rendering takes longer.';
 
         document.getElementById("localCost").innerHTML =
             "";
@@ -432,3 +380,4 @@ async function calculateRender(){
 
 </body>
 </html>
+
