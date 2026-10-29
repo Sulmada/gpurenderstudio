@@ -262,9 +262,10 @@ const jobId = params.get("job_id");
 const accessTokenFromUrl = params.get("access_token");
 const paidHint = params.get("paid") === "1";
 
-const API_BASE = location.hostname === "localhost"
-    ? "http://localhost:3001"
-    : "https://api.gpurenderstudio.com";
+const API_BASE = window.GRS_API_BASE || (
+  ["localhost","127.0.0.1"].includes(location.hostname)
+    ? `http://${location.hostname}:${location.port === "8088" ? "3002" : "3001"}`
+    : "https://api.gpurenderstudio.com");
 
 const jobIdEl     = document.getElementById("jobId");
 const statusEl    = document.getElementById("jobStatus");
@@ -661,6 +662,9 @@ function renderJob(job) {
         addLine("Selected plan", publicPlan);
     }
 
+    const fixedTotal = job.contract?.quoted_price_usd ?? job.contract?.fixed_price_usd;
+    const fixedContract = job.contract?.billing_model === "FIXED_QUOTE" || job.contract?.pricing_model === "FIXED_QUOTE_V1";
+    if(fixedContract && Number.isFinite(fixedTotal))addLine("Agreed fixed total", "$" + fixedTotal.toFixed(2));
     const stopReason = job.stop_reason || null;
     if (stopReason) {
         addLine("Why it stopped", STOP_REASON_COPY[stopReason] || stopReason);
@@ -710,7 +714,7 @@ function renderJob(job) {
             "Rendering paused because your spending cap was reached."
         );
 
-        const billedUsd = job.billing?.billed_usd;
+        const billedUsd = fixedContract && Number.isFinite(fixedTotal) ? fixedTotal : job.billing?.billed_usd;
         if (typeof billedUsd === "number") {
             priceEl.textContent = "$" + billedUsd.toFixed(2);
             priceLine.style.display = "block";
@@ -753,7 +757,7 @@ function renderJob(job) {
     };
         addLine("Result", "Your render completed successfully.");
 
-        const billedUsd = job.billing?.billed_usd;
+        const billedUsd = fixedContract && Number.isFinite(fixedTotal) ? fixedTotal : job.billing?.billed_usd;
         priceEl.textContent =
             typeof billedUsd === "number"
                 ? "$" + billedUsd.toFixed(2)
@@ -1013,3 +1017,4 @@ if (copyLinkBtn) {
 
 </body>
 </html>
+

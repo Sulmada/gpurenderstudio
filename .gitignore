@@ -1,7 +1,9 @@
 # --- Secrets ---
 .env
 
-tests/
+# Regression tests are product code.
+!tests/
+!tests/**
 results_*.log
 
 # --- Node / deps ---
@@ -53,3 +55,4 @@ job_contract.json
 server_COPY.txt
 status/system_status.js
 docs/
+

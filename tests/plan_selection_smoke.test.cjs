@@ -1,195 +1,114 @@
 "use strict";
-
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
-
-const html = fs.readFileSync(path.join(__dirname, "..", "index.html"), "utf8");
-function sourceBetween(start, end) {
-  const a = html.indexOf(start);
-  assert.ok(a >= 0, "missing source anchor: " + start);
-  const b = html.indexOf(end, a + start.length);
-  assert.ok(b > a, "missing source end: " + end);
-  return html.slice(a, b);
-}
-const chooserSource = sourceBetween(
-  "function publicName(name) {",
-  "/* =========================================================\n   CONFIRM"
-);
-const confirmSource = sourceBetween(
-  "async function confirmContract() {",
-  "if (myJobsList) {"
-);
-
-function fixture() {
-  const config = [
-    ["budget", 1, 1, 1.5],
-    ["standard", 3, 1, 4],
-    ["fast", 6, 1.25, 8],
-    ["express", 10, 1.5, 12],
-    ["long_render", 12, 1, null]
-  ];
+const pricing = require("../assets/js/render_pricing.js");
+const html = fs.readFileSync(path.join(__dirname, "../index.html"), "utf8");
+const start = html.indexOf("function publicName(name) {");
+const end = html.indexOf("/* =========================================================\n   CONFIRM", start);
+assert.ok(start >= 0 && end > start, "plan chooser source anchors");
+const chooser = html.slice(start, end);
+const confirmStart = html.indexOf("async function confirmContract() {");
+const confirmEnd = html.indexOf("if (myJobsList) {", confirmStart);
+assert.ok(confirmStart >= 0 && confirmEnd > confirmStart, "confirmation source anchors");
+const confirmation = html.slice(confirmStart, confirmEnd);
+function precheck({manual=false,missing=false,long=false}={}) {
+  const now = new Date(Date.now() + 3600000).toISOString();
+  const names = ["budget","standard","fast","express","long_render"];
+  const offers = Object.fromEntries(names.filter(n => n !== "long_render").map((plan,i) => [plan,{
+    pricing_model:"FIXED_QUOTE_V1",plan,currency:"USD",quoted_price_usd:[1.75,3,6,10][i],
+    quote_id:"opaque-"+plan,expires_at:now
+  }]));
   return {
-    real_precheck: {
-      estimated_hours_real: 0.05,
-      estimated_hours_effective: 0.05,
-      estimated_time_human: "3m"
+    pricing_model:"FIXED_QUOTE_V1", fixed_quote_offers:offers,
+    real_precheck:{estimated_hours_real:long?14:0.05},
+    pricing_snapshot:{plans:Object.fromEntries(names.map(n=>[n,{max_hours:n==="long_render"?null:12}]))},
+    plan_suggestion:{
+      recommended_profile:long?"long_render":"budget",
+      manual_review_required:manual,
+      plan_analysis:missing?[]:names.map(plan=>({plan,fits:long?plan==="long_render":plan!=="long_render"}))
     },
-    pricing_snapshot: {
-      plans: Object.fromEntries(config.map(([name, min, rate, max]) =>
-        [name, { minimum_price_usd: min, hourly_rate_usd: rate, max_hours: max }]))
-    },
-    plan_suggestion: {
-      recommended_profile: "budget",
-      plan_analysis: config.map(([plan]) => ({
-        plan,
-        fits: plan !== "long_render",
-        exceeds: plan === "long_render",
-        near_limit: false
-      }))
-    },
-    requires_manual_quote: false
+    requires_manual_quote:manual
   };
 }
-
-function dom() {
-  let htmlContent = "";
+function render(data) {
   const elements = new Map();
+  let htmlContent = "";
   const resultBox = {
-    textContent: "",
-    get innerHTML() { return htmlContent; },
-    set innerHTML(value) { htmlContent = value; }
+    get innerHTML(){return htmlContent;},
+    set innerHTML(v){htmlContent=v;},
+    textContent:""
   };
-  function getElement(id) {
-    if (!elements.has(id)) elements.set(id, {
-      id,
-      checked: false,
-      disabled: false,
-      value: id === "capSlider" ? "5" : "",
-      style: { display: "" },
-      textContent: "",
-      addEventListener() {}
-    });
+  const el = id => {
+    if (!elements.has(id)) elements.set(id,{id,textContent:"",disabled:false,value:"",
+      addEventListener(){}});
     return elements.get(id);
-  }
-  function radios() {
-    return [...htmlContent.matchAll(
-      /<input type="radio" name="slotRadio" value="([^"]+)"([^>]*)>/g
-    )].map(match => ({
-      value: match[1],
-      checked: /\bchecked\b/.test(match[2]),
-      disabled: /\bdisabled\b/.test(match[2])
-    }));
-  }
-  const document = {
-    getElementById: getElement,
-    querySelector(selector) {
-      return selector.includes('slotRadio')
-        ? radios().find(r => r.checked && !r.disabled) || null : null;
-    },
-    querySelectorAll(selector) {
-      return selector.includes('slotRadio')
-        ? radios().map(r => ({ ...r, addEventListener() {} })) : [];
-    }
   };
-  return { document, resultBox, radios };
+  const radios = () => [...htmlContent.matchAll(/<input type="radio" name="fixedPlanRadio" value="([^"]+)"([^>]*)>/g)].map(match=>({
+    value:match[1], checked:/\bchecked\b/.test(match[2]), disabled:/\bdisabled\b/.test(match[2]),
+    addEventListener(){}
+  }));
+  const document={
+    getElementById:el,
+    querySelector:selector=>selector.includes("fixedPlanRadio")?radios().find(r=>r.checked&&!r.disabled)||null:null,
+    querySelectorAll:selector=>selector.includes("fixedPlanRadio")?radios():[]
+  };
+  const scope={resultBox,document,GpuRenderPricing:pricing,CURRENT_FIXED_QUOTE_MODEL:null,confirmStatus:{textContent:""},confirmContract(){}};
+  vm.runInNewContext(chooser,scope);
+  scope.renderSlotChooser(data);
+  return {resultBox,radios,scope};
 }
-
-function evaluateChooser(model) {
-  const ui = dom();
-  const scope = {
-    document: ui.document,
-    resultBox: ui.resultBox,
-    safeNum: x => typeof x === "number" && Number.isFinite(x) ? x : null,
-    confirmContract() {}
-  };
-  vm.runInNewContext(chooserSource, scope);
-  scope.renderSlotChooser(model);
-  const button = ui.resultBox.innerHTML.match(
-    /<button[^>]*id="confirmBtn"[^>]*>/
-  )?.[0];
-  assert.ok(button, "confirmation button missing");
-  return {
-    ...ui,
-    buttonDisabled: /\bdisabled\b/.test(button),
-    selected: ui.radios().find(r => r.checked)?.value || null
-  };
-}
-
-test("Phase 2 Budget plan has a checked radio and correct minimum", () => {
-  const ui = evaluateChooser(fixture());
-  assert.equal(ui.selected, "budget");
-  assert.equal(ui.buttonDisabled, false);
-  assert.equal(ui.radios().length, 5);
-  assert.equal(ui.radios().find(r => r.value === "long_render").disabled, true);
-  assert.ok(ui.resultBox.innerHTML.includes("Estimated $1.00"));
-  assert.ok(ui.resultBox.innerHTML.includes("minimum $1.00"));
+test("Budget selection displays exact server-fixed amount",()=>{
+  const ui=render(precheck());
+  assert.equal(ui.radios().find(r=>r.checked)?.value,"budget");
+  assert.equal(ui.radios().length,5);
+  assert.equal(ui.radios().find(r=>r.value==="long_render").disabled,true);
+  assert.match(ui.resultBox.innerHTML,/\$1\.75 fixed total/);
+  assert.doesNotMatch(ui.resultBox.innerHTML,/estimated \$|\/GPU hour/i);
 });
-
-test("manual quote prevents automatic confirmation", () => {
-  const model = fixture();
-  model.requires_manual_quote = true;
-  const ui = evaluateChooser(model);
-  assert.equal(ui.selected, null);
-  assert.equal(ui.buttonDisabled, true);
-  assert.ok(ui.resultBox.innerHTML.includes("manual quote"));
+test("manual review cannot be automatically confirmed",()=>{
+  const ui=render(precheck({manual:true}));
+  assert.equal(ui.radios().some(r=>r.checked),false);
+  assert.match(ui.resultBox.innerHTML,/No automatic fixed-price offer/);
 });
-
-test("Long Render is selectable only when eligible", () => {
-  const model = fixture();
-  model.real_precheck.estimated_hours_real = 14;
-  model.plan_suggestion.recommended_profile = "long_render";
-  for (const option of model.plan_suggestion.plan_analysis) {
-    option.fits = option.plan === "long_render";
-    option.exceeds = !option.fits;
-  }
-  const ui = evaluateChooser(model);
-  assert.equal(ui.selected, "long_render");
-  assert.equal(ui.buttonDisabled, false);
-  assert.equal(ui.radios().find(r => r.value === "budget").disabled, true);
+test("Long Render without a signed fixed offer is not selectable",()=>{
+  const ui=render(precheck({long:true}));
+  assert.equal(ui.radios().some(r=>r.checked),false);
+  assert.equal(ui.radios().find(r=>r.value==="long_render").disabled,true);
 });
-
-test("missing plan analysis fails closed", () => {
-  const model = fixture();
-  model.plan_suggestion.plan_analysis = [];
-  const ui = evaluateChooser(model);
-  assert.equal(ui.selected, null);
-  assert.equal(ui.buttonDisabled, true);
+test("missing plan analysis fails closed",()=>{
+  const ui=render(precheck({missing:true}));
+  assert.match(ui.resultBox.innerHTML,/No automatic fixed-price offer is available/);
+  assert.equal(ui.radios().length,0);
+  assert.match(ui.resultBox.innerHTML,/<button[^>]*id="confirmBtn"[^>]*disabled/);
 });
-
-test("confirmation posts canonical plan, never legacy slot", async () => {
-  const model = fixture();
-  let request = null;
-  const status = { textContent: "" };
-  const elements = {
-    confirmBtn: { disabled: false, textContent: "" },
-    overflowToggle: { checked: false },
-    capBlock: { style: { display: "none" } },
-    capSlider: { value: "5" },
-    voucherInput: { value: "" }
+test("confirmation posts only the canonical plan and server quote id",async()=>{
+  const data=precheck();const model=pricing.makeModel(data);
+  let request=null;
+  const status={textContent:""};
+  const doc={
+    getElementById:id=>id==="confirmBtn"?{disabled:false,textContent:""}:id==="voucherInput"?{value:"launch"}:null,
+    querySelector:()=>({value:"budget"})
   };
-  const scope = {
-    CURRENT_JOB_ID: "fixture-job",
-    CURRENT_PRECHECK: model,
-    API_BASE: "https://example.invalid",
-    confirmStatus: status,
-    getJobToken() { return null; },
-    window: { location: { origin: "https://example.invalid", href: "" } },
-    document: {
-      getElementById: id => elements[id] || null,
-      querySelector: () => ({ value: "budget" })
-    },
-    fetch: async (url, init) => {
-      request = { url, body: JSON.parse(init.body) };
-      return { ok: true, json: async () => ({ status: "OK" }) };
-    }
+  const scope={
+    CURRENT_JOB_ID:"fixture-job",CURRENT_FIXED_QUOTE_MODEL:model,
+    API_BASE:"https://example.invalid",confirmStatus:status,GpuRenderPricing:pricing,
+    getJobToken(){return "access-abc";},
+    document:doc,console,
+    window:{location:{origin:"https://example.invalid",href:""}},
+    fetch:async(url,init)=>{request={url,body:JSON.parse(init.body)};
+      return {ok:true,json:async()=>({status:"OK"})};}
   };
-  vm.runInNewContext("let CONFIRM_IN_FLIGHT = false;\n" + confirmSource, scope);
+  vm.runInNewContext("let CONFIRM_IN_FLIGHT = false;\n"+confirmation,scope);
   await scope.confirmContract();
-  assert.equal(request.body.plan, "budget");
-  assert.ok(!Object.prototype.hasOwnProperty.call(request.body, "slot"));
-  assert.equal(request.body.contract_type, "HOURLY_BUDGET");
-  assert.equal(request.body.job_id, "fixture-job");
+  assert.equal(request.body.plan,"budget");
+  assert.equal(request.body.quote_id,"opaque-budget");
+  assert.equal(request.body.contract_type,"FIXED_QUOTE");
+  assert.equal(request.body.voucher_code,"launch");
+  assert.equal(Object.hasOwn(request.body,"cap_usd"),false);
+  assert.equal(Object.hasOwn(request.body,"quoted_price_usd"),false);
+  assert.match(scope.window.location.href,/access_token=access-abc/);
 });
+
